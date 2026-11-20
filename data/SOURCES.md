@@ -14,6 +14,8 @@ Terms were read on 2026-11-20 in a browser. Nothing has been downloaded yet.
 
 Finding (2026-11-20): the ISO pacs.008/pacs.002 XSDs download fine from inside a browser session (63,598 and 62,059 bytes; the pacs set zip is 49,527 bytes) but contain no `xs:documentation` text, only element names and types. They are too thin for Q&A on their own. The prose element definitions are in the ISO 20022 e-Repository (https://www.iso20022.org/iso20022-repository/e-repository), whose terms and size are not checked yet. No ISO file has been saved to disk.
 
+e-Repository check (2026-11-20): `https://www.iso20022.org/sites/default/files/media/file/20260904_ISO20022_2013_eRepository.zip`, 10,293,494 bytes, HTTP 200, same ISO terms of use as above. It holds one 118 MB XML file (EMF/XMI format, `.iso20022`) with every message definition, current and previous versions, plus the data dictionary. I inspected it in memory in the browser, and it contains real prose definitions, for example a Scope/Usage text on `FIToFICustomerCreditTransferV14` (pacs.008.001.14) and a `definition` on each data-dictionary entry. Plan: stream-parse it and keep only the latest pacs.008 and pacs.002 definitions and their elements. It may include draft candidate versions, so pin the version used. Not downloaded yet.
+
 Conditions that follow from the terms: the project is non-commercial and says so; the README states it is not the official ISO 20022 site; answers quote short extracts and cite the source.
 
 ## Rejected

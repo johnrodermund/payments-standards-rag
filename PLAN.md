@@ -5,22 +5,24 @@ Public documents only (ISO 20022, FedNow, public SWIFT/CBPR+). No proprietary or
 ## Decisions so far
 | Area | Choice |
 |---|---|
-| Generation | Claude API (Anthropic credit), behind a provider adapter |
-| Eval judge | Claude API, a different model from the generator where possible |
+| Provider | **AWS Bedrock** (chosen by the user), for generation and embeddings |
+| Generation | Claude Haiku on Bedrock, via an inference-profile ID, behind a thin provider adapter |
+| Embeddings | Bedrock embedding model (Titan Text Embeddings V2 is the candidate; confirm the model ID and regional availability before coding) |
+| Eval judge | Open: Bedrock (one provider, one bill) or the user's Claude API credit (cheaper, different provider from the generator). Decide before phase 4. |
 | Escalation / injection guard | JEV API (calibrated probabilities), similarity score as fallback signal |
-| Embeddings | Local open model (e.g. `bge-small`) in the container; no API cost |
 | Vector store | pgvector |
 | Tracing | Arize Phoenix |
-| Hosting | Azure Container Apps (container only; no Azure OpenAI) |
-| Bedrock | Final optional phase; README claims it only after it has actually run |
+| Credentials | AWS region and credentials from environment variables or the standard AWS credential chain; never hardcoded. In the cloud, an ECS task role, so no keys at all. |
+| Hosting | AWS, proposed: ECS on Fargate. Final choice in phase 6. |
 | Raspberry Pi | Not used in the deployed path (dev experiments only) |
 
 Rule: the README states only what has been built and run. Keys come from environment variables, never hardcoded.
 
 ## Cost minimisation (applies to every phase)
-- Phases 0-5 run entirely in docker-compose. No Azure account or card until phase 6.
+- Bedrock has no free tier, so even local development needs an AWS account with a budget alert. Open the account and set the alert before the first live call.
+- The response cache below is the main cost control: only the first run of each prompt hits Bedrock.
 - Every LLM and judge call goes through a disk cache keyed by a hash of (model, prompt, params). Reruns, CI and the demo replay cost $0. Only changed prompts hit the API.
-- Cheapest adequate model (Haiku-class) for generation. Judge model also small. Anthropic prompt caching for the fixed system prompt.
+- Cheapest adequate model (Haiku-class) for generation. Judge model also small. Bedrock prompt caching for the fixed system prompt, if supported for the chosen model (check at build time).
 - CI default: replay from cached responses. A live run is a manual, labelled workflow (`workflow_dispatch`), and its results are what the README quotes.
 - Retrieval, chunking, validation and drift code are tested without any LLM.
 - Budget alerts set on any cloud account before deploying; tear down the resource group after demos.
@@ -45,7 +47,7 @@ Rule: the README states only what has been built and run. Keys come from environ
 
 ### 2. Service
 - FastAPI `/ask`: retrieve, score confidence, then generate with citations. `/ingest` runs as an async job with a status endpoint.
-- Provider adapter (`llm/`) is the only module that calls an LLM. Claude API backend first.
+- Provider adapter (`llm/`) is the only module that calls an LLM. Bedrock backend (Claude Haiku generation, Bedrock embeddings).
 - Escalation: JEV decides whether the retrieved context supports an answer. Below threshold, return "escalated to human" with the sources found, and no generated answer.
 - Done when: citations resolve to real chunks and a low-confidence question escalates in a test.
 
@@ -56,7 +58,7 @@ Rule: the README states only what has been built and run. Keys come from environ
 
 ### 4. Evals in CI (weekend 2)
 - Golden set of 40-60 questions with reference sources, hand-checked against the documents.
-- RAGAS or DeepEval for faithfulness and answer relevance; Claude judge.
+- RAGAS or DeepEval for faithfulness and answer relevance; judge provider still to be decided (see decisions table).
 - CI job fails below a threshold. Set the threshold from a first measured run, not guessed.
 - Done when: CI is green above the threshold and red on a deliberately broken retriever.
 
@@ -66,16 +68,15 @@ Rule: the README states only what has been built and run. Keys come from environ
 - README section on risks and controls, listing the failures actually observed.
 - Done when: the injection runner produces a results file that the README quotes.
 
-### 6. Deploy to Azure Container Apps
-- Dockerfile, IaC in `infra/`, GitHub Actions deploy workflow, secrets via Container Apps secrets. Set an Azure budget alert first.
-- Postgres/pgvector as a container, or the cheapest managed option if persistence is needed.
+### 6. Deploy to AWS (proposed: ECS on Fargate)
+- Dockerfile, IaC in `infra/`, GitHub Actions deploy workflow. Set an AWS budget alert first.
+- ECS task role grants only `bedrock:InvokeModel` on the chosen models, so there are no long-lived keys. Container image in ECR.
+- Cost choices to make: an Application Load Balancer costs about $16 a month, so for a demo consider a task with a public IP and no ALB, or tear down after demos. pgvector options: a sidecar container re-ingested at startup (corpus is small, cheapest), or RDS.
+- Alternatives considered: other AWS container services (decide at this phase after checking current availability and pricing).
 - Done when: a public URL answers `/ask` and the deployment survives a restart.
 
-### 7. Bedrock backend (optional, last)
-- Open an AWS account, set a budget alert, submit the Anthropic access form, and use the inference-profile ID for Haiku.
-- Add a Bedrock backend to the adapter. Rerun the golden set and injection set on it and record both result sets.
-- Open question: Azure-hosted containers have no native AWS IAM role. Options are a narrowly scoped IAM user with keys stored as a container secret (works, documented as a limitation), or hosting this phase on ECS Fargate instead (a few dollars a month, clean IAM roles). Decide when reaching this phase.
-- Done when: both backends have run the evals and the README reports each result. If skipped, the README says generation uses the Claude API only.
+### 7. Second backend (optional)
+- Bedrock is now the primary backend, so this phase is only worth doing if a second provider (for example direct Claude API) is wanted for comparison. Skip by default.
 
 ### 8. README and wrap-up
 - Architecture diagram, providers actually used, eval results, injection results, drift check description, risks and controls, known limitations, cost notes.

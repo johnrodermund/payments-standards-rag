@@ -9,6 +9,7 @@ services:
     environment:
       DATABASE_URL: postgresql://payments:payments@db:5432/payments
       PHOENIX_COLLECTOR_ENDPOINT: http://phoenix:6006
+      AWS_REGION: ${AWS_REGION:-us-east-1}
     depends_on:
       db:
         condition: service_healthy
