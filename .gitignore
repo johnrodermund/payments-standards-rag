@@ -7,3 +7,4 @@ __pycache__/
 data/raw/*
 !data/raw/.gitkeep
 data/processed/chunks.jsonl
+data/processed/validation_report.json
