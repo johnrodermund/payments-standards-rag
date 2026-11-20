@@ -7,6 +7,9 @@ dependencies = [
     "fastapi>=0.115",
     "uvicorn[standard]>=0.30",
     "pydantic>=2.7",
+    "fastembed>=0.9.1",
+    "psycopg[binary]>=3.3.9",
+    "pgvector>=0.5.1",
 ]
 
 [dependency-groups]
