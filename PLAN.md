@@ -1,5 +1,7 @@
 # Payments-standards Q&A assistant: build plan (middle path)
 
+> **Historical planning document.** Some decisions below were changed while building: generation uses the Claude API (not Bedrock, whose inference quotas are 0 on this account), embeddings are local `bge-small`, and the eval judge is TypeSafe JEV. The README is the source of truth for what is built and measured.
+
 Public documents only (ISO 20022, FedNow, public SWIFT/CBPR+). No proprietary or employer data.
 
 ## Decisions so far
