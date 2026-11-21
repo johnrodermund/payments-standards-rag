@@ -7,6 +7,7 @@ from typing import Annotated, Any
 from fastapi import Depends, FastAPI, HTTPException
 from pydantic import BaseModel, Field, field_validator
 
+from payments_rag.api.ingest import router as ingest_router
 from payments_rag.api.rag import answer_question
 from payments_rag.api.service import Service, build_service
 from payments_rag.audit.log import build_entry
@@ -15,6 +16,7 @@ from payments_rag.llm.generation import ReplayMissError
 from payments_rag.observability.tracing import current_trace_id, setup_tracing, span
 
 app = FastAPI(title="Payments standards assistant")
+app.include_router(ingest_router)
 log = logging.getLogger("payments_rag")
 setup_tracing()  # no-op unless PHOENIX_COLLECTOR_ENDPOINT (or OTEL_EXPORTER_OTLP_ENDPOINT) is set
 
