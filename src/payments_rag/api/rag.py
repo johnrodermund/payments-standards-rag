@@ -17,6 +17,7 @@ from collections.abc import Callable
 from typing import Any, Protocol
 
 from payments_rag.guardrails.injection import Classifier, check_output, screen_passages
+from payments_rag.observability.tracing import span
 
 CITATION = re.compile(r"\[(\d+)\]")
 SNIPPET_CHARS = 400
@@ -52,10 +53,21 @@ def answer_question(
     provenance: Callable[[Hits], tuple[Hits, Hits]] | None = None,
     classifier: Classifier | None = None,
 ) -> dict[str, Any]:
-    retrieved = retriever(question)
-    verified, rejected = provenance(retrieved) if provenance else (retrieved, [])
-    kept, screened = screen_passages(verified, classifier=classifier) if guard else (verified, [])
-    quarantined = rejected + screened
+    with span("retrieve", "RETRIEVER") as step:
+        step.content("input.value", question)
+        retrieved = retriever(question)
+        step.documents(retrieved)
+        step.set("rag.retrieved", len(retrieved))
+    with span("screen", "GUARDRAIL") as step:
+        verified, rejected = provenance(retrieved) if provenance else (retrieved, [])
+        kept, screened = screen_passages(verified, classifier=classifier) if guard else (verified, [])
+        quarantined = rejected + screened
+        step.update(
+            rag__guard=guard,
+            rag__kept=len(kept),
+            rag__quarantined=len(quarantined),
+            rag__quarantine_actions=sorted({q["action"] for q in quarantined}),
+        )
     base = {"retrieval": _retrieval(retrieved), "retrieved": len(retrieved), "quarantined": quarantined}
 
     def escalate(reason: str, **extra: Any) -> dict[str, Any]:
@@ -73,7 +85,18 @@ def answer_question(
     if not kept or (kept[0].get("score") or 0.0) < min_score:
         return escalate("low_retrieval_confidence")
 
-    gen = generator.generate(question, kept)
+    with span("generate", "LLM") as step:
+        step.content("input.value", question)
+        gen = generator.generate(question, kept)
+        usage = gen.usage or {}
+        step.update(
+            llm__model_name=gen.model,
+            llm__token_count__prompt=usage.get("input_tokens"),
+            llm__token_count__completion=usage.get("output_tokens"),
+            rag__cached=gen.cached,
+            rag__stop_reason=gen.stop_reason,
+        )
+        step.content("output.value", gen.text)
     meta = {"model": gen.model, "cached": gen.cached, "usage": gen.usage}
 
     if gen.stop_reason == "refusal":
@@ -83,7 +106,12 @@ def answer_question(
     if not gen.text or gen.text.strip() == "INSUFFICIENT_CONTEXT":
         return escalate("insufficient_context", **meta)
 
-    if guard and (violations := check_output(gen.text, [h["text"] for h in kept], question)):
+    violations: list[str] = []
+    if guard:
+        with span("output_check", "GUARDRAIL") as step:
+            violations = check_output(gen.text, [h["text"] for h in kept], question)
+            step.update(rag__violations=list(violations))
+    if violations:
         return escalate("output_policy_violation", violations=violations, _blocked_answer=gen.text, **meta)
 
     cited = sorted({int(n) for n in CITATION.findall(gen.text) if 1 <= int(n) <= len(kept)})

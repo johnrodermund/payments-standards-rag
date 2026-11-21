@@ -43,6 +43,7 @@ def build_entry(
     min_score: float,
     latency_ms: int,
     error: str | None = None,
+    trace_id: str | None = None,
 ) -> dict[str, Any]:
     """Shape one request's record. Sources are stored as ids and scores (the text lives in the index)."""
     result = result or {}
@@ -50,7 +51,7 @@ def build_entry(
         outcome = "error"
     else:
         outcome = "escalated" if result.get("escalated") else "answered"
-    return {
+    entry = {
         "ts": datetime.now(UTC).isoformat(),
         "request_id": request_id,
         "question": question,
@@ -71,6 +72,9 @@ def build_entry(
         "latency_ms": latency_ms,
         "error": error,
     }
+    if trace_id:  # links this row to its trace in Phoenix; absent when tracing is off, so old rows keep their shape
+        entry["trace_id"] = trace_id
+    return entry
 
 
 class AuditLog:
@@ -143,6 +147,14 @@ class AuditLog:
                     errors.append(f"seq {seq}: hash mismatch (row content was modified)")
                 prev = row_hash
         return {"ok": not errors, "rows": rows, "head_hash": prev, "errors": errors}
+
+    def head(self, n: int = 20) -> list[dict[str, Any]]:
+        """The first n entries, oldest first (used to take a baseline from early real traffic)."""
+        if not self._ready:
+            self.init_schema()
+        with self._connect() as conn:
+            rows = conn.execute("SELECT canonical FROM audit_log ORDER BY seq LIMIT %s", (n,)).fetchall()
+        return [json.loads(r[0]) for r in rows]
 
     def tail(self, n: int = 20) -> list[dict[str, Any]]:
         if not self._ready:

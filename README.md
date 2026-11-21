@@ -15,7 +15,9 @@ This README states only what has been built and run. What is missing is listed p
 | Prompt-injection defence and a test set | Built and run live, results below |
 | Golden set, scoring and a CI gate | Built; the retrieval gate runs in CI, the LLM-scored part ran locally only |
 | Spend cap and replay mode for LLM calls | Built and tested |
-| Drift check, Phoenix tracing, async ingest endpoint | **Not built** |
+| Drift check (retrieval score, answer length, escalation rate over time) | Built; tested by simulation only, **not yet run on real traffic** |
+| Phoenix tracing (OpenTelemetry spans per request) | Built; verified against a local Phoenix container |
+| Async ingest endpoint | **Not built** |
 | Cloud deployment, recorded demo | **Not built** |
 | Bedrock / Azure OpenAI backend | **Not built** (see [Provider](#provider-and-why)) |
 
@@ -64,6 +66,18 @@ question ─► FastAPI /ask ─► hybrid retrieval ─► passage screening �
 **Escalation.** The answer is shown only if it carries a valid `[n]` citation that matches a retrieved passage. Otherwise the system escalates, with one of these reasons: `low_retrieval_confidence`, `all_passages_quarantined`, `insufficient_context`, `no_valid_citation`, `model_declined`, `truncated`, `output_policy_violation`. The retrieval cutoff is the cosine similarity of the top result, `ESCALATION_MIN_SCORE`, default 0.6. On the current question sets, on-topic questions score 0.69 or higher at the top result (median about 0.78) and clearly off-topic ones score 0.41 to 0.54. A question that names something the corpus does define (for example "euro to dollar exchange rate", where an Exchange Rate element exists) scores 0.68 and passes. That is correct behaviour, not a bug, but it means the score cutoff alone cannot catch in-domain questions the corpus does not answer; the model's `INSUFFICIENT_CONTEXT` reply does (see results).
 
 **Audit log.** Every `/ask` call writes one row to a Postgres `audit_log` table before the response returns: question (verbatim), answer, source ids and scores, outcome, escalation reason, model, latency and the blocked answer if the output check stopped one. Triggers block UPDATE, DELETE and TRUNCATE. Each row stores the SHA-256 of the previous row plus its own canonical JSON, serialised with an advisory lock, and `python -m payments_rag.audit.log verify` re-walks the chain. It fails closed: if the log cannot be written the endpoint returns 503, unless `AUDIT_FAIL_OPEN=1`. Limits are in [Risks and controls](#risks-and-controls).
+
+**Drift check.** `python -m payments_rag.observability.drift check` reads the most recent audit-log rows (default 200) and compares three signals with a stored baseline: top retrieval score, answer length in words, and escalation rate. It uses a two-sample Kolmogorov-Smirnov test for the first two and a two-proportion test for the third, and alarms only when the p-value is below 0.01 **and** the effect is large enough to matter (KS statistic at least 0.25, or an escalation-rate change of at least 10 points). With fewer than 30 observations on either side it reports `insufficient_data` and exits 2; it never reports "ok" on too little evidence. Exit codes: 0 ok, 1 drift, 2 insufficient data. Limits:
+
+- The committed baseline (`evals/drift_baseline.json`) comes from the golden-set run, which is not production traffic (it has 15% unanswerable questions and templated phrasing). Until a baseline is taken from real traffic (`drift baseline --from-audit`), an alarm may reflect that difference and not real drift.
+- It has only been tested on simulated data: with no drift it alarmed in at most 6% of 300 simulated checks (about 3% expected); a 0.10 drop in mean top score or a doubled answer length was caught at least 95% of the time; escalations rising from 15% to 45% were caught about 91% of the time at 60 baseline and 100 recent requests. Run on the real audit log today it correctly reports `insufficient_data`, since the log holds only a handful of test rows.
+- It detects shifts in behaviour, not wrong answers. Answer quality is the eval's job. Nothing runs it on a schedule yet.
+
+**Tracing.** When `PHOENIX_COLLECTOR_ENDPOINT` is set, each `/ask` request exports OpenTelemetry spans in the OpenInference format that Arize Phoenix displays: a root `POST /ask` span (outcome, escalation reason, top score, request id) with `retrieve` (retrieved passages with ids, scores and text), `screen` (what the injection and provenance checks removed), `generate` (model, token counts, cached or not, stop reason) and `output_check` spans. The audit-log row for each request stores the `trace_id`, so a row can be opened as its trace. Tracing is off unless configured, uses its own tracer provider, and every tracing call is guarded, so a collector outage cannot break a request (tested with an exporter that always raises). Verified end to end: the real API with the local Phoenix container received 2 traces (8 spans) in the `payments-assistant` project, with no failed exports. Notes:
+
+- **Question, passage and answer text is attached to spans** so traces are readable. Set `TRACE_CONTENT=0` to send ids, scores, counts and timings only. The audit log already holds the same text verbatim; a collector is a second copy, so do not send traces to a collector you do not control.
+- **Phoenix 21+ requires authentication by default in Docker**, which first made the collector reject our spans with 401. The compose file turns authentication off and binds port 6006 to localhost, for local development only. For anything shared or deployed, keep authentication on and give the app a key through `PHOENIX_API_KEY` (sent as a bearer token; tested against a local HTTP server, not against an authenticated Phoenix).
+- Only `/ask` is traced. Ingestion, the evals and the embedding step are not.
 
 **LLM cost controls.** Every real call is cached on disk (`.cache/llm`, keyed by the hash of the full request), so identical requests are free. `LLM_REPLAY_ONLY=1` makes no network calls at all and returns 503 on a cache miss. A project-wide spend cap (`LLM_BUDGET_USD`, default $0.50) is enforced from a ledger file: a call that could take the total past the cap is refused before it is sent.
 
@@ -185,15 +199,18 @@ uv run python -m payments_rag.evals.rag_eval --judge jev --out evals/results/lat
 uv run python -m payments_rag.security.injection_eval evals/injection_set.jsonl --guard on --out evals/injection/results.json
 ```
 
+To see traces, start Phoenix (`docker compose up -d phoenix`), run the API with `PHOENIX_COLLECTOR_ENDPOINT=http://localhost:6006` set, ask a question and open http://localhost:6006.
+
 The compose `app` service was only verified to serve `/health` at the scaffold stage; running the API through `uv` as above is the path that has been exercised end to end.
 
 ## Tests and CI
 
-220 tests. CI (`.github/workflows/ci.yml`) runs lint and tests, then downloads and hash-verifies the ISO source, builds the index and runs the retrieval and confidence gate on every push. The LLM-scored eval (faithfulness, relevancy, behaviour) runs only when `ANTHROPIC_API_KEY` and the judge key are repository secrets, and is skipped with a warning otherwise. The gate fails the build if any metric is below its minimum in `evals/thresholds.json`. A deliberately reversed-ranking retriever failed the retrieval gate (MRR 0.23), which is why hit@1 and MRR are gated and not hit@5 alone.
+248 tests. CI (`.github/workflows/ci.yml`) runs lint and tests, then downloads and hash-verifies the ISO source, builds the index and runs the retrieval and confidence gate on every push. The LLM-scored eval (faithfulness, relevancy, behaviour) runs only when `ANTHROPIC_API_KEY` and the judge key are repository secrets, and is skipped with a warning otherwise. The gate fails the build if any metric is below its minimum in `evals/thresholds.json`. A deliberately reversed-ranking retriever failed the retrieval gate (MRR 0.23), which is why hit@1 and MRR are gated and not hit@5 alone.
 
 ## Not built yet
 
-- **Drift check** (retrieval score and answer length over time) and **Phoenix tracing**. The compose file lists a Phoenix container, but nothing sends traces to it.
+- **Traces for ingestion and the evals.** Only `/ask` is traced; tracing against an authenticated Phoenix is untested.
+- **Scheduled drift runs and a real-traffic baseline.** The drift check exists but nothing runs it on a schedule, and it has no real traffic to check yet.
 - **Async ingest endpoint.** Ingestion is a command-line pipeline only.
 - **Cloud deployment.** The service is not deployed and is not reachable from the internet. The plan was AWS ECS on Fargate; the Dockerfile exists but the cloud path is untested.
 - **Recorded demo.** Replay mode exists, but no recording has been made.

@@ -12,9 +12,11 @@ from payments_rag.api.service import Service, build_service
 from payments_rag.audit.log import build_entry
 from payments_rag.llm.budget import BudgetExceededError
 from payments_rag.llm.generation import ReplayMissError
+from payments_rag.observability.tracing import current_trace_id, setup_tracing, span
 
 app = FastAPI(title="Payments standards assistant")
 log = logging.getLogger("payments_rag")
+setup_tracing()  # no-op unless PHOENIX_COLLECTOR_ENDPOINT (or OTEL_EXPORTER_OTLP_ENDPOINT) is set
 
 _service: Service | None = None
 _lock = threading.Lock()
@@ -58,10 +60,20 @@ def _record(service: Service, entry: dict[str, Any]) -> None:
 @app.post("/ask")
 def ask(request: AskRequest, service: Annotated[Service, Depends(get_service)]) -> dict[str, Any]:
     request_id = str(uuid.uuid4())
+    with span("POST /ask", "CHAIN", rag__request_id=request_id) as root:
+        root.content("input.value", request.question)
+        return _ask(request, service, request_id, root)
+
+
+def _ask(request: AskRequest, service: Service, request_id: str, root: Any) -> dict[str, Any]:
     started = time.perf_counter()
+    trace_id = current_trace_id()
 
     def elapsed_ms() -> int:
         return int((time.perf_counter() - started) * 1000)
+
+    def entry_for(result: dict[str, Any] | None, error: str | None = None) -> dict[str, Any]:
+        return build_entry(request_id, request.question, result, service.min_score, elapsed_ms(), error=error, trace_id=trace_id)
 
     try:
         result = answer_question(
@@ -69,12 +81,22 @@ def ask(request: AskRequest, service: Annotated[Service, Depends(get_service)]) 
             provenance=getattr(service, "provenance", None),
         )
     except (ReplayMissError, BudgetExceededError) as exc:
-        _record(service, build_entry(request_id, request.question, None, service.min_score, elapsed_ms(), error=f"{type(exc).__name__}: {exc}"))
+        root.update(rag__outcome="error", rag__error=type(exc).__name__)
+        _record(service, entry_for(None, f"{type(exc).__name__}: {exc}"))
         raise HTTPException(status_code=503, detail=str(exc)) from exc
     except Exception as exc:
-        _record(service, build_entry(request_id, request.question, None, service.min_score, elapsed_ms(), error=f"{type(exc).__name__}: {exc}"))
+        root.update(rag__outcome="error", rag__error=type(exc).__name__)
+        _record(service, entry_for(None, f"{type(exc).__name__}: {exc}"))
         raise
 
-    _record(service, build_entry(request_id, request.question, result, service.min_score, elapsed_ms()))
+    scores = [h["score"] for h in result.get("retrieval", []) if h.get("score") is not None]
+    root.update(
+        rag__outcome="escalated" if result.get("escalated") else "answered",
+        rag__reason=result.get("reason"),
+        rag__top_score=max(scores) if scores else None,
+        rag__min_score=service.min_score,
+    )
+    root.content("output.value", result.get("answer") or f"ESCALATED: {result.get('reason')}")
+    _record(service, entry_for(result))
     public = {k: v for k, v in result.items() if not k.startswith("_")}  # audit-only fields stay internal
     return {"request_id": request_id, **public}

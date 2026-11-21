@@ -32,8 +32,13 @@ services:
 
   phoenix:
     image: arizephoenix/phoenix:latest
+    # Local development only. Phoenix 21+ requires authentication by default in Docker. It is turned off here
+    # and the port is bound to loopback so only this machine can reach it. For anything shared or deployed,
+    # remove PHOENIX_ENABLE_AUTH, set PHOENIX_SECRET, create an API key and give it to the app as PHOENIX_API_KEY.
+    environment:
+      PHOENIX_ENABLE_AUTH: "false"
     ports:
-      - "6006:6006"
+      - "127.0.0.1:6006:6006"
 
 volumes:
   pgdata:

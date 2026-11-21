@@ -138,3 +138,10 @@ def test_recorded_content_is_retrievable(audit):
     rows = audit.tail(1)
     assert rows[0]["question"] == "What is the UETR?" and rows[0]["outcome"] == "answered"
     assert rows[0]["sources"][0]["id"] == "pacs.008.001.14#Root/A"
+
+
+def test_head_returns_the_first_entries_oldest_first(audit):
+    for n in range(1, 6):
+        audit.record(entry(n))
+    assert [e["request_id"] for e in audit.head(3)] == ["req-1", "req-2", "req-3"]
+    assert [e["request_id"] for e in audit.tail(2)] == ["req-4", "req-5"]
