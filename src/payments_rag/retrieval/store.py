@@ -9,6 +9,8 @@ from typing import Any
 import psycopg
 from pgvector.psycopg import register_vector
 
+from payments_rag.retrieval import ranking
+
 DEFAULT_URL = "postgresql://payments:payments@localhost:5432/payments"
 
 
@@ -44,9 +46,13 @@ def init_schema(conn: psycopg.Connection, dim: int, model: str) -> None:
             ingested_at timestamptz NOT NULL DEFAULT now()
         )"""
     )
-    conn.execute(
-        "CREATE INDEX IF NOT EXISTS chunks_embedding_idx ON chunks USING hnsw (embedding vector_cosine_ops)"
-    )
+    # No approximate (HNSW) index: with ~1,200 chunks an exact scan takes a few milliseconds,
+    # and HNSW recall was poor on this corpus (many near-identical vectors), silently
+    # dropping true nearest neighbours: hit@5 0.38 with the index vs 0.54 exact on the eval set.
+    # Revisit (e.g. raise hnsw.ef_search) only if the corpus grows past ~100k chunks.
+    conn.execute("DROP INDEX IF EXISTS chunks_embedding_idx")
+    # Keyword ranking is BM25 in Python now (ranking.LexicalIndex); drop the old tsvector column.
+    conn.execute("ALTER TABLE chunks DROP COLUMN IF EXISTS fts")
     conn.execute("INSERT INTO index_meta (key, value) VALUES ('embedding', %s) ON CONFLICT DO NOTHING", (wanted,))
 
 
@@ -83,22 +89,107 @@ def count(conn: psycopg.Connection) -> int:
     return conn.execute("SELECT count(*) FROM chunks").fetchone()[0]
 
 
-def search(
-    conn: psycopg.Connection, vector: list[float], k: int = 5, kinds: list[str] | None = None
-) -> list[dict[str, Any]]:
-    """Nearest chunks by cosine similarity (score = 1 - cosine distance)."""
-    params: list[Any] = [vector]
-    where = ""
+def message_prefix_from_query(query: str) -> str | None:
+    """'... in pacs.008?' -> 'pacs.008'. Only when exactly one message is named."""
+    found = {m.group(1).lower() for m in ranking.MESSAGE_MENTION.finditer(query)}
+    return found.pop() if len(found) == 1 else None
+
+
+def _where(kinds: list[str] | None, message_prefix: str | None) -> tuple[str, list[Any]]:
+    clauses: list[str] = []
+    params: list[Any] = []
     if kinds:
-        where = "WHERE kind = ANY(%s)"
+        clauses.append("kind = ANY(%s)")
         params.append(kinds)
-    params += [vector, k]
+    if message_prefix:
+        clauses.append("message_id LIKE %s")
+        params.append(message_prefix + ".%")
+    return ("WHERE " + " AND ".join(clauses)) if clauses else "", params
+
+
+def _row(r: tuple[Any, ...], score: float) -> dict[str, Any]:
+    return {"id": r[0], "kind": r[1], "text": r[2], "metadata": r[3], "score": score}
+
+
+def search(
+    conn: psycopg.Connection,
+    vector: list[float],
+    k: int = 5,
+    kinds: list[str] | None = None,
+    message_prefix: str | None = None,
+) -> list[dict[str, Any]]:
+    """Nearest chunks by cosine similarity (score = 1 - cosine distance), exact."""
+    where, params = _where(kinds, message_prefix)
     rows = conn.execute(
         f"""SELECT id, kind, text, metadata, 1 - (embedding <=> %s::vector) AS score
             FROM chunks {where}
             ORDER BY embedding <=> %s::vector LIMIT %s""",
-        params,
+        [vector, *params, vector, k],
     ).fetchall()
-    return [
-        {"id": r[0], "kind": r[1], "text": r[2], "metadata": r[3], "score": float(r[4])} for r in rows
+    return [_row(r, float(r[4])) for r in rows]
+
+
+class _Corpus:
+    """All chunks plus their BM25 index, loaded once per connection and reloaded when the
+    table changes (row count or latest ingest time differ)."""
+
+    def __init__(self, version: tuple[Any, ...], docs: list[dict[str, Any]]):
+        self.version = version
+        self.docs = docs
+        self.position = {d["id"]: i for i, d in enumerate(docs)}
+        self.lexical = ranking.LexicalIndex(d["text"] for d in docs)
+
+
+_corpora: dict[int, _Corpus] = {}
+
+
+def _corpus(conn: psycopg.Connection) -> _Corpus:
+    version = tuple(conn.execute("SELECT count(*), max(ingested_at) FROM chunks").fetchone())
+    cached = _corpora.get(id(conn))
+    if cached is None or cached.version != version:
+        rows = conn.execute("SELECT id, kind, text, metadata, message_id FROM chunks ORDER BY id").fetchall()
+        docs = [{"id": r[0], "kind": r[1], "text": r[2], "metadata": r[3], "message_id": r[4]} for r in rows]
+        cached = _corpora[id(conn)] = _Corpus(version, docs)
+    return cached
+
+
+def hybrid_search(
+    conn: psycopg.Connection,
+    query: str,
+    vector: list[float],
+    k: int = 5,
+    kinds: list[str] | None = None,
+    message_prefix: str | None = None,
+) -> list[dict[str, Any]]:
+    """Vector, BM25 and element-name rankings fused (see payments_rag.retrieval.ranking).
+
+    If the question names one message (e.g. "pacs.008") results are limited to it.
+    `score` is the cosine similarity of the chunk to the question: comparable across
+    queries, so it is the field for a low-confidence cutoff. `rrf` is the fused score
+    used for ordering; it only means something relative to other results of the same query.
+    """
+    prefix = message_prefix or message_prefix_from_query(query)
+    corpus = _corpus(conn)
+    allowed = [
+        (not kinds or d["kind"] in kinds) and (not prefix or d["message_id"].startswith(prefix + "."))
+        for d in corpus.docs
     ]
+    by_vector = search(conn, vector, k=ranking.POOL, kinds=kinds, message_prefix=prefix)
+    scores = {h["id"]: h["score"] for h in by_vector}
+    vector_order = [corpus.position[h["id"]] for h in by_vector if h["id"] in corpus.position]
+    fused = ranking.fuse(query, corpus.docs, vector_order, corpus.lexical, allowed)[:k]
+
+    missing = [corpus.docs[i]["id"] for i, _ in fused if corpus.docs[i]["id"] not in scores]
+    if missing:
+        rows = conn.execute(
+            "SELECT id, 1 - (embedding <=> %s::vector) FROM chunks WHERE id = ANY(%s)", (vector, missing)
+        ).fetchall()
+        scores.update({cid: float(score) for cid, score in rows})
+    results = []
+    for i, rrf in fused:
+        d = corpus.docs[i]
+        results.append(
+            {"id": d["id"], "kind": d["kind"], "text": d["text"], "metadata": d["metadata"],
+             "score": scores[d["id"]], "rrf": rrf}
+        )
+    return results

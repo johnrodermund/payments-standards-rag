@@ -1,0 +1,12 @@
+{
+  "_comment": "All thresholds are measured value minus a margin of about 0.09, from one live run on 2026-11-20 (index of 1,245 chunks, hybrid retrieval, claude-haiku-5-5 generation, JEV judge, 44 answerable and 8 unanswerable questions). Measured: hit@1 = hit@5 = mrr 0.886; answerable_pass_rate 1.0; off_topic_escalation 1.0; answerable_coverage 0.932; unanswerable_escalation 1.0; faithfulness_mean 0.891; answer_relevancy_mean 0.895. One run is a small sample (a single question moves a retrieval metric by 0.023); re-measure after any retrieval, chunking or prompt change. Known retrieval misses (5/44): 'codes allowed' questions route to rule chunks, 'make up' does not trigger the children intent, one ambiguous 'Agent' question.",
+  "retrieval.hit@1": { "min": 0.8 },
+  "retrieval.hit@5": { "min": 0.8 },
+  "retrieval.mrr": { "min": 0.8 },
+  "confidence.answerable_pass_rate": { "min": 0.9 },
+  "confidence.off_topic_escalation_rate": { "min": 0.99 },
+  "behaviour.answerable_coverage": { "min": 0.85 },
+  "behaviour.unanswerable_escalation_rate": { "min": 0.85 },
+  "judged.faithfulness_mean": { "min": 0.8 },
+  "judged.answer_relevancy_mean": { "min": 0.8 }
+}

@@ -51,6 +51,29 @@ def _compact_element(elem: ET.Element) -> dict[str, Any]:
     }
 
 
+MAX_TYPE_DEFINITION = 200
+MAX_CODES = 12
+
+
+def _type_info(elem: ET.Element) -> dict[str, Any]:
+    """Compact description of a data-dictionary type (text, code set, amount, ...)."""
+    codes: list[str] = []
+    for code in elem.findall("code"):
+        name = code.get("name", "")
+        if name and name not in codes:
+            codes.append(name)
+    definition = " ".join(elem.get("definition", "").split())
+    return {
+        "name": elem.get("name", ""),
+        "kind": _local(elem.get(XSI_TYPE)),
+        "definition": definition[:MAX_TYPE_DEFINITION],
+        "min_length": elem.get("minLength"),
+        "max_length": elem.get("maxLength"),
+        "codes": codes[:MAX_CODES],
+        "code_count": len(codes),
+    }
+
+
 def _message_key(identifier: ET.Element) -> tuple[str, int, int]:
     area = identifier.get("businessArea", "")
     func = identifier.get("messageFunctionality", "")
@@ -75,7 +98,7 @@ def _scan(zip_path: Path, wanted: set[str]):
                             "elements": [_compact_element(e) for e in elem.findall("messageElement")],
                         }
                     else:
-                        types[entry_id] = elem.get("name", "")
+                        types[entry_id] = _type_info(elem)
                     elem.clear()
                 elif elem.tag == "messageDefinition":
                     ident = elem.find("messageDefinitionIdentifier")
@@ -103,7 +126,7 @@ def _scan(zip_path: Path, wanted: set[str]):
 def _flatten(
     items: list[dict[str, Any]],
     components: dict[str, dict[str, Any]],
-    types: dict[str, str],
+    types: dict[str, dict[str, Any]],
     names: tuple[str, ...],
     tags: tuple[str, ...],
     stack: frozenset[str],
@@ -114,6 +137,7 @@ def _flatten(
         item_tags = tags + (item["xml_tag"],)
         ref = item["ref"]
         component = components.get(ref) if ref else None
+        info = None if component else types.get(ref or "")
         out.append(
             {
                 "xml_path": "/".join(item_tags),
@@ -122,7 +146,8 @@ def _flatten(
                 "definition": item["definition"],
                 "min_occurs": item["min_occurs"],
                 "max_occurs": item["max_occurs"],
-                "type": component["name"] if component else types.get(ref or "", ""),
+                "type": component["name"] if component else (info["name"] if info else ""),
+                "type_info": info,
                 "constraints": component["constraints"] if component else [],
             }
         )

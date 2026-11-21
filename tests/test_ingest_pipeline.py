@@ -102,6 +102,48 @@ def test_search_returns_most_similar_first_with_scores(conn):
     assert hits[0]["metadata"]["message_id"] == "pacs.008.001.14"
 
 
+def test_vector_search_is_exact_not_approximate(conn):
+    ingest(chunks_v1(), HashEmbedder(), conn)
+    indexes = [r[0] for r in conn.execute("SELECT indexdef FROM pg_indexes WHERE tablename = 'chunks'")]
+    assert not any("hnsw" in i for i in indexes)
+
+
+def test_hybrid_search_reloads_its_corpus_after_new_chunks_arrive(conn):
+    embedder = HashEmbedder()
+    ingest(chunks_v1(), embedder, conn)
+    store.hybrid_search(conn, "settlement", embedder.embed_query("settlement"), k=3)
+    extra = make_chunk("pacs.008.001.14#Root/U", "ISO 20022 pacs.008 UETR: Universally unique reference.")
+    ingest(chunks_v1() + [extra], embedder, conn)
+    hits = store.hybrid_search(conn, "what is the uetr", embedder.embed_query("what is the uetr"), k=3)
+    assert hits[0]["id"] == extra["id"]
+
+
+def test_message_prefix_only_when_exactly_one_message_is_named():
+    assert store.message_prefix_from_query("creditor agent in pacs.008?") == "pacs.008"
+    assert store.message_prefix_from_query("compare pacs.008 with pacs.002") is None
+    assert store.message_prefix_from_query("creditor agent") is None
+
+
+def test_hybrid_search_finds_exact_word_that_vectors_cannot_rank(conn):
+    embedder = HashEmbedder()  # random-ish vectors: only the keyword side can find this
+    items = chunks_v1() + [
+        make_chunk("pacs.008.001.14#Root/U", "ISO 20022 pacs.008\nUETR: Universally unique end-to-end transaction reference.")
+    ]
+    ingest(items, embedder, conn)
+    hits = store.hybrid_search(conn, "what is the uetr", embedder.embed_query("what is the uetr"), k=3)
+    assert hits[0]["id"] == "pacs.008.001.14#Root/U"
+    assert all(h["score"] is not None for h in hits)
+    assert hits[0]["rrf"] >= hits[-1]["rrf"]
+
+
+def test_hybrid_search_limits_to_the_message_named_in_the_question(conn):
+    embedder = HashEmbedder()
+    other = make_chunk("pacs.002.001.16#Root/A", "ISO 20022 pacs.002\nElement: A\nDefinition: the debtor party status.", "pacs.002.001.16")
+    ingest(chunks_v1() + [other], embedder, conn)
+    hits = store.hybrid_search(conn, "debtor party in pacs.002", embedder.embed_query("debtor party in pacs.002"), k=10)
+    assert {h["metadata"]["message_id"] for h in hits} == {"pacs.002.001.16"}
+
+
 def test_mixing_embedding_models_is_refused(conn):
     ingest(chunks_v1(), HashEmbedder(name="model-a"), conn)
     with pytest.raises(RuntimeError, match="re-ingest"):

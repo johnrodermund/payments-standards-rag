@@ -11,7 +11,8 @@ XSI = "http://www.w3.org/2001/XMLSchema-instance"
 FIXTURE = f"""<?xml version="1.0" encoding="utf-8"?>
 <iso20022:Repository xmlns:iso20022="urn:iso:std:iso:20022:2013:ecore" xmlns:xmi="{XMI}" xmlns:xsi="{XSI}">
   <dataDictionary>
-    <topLevelDictionaryEntry xsi:type="iso20022:Text" xmi:id="T1" name="Max35Text" definition="Up to 35 chars."/>
+    <topLevelDictionaryEntry xsi:type="iso20022:Text" xmi:id="T1" name="Max35Text" definition="Up to 35 chars."
+        minLength="1" maxLength="35"/>
     <topLevelDictionaryEntry xsi:type="iso20022:MessageComponent" xmi:id="C_HDR" name="GroupHeader1"
         definition="Group header.">
       <constraint xmi:id="K1" name="HdrRule" definition="Must not be empty." expression="&lt;x/&gt;"/>
@@ -72,6 +73,15 @@ def test_elements_have_paths_types_and_cardinality(repo_zip):
     assert msg_id["type"] == "Max35Text"
     assert (msg_id["min_occurs"], msg_id["max_occurs"]) == ("1", "1")
     assert "GrpHdr" in {e["xml_path"].split("/")[-1] for e in msg["elements"]}
+
+
+def test_type_info_carries_kind_and_length_limits(repo_zip):
+    msg = extract_messages(repo_zip, ["pacs.008"])[0]
+    msg_id = next(e for e in msg["elements"] if e["xml_path"].endswith("/MsgId"))
+    assert msg_id["type_info"]["kind"] == "Text"
+    assert (msg_id["type_info"]["min_length"], msg_id["type_info"]["max_length"]) == ("1", "35")
+    header = next(e for e in msg["elements"] if e["xml_path"] == "FIToFICstmrCdtTrf/GrpHdr")
+    assert header["type_info"] is None  # components are described by their children
 
 
 def test_component_rules_are_attached_and_cycles_do_not_loop(repo_zip):

@@ -1,0 +1,138 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  DEEPEVAL_TELEMETRY_OPT_OUT: "YES"
+  FASTEMBED_CACHE_PATH: ${{ github.workspace }}/.cache/fastembed
+  DATABASE_URL: postgresql://payments:payments@localhost:5432/payments
+
+jobs:
+  test:
+    name: Lint and tests
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_USER: payments
+          POSTGRES_PASSWORD: payments
+          POSTGRES_DB: payments
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U payments" --health-interval 5s --health-timeout 3s --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+      - run: uv python install 3.12
+      - run: uv sync --group eval --frozen
+      - run: uv run ruff check .
+      - run: uv run pytest -q
+
+  eval:
+    name: Retrieval gate and LLM-scored eval
+    needs: test
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_USER: payments
+          POSTGRES_PASSWORD: payments
+          POSTGRES_DB: payments
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U payments" --health-interval 5s --health-timeout 3s --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+      - run: uv python install 3.12
+      - run: uv sync --group eval --frozen
+
+      - name: Cache the local embedding model
+        uses: actions/cache@v4
+        with:
+          path: .cache/fastembed
+          key: fastembed-bge-small-en-v1.5
+
+      # The ISO e-Repository is not committed. Download it and refuse to continue if it is not the
+      # exact file whose hash is pinned in the committed extract, so a silent upstream change fails loudly.
+      - name: Download and verify the ISO 20022 e-Repository
+        run: |
+          mkdir -p data/raw/iso20022
+          curl --fail --silent --show-error --location --retry 5 --retry-delay 10 \
+            --user-agent "Mozilla/5.0" \
+            --output data/raw/iso20022/20260904_ISO20022_2013_eRepository.zip \
+            "https://www.iso20022.org/sites/default/files/media/file/20260904_ISO20022_2013_eRepository.zip"
+          expected=$(python3 -c "import json;print(json.load(open('data/processed/iso20022_pacs.json'))['source']['sha256'])")
+          actual=$(sha256sum data/raw/iso20022/20260904_ISO20022_2013_eRepository.zip | cut -d' ' -f1)
+          echo "expected $expected"; echo "actual   $actual"
+          test "$expected" = "$actual"
+
+      - name: Build the index (extract, chunk, validate, embed, store)
+        run: |
+          uv run python -m payments_rag.ingestion.iso20022_repository data/raw/iso20022/20260904_ISO20022_2013_eRepository.zip data/processed/iso20022_pacs.json --message pacs.008 --message pacs.002
+          uv run python -m payments_rag.ingestion.chunking data/processed/iso20022_pacs.json data/processed/chunks.jsonl
+          uv run python -m payments_rag.ingestion.validation data/processed/chunks.jsonl --expect pacs.008 --expect pacs.002
+          uv run python -m payments_rag.ingestion.pipeline data/processed/chunks.jsonl --expect pacs.008 --expect pacs.002
+
+      # No API key needed: retrieval quality and the escalation cutoff gate every run.
+      - name: Retrieval gate
+        run: |
+          uv run python -m payments_rag.evals.rag_eval --retrieval-only --out evals/results/retrieval_only.json
+          uv run python -m payments_rag.evals.gate evals/results/retrieval_only.json evals/thresholds.json --only retrieval,confidence
+
+      - name: Check for LLM eval secrets
+        id: secrets
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          TYPESAFE_API_KEY: ${{ secrets.TYPESAFE_API_KEY }}
+          EVAL_JUDGE: ${{ vars.EVAL_JUDGE || 'jev' }}
+        run: |
+          need_judge=TYPESAFE_API_KEY; [ "$EVAL_JUDGE" = "claude" ] && need_judge=ANTHROPIC_API_KEY
+          if [ -n "$ANTHROPIC_API_KEY" ] && [ -n "${!need_judge}" ]; then
+            echo "available=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "available=false" >> "$GITHUB_OUTPUT"
+            echo "::warning::LLM-scored eval SKIPPED: ANTHROPIC_API_KEY and the judge key ($need_judge) are not configured. Only the retrieval gate ran."
+          fi
+
+      # Generation and judge calls are cached; the cache key changes when anything that shapes a prompt changes.
+      - name: Cache LLM responses
+        if: steps.secrets.outputs.available == 'true'
+        uses: actions/cache@v4
+        with:
+          path: |
+            .cache/llm
+            .cache/eval
+          key: llm-${{ hashFiles('src/payments_rag/llm/generation.py', 'src/payments_rag/evals/judge.py', 'src/payments_rag/api/rag.py', 'src/payments_rag/ingestion/chunking.py', 'evals/golden_set.jsonl') }}
+
+      - name: LLM-scored eval (faithfulness, answer relevancy, behaviour)
+        if: steps.secrets.outputs.available == 'true'
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          TYPESAFE_API_KEY: ${{ secrets.TYPESAFE_API_KEY }}
+          EVAL_JUDGE: ${{ vars.EVAL_JUDGE || 'jev' }}
+        run: |
+          uv run python -m payments_rag.evals.rag_eval --judge "$EVAL_JUDGE" --out evals/results/latest.json
+          uv run python -m payments_rag.evals.gate evals/results/latest.json evals/thresholds.json --only retrieval,behaviour,judged
+
+      - name: Upload eval results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: eval-results
+          path: evals/results/
+          if-no-files-found: ignore
