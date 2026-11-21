@@ -20,7 +20,7 @@ This README states only what has been built and run. What is missing is listed p
 | Async ingest endpoint (`POST /ingest`, job status) | Built; verified against the real database |
 | Container image | Built and run locally: starts healthy, ingests through `POST /ingest`, answers a recorded question in replay-only mode |
 | AWS stack (CDK: ECS Fargate, ALB, RDS PostgreSQL) | Deployed once on 2026-11-21 (us-east-2, replay mode, open to one IP only), exercised, then destroyed; **not running now** (see [Deployed run](#deployed-run-2026-11-21) and [infra/README.md](infra/README.md)) |
-| Public, always-on deployment | **Not done**: there is no live URL. The demo stack was reachable only from the operator's IP, and was torn down |
+| Public, always-on deployment | **Not done**: there is no live URL (see the [recorded demo](evals/demo/DEMO.md)). The demo stack was reachable only from the operator's IP, and was torn down |
 | Recorded run against the deployed service | `evals/demo/deployed_run.json` (replay mode; one question had no recording) |
 | Amazon Bedrock generation backend (Converse API) | Built; tested with a stubbed client only, **never run against live Bedrock** (see [Provider](#provider-and-why)) |
 | Azure OpenAI backend | **Not built** |
@@ -238,6 +238,8 @@ The compose `app` service was only verified to serve `/health` at the scaffold s
 309 tests. CI (`.github/workflows/ci.yml`) runs lint and tests, then downloads and hash-verifies the ISO source, builds the index and runs the retrieval and confidence gate on every push. The LLM-scored eval (faithfulness, relevancy, behaviour) runs only when `ANTHROPIC_API_KEY` and the judge key are repository secrets, and is skipped with a warning otherwise. The gate fails the build if any metric is below its minimum in `evals/thresholds.json`. A deliberately reversed-ranking retriever failed the retrieval gate (MRR 0.23), which is why hit@1 and MRR are gated and not hit@5 alone.
 
 ## Deployed run (2026-11-21)
+
+**Demo:** there is no live URL (the stack was torn down to stop costs). The [recorded demo transcript](evals/demo/DEMO.md) shows real answers, sources and escalations from the deployed service, and the [raw responses](evals/demo/deployed_run.json) are in the repository.
 
 The stack in `infra/` was deployed once to AWS (us-east-2), used for about 25 minutes, and destroyed; nothing from it is running. It ran in **replay mode**, so the service made no model calls: answers were replayed from earlier recordings of live Claude runs. The load balancer accepted traffic only from the operator's IP.
 
