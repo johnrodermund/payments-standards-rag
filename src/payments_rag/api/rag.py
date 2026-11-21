@@ -1,7 +1,13 @@
-"""Orchestration for one question: retrieve, screen, gate on confidence, generate, verify.
+"""Orchestration for one question: retrieve, verify, screen, gate on confidence, generate, verify.
 
 Anything the system cannot stand behind is escalated to a human instead of answered.
 Keys starting with "_" in the result are for the audit log only and never sent to callers.
+
+`quarantined` lists every passage a control intervened on, as
+{"id", "reasons", "action", "removed"} where action is "neutralised" (offending sentences cut,
+the rest still shown to the model), "dropped" (nothing usable left) or "rejected_provenance"
+(text does not match the committed source). A neutralised passage does not by itself cause an
+escalation: the question is escalated only when no usable passage remains.
 """
 
 from __future__ import annotations
@@ -10,10 +16,12 @@ import re
 from collections.abc import Callable
 from typing import Any, Protocol
 
-from payments_rag.guardrails.injection import check_output, screen_passages
+from payments_rag.guardrails.injection import Classifier, check_output, screen_passages
 
 CITATION = re.compile(r"\[(\d+)\]")
 SNIPPET_CHARS = 400
+
+Hits = list[dict[str, Any]]
 
 
 class SupportsGenerate(Protocol):
@@ -41,9 +49,13 @@ def answer_question(
     generator: SupportsGenerate,
     min_score: float,
     guard: bool = True,
+    provenance: Callable[[Hits], tuple[Hits, Hits]] | None = None,
+    classifier: Classifier | None = None,
 ) -> dict[str, Any]:
     retrieved = retriever(question)
-    kept, quarantined = screen_passages(retrieved) if guard else (retrieved, [])
+    verified, rejected = provenance(retrieved) if provenance else (retrieved, [])
+    kept, screened = screen_passages(verified, classifier=classifier) if guard else (verified, [])
+    quarantined = rejected + screened
     base = {"retrieval": _retrieval(retrieved), "retrieved": len(retrieved), "quarantined": quarantined}
 
     def escalate(reason: str, **extra: Any) -> dict[str, Any]:
@@ -71,7 +83,7 @@ def answer_question(
     if not gen.text or gen.text.strip() == "INSUFFICIENT_CONTEXT":
         return escalate("insufficient_context", **meta)
 
-    if guard and (violations := check_output(gen.text)):
+    if guard and (violations := check_output(gen.text, [h["text"] for h in kept], question)):
         return escalate("output_policy_violation", violations=violations, _blocked_answer=gen.text, **meta)
 
     cited = sorted({int(n) for n in CITATION.findall(gen.text) if 1 <= int(n) <= len(kept)})

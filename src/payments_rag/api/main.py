@@ -64,7 +64,10 @@ def ask(request: AskRequest, service: Annotated[Service, Depends(get_service)]) 
         return int((time.perf_counter() - started) * 1000)
 
     try:
-        result = answer_question(request.question, service.retriever, service.generator, service.min_score)
+        result = answer_question(
+            request.question, service.retriever, service.generator, service.min_score,
+            provenance=getattr(service, "provenance", None),
+        )
     except (ReplayMissError, BudgetExceededError) as exc:
         _record(service, build_entry(request_id, request.question, None, service.min_score, elapsed_ms(), error=f"{type(exc).__name__}: {exc}"))
         raise HTTPException(status_code=503, detail=str(exc)) from exc

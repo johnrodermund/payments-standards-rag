@@ -9,6 +9,7 @@ from __future__ import annotations
 import os
 from collections.abc import Callable
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Any
 
 from payments_rag.audit.log import AuditLog
@@ -29,6 +30,9 @@ class Service:
     min_score: float
     audit: Any  # anything with .record(entry) -> hash; AuditLog in production
     audit_fail_closed: bool = True
+    # Refuses retrieved chunks whose text no longer matches the committed extract (see
+    # guardrails.provenance). None disables the check.
+    provenance: Any = None
 
 
 def build_retriever(k: int = DEFAULT_K) -> Callable[[str], list[dict[str, Any]]]:
@@ -44,6 +48,16 @@ def build_retriever(k: int = DEFAULT_K) -> Callable[[str], list[dict[str, Any]]]
     return retrieve
 
 
+def build_provenance() -> Any:
+    """On by default when the committed extract is present; PROVENANCE_CHECK=0 turns it off."""
+    from payments_rag.guardrails.provenance import DEFAULT_EXTRACT, ProvenanceCheck
+
+    if os.environ.get("PROVENANCE_CHECK", "1") == "0":
+        return None
+    path = Path(os.environ.get("PROVENANCE_EXTRACT", DEFAULT_EXTRACT))
+    return ProvenanceCheck.from_extract(path) if path.exists() else None
+
+
 def build_service() -> Service:
     return Service(
         retriever=build_retriever(int(os.environ.get("RETRIEVAL_K", DEFAULT_K))),
@@ -52,4 +66,5 @@ def build_service() -> Service:
         audit=AuditLog(database_url()),
         # Fail closed by default: no answer leaves the system unless it was recorded.
         audit_fail_closed=os.environ.get("AUDIT_FAIL_OPEN", "0") != "1",
+        provenance=build_provenance(),
     )

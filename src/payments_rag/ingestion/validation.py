@@ -4,7 +4,7 @@ Errors fail the run (exit code 1); warnings are reported but do not.
 
 Errors:    duplicate_id, empty_text, text_too_short, text_too_long, missing_metadata,
            invalid_kind, bad_encoding, orphan_children, missing_expected_message,
-           no_definition_ratio
+           no_definition_ratio, suspected_injection
 Warnings:  duplicate_text, no_definition, placeholder_text
 
 Usage:
@@ -22,6 +22,7 @@ from collections import Counter, defaultdict
 from pathlib import Path
 from typing import Any
 
+from payments_rag.guardrails.injection import scan_passage
 from payments_rag.ingestion.chunking import MAX_CHARS
 
 VALID_KINDS = {"message", "element", "children", "rule"}
@@ -79,6 +80,10 @@ def validate_chunks(
                 issues.append(_issue("error", "text_too_long", cid, f"{len(text)} chars (> {MAX_CHARS})"))
             if "�" in text or CONTROL_CHARS.search(text) or MOJIBAKE.search(text):
                 issues.append(_issue("error", "bad_encoding", cid, "replacement/control characters or mojibake"))
+            # Same screen as at answer time, run once at source: a poisoned chunk never gets
+            # embedded. Real corpus: 0 of 1,245 chunks flagged (tests/test_injection_guard.py).
+            if reasons := scan_passage(text):
+                issues.append(_issue("error", "suspected_injection", cid, ", ".join(reasons)))
             if PLACEHOLDER.search(text):
                 issues.append(_issue("warning", "placeholder_text", cid, "contains a placeholder such as TBD/TODO"))
             texts[stripped].append(cid)
