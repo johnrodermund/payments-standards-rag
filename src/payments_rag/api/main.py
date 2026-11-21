@@ -11,6 +11,7 @@ from payments_rag.api.ingest import router as ingest_router
 from payments_rag.api.rag import answer_question
 from payments_rag.api.service import Service, build_service
 from payments_rag.audit.log import build_entry
+from payments_rag.llm.backends import LLMUnavailableError
 from payments_rag.llm.budget import BudgetExceededError
 from payments_rag.llm.generation import ReplayMissError
 from payments_rag.observability.tracing import current_trace_id, setup_tracing, span
@@ -82,10 +83,12 @@ def _ask(request: AskRequest, service: Service, request_id: str, root: Any) -> d
             request.question, service.retriever, service.generator, service.min_score,
             provenance=getattr(service, "provenance", None),
         )
-    except (ReplayMissError, BudgetExceededError) as exc:
+    except (ReplayMissError, BudgetExceededError, LLMUnavailableError) as exc:
         root.update(rag__outcome="error", rag__error=type(exc).__name__)
         _record(service, entry_for(None, f"{type(exc).__name__}: {exc}"))
-        raise HTTPException(status_code=503, detail=str(exc)) from exc
+        # Provider errors can name accounts or resources: the caller gets a generic message, the audit log the detail.
+        detail = "the language model is temporarily unavailable" if isinstance(exc, LLMUnavailableError) else str(exc)
+        raise HTTPException(status_code=503, detail=detail) from exc
     except Exception as exc:
         root.update(rag__outcome="error", rag__error=type(exc).__name__)
         _record(service, entry_for(None, f"{type(exc).__name__}: {exc}"))

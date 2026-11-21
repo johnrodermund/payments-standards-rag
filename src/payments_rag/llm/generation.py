@@ -12,10 +12,16 @@ import os
 from dataclasses import dataclass
 from typing import Any
 
+from payments_rag.llm.backends import (
+    ANTHROPIC_DEFAULT_MODEL,
+    AnthropicBackend,
+    LLMBackend,
+    make_backend,
+)
 from payments_rag.llm.budget import Budget
 from payments_rag.llm.cache import ResponseCache
 
-DEFAULT_MODEL = "claude-haiku-5-5"
+DEFAULT_MODEL = ANTHROPIC_DEFAULT_MODEL
 MAX_OUTPUT_TOKENS = 700
 
 SYSTEM_PROMPT = """You answer questions about ISO 20022 payment message definitions (pacs.008 and pacs.002) \
@@ -64,34 +70,29 @@ class Generator:
         cache: ResponseCache | None = None,
         replay_only: bool | None = None,
         budget: Budget | None = None,
+        backend: LLMBackend | None = None,
     ):
-        self._client = client
-        # A real client always runs under the project's spend cap; injected test clients are not metered.
-        self.budget = budget if budget is not None else (Budget.from_env() if client is None else None)
-        self.model = model or os.environ.get("CLAUDE_MODEL", DEFAULT_MODEL)
+        """`client`/`model` configure the default Claude API backend; pass `backend` for another provider."""
+        self.backend = backend or AnthropicBackend(client=client, model=model)
+        # A real provider always runs under the project's spend cap; injected test clients are not metered.
+        self.budget = budget if budget is not None else (Budget.from_env() if client is None and backend is None else None)
         self.cache = cache
         self.replay_only = (
             replay_only if replay_only is not None else os.environ.get("LLM_REPLAY_ONLY", "0") == "1"
         )
 
-    @property
-    def client(self) -> Any:
-        if self._client is None:
-            import anthropic
+    @classmethod
+    def from_env(cls, cache: ResponseCache | None = None) -> Generator:
+        """The provider named by LLM_PROVIDER ("anthropic" by default, or "bedrock"), under the spend cap."""
+        return cls(cache=cache, backend=make_backend(), budget=Budget.from_env())
 
-            # Reads ANTHROPIC_API_KEY from the environment; the SDK retries 429/5xx itself.
-            self._client = anthropic.Anthropic(timeout=60.0, max_retries=2)
-        return self._client
+    @property
+    def model(self) -> str:
+        return self.backend.model
 
     def generate(self, question: str, hits: list[dict[str, Any]]) -> Generation:
         system, messages = build_prompt(question, hits)
-        request = {
-            "model": self.model,
-            "max_tokens": MAX_OUTPUT_TOKENS,
-            "system": system,
-            "messages": messages,
-            "output_config": {"effort": "low"},
-        }
+        request = self.backend.build_request(system, messages, MAX_OUTPUT_TOKENS)
 
         key = ResponseCache.key(request) if self.cache else None
         if key and (hit := self.cache.get(key)) is not None:
@@ -100,18 +101,17 @@ class Generator:
             raise ReplayMissError("replay-only mode: no recorded answer for this question and context")
 
         if self.budget:
-            self.budget.check(self.model, request)
-        response = self.client.messages.create(**request)
+            self.budget.check(self.model, request, max_tokens=MAX_OUTPUT_TOKENS)
+        response = self.backend.send(request)
         if self.budget:
-            self.budget.record(self.model, response.usage.input_tokens, response.usage.output_tokens)
-        text = "".join(b.text for b in response.content if getattr(b, "type", "") == "text").strip()
+            self.budget.record(self.model, response.usage["input_tokens"], response.usage["output_tokens"])
         result = Generation(
-            text=text,
-            model=getattr(response, "model", self.model),
+            text=response.text,
+            model=response.model,
             cached=False,
-            usage={"input_tokens": response.usage.input_tokens, "output_tokens": response.usage.output_tokens},
+            usage=response.usage,
             stop_reason=response.stop_reason,
-            request_id=getattr(response, "_request_id", None),
+            request_id=response.request_id,
         )
         if key:
             self.cache.put(key, {**result.__dict__, "cached": False})

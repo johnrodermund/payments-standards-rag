@@ -1,0 +1,16 @@
+.git
+.venv
+.env
+.env.*
+!.env.example
+**/__pycache__
+.pytest_cache
+.ruff_cache
+.deepeval
+data/raw
+data/processed/chunks.jsonl
+evals/results
+infra
+tests
+.cache/llm/spend.json
+.cache/llm/*.tmp

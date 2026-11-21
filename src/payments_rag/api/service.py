@@ -61,7 +61,7 @@ def build_provenance() -> Any:
 def build_service() -> Service:
     return Service(
         retriever=build_retriever(int(os.environ.get("RETRIEVAL_K", DEFAULT_K))),
-        generator=Generator(cache=ResponseCache()),
+        generator=Generator.from_env(cache=ResponseCache()),
         min_score=float(os.environ.get("ESCALATION_MIN_SCORE", DEFAULT_MIN_SCORE)),
         audit=AuditLog(database_url()),
         # Fail closed by default: no answer leaves the system unless it was recorded.

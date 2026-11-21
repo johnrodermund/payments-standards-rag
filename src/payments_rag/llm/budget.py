@@ -7,17 +7,20 @@ counted.
 
 The limit comes from LLM_BUDGET_USD (default 0.50). The ledger is a plain JSON file
 (LLM_LEDGER, default .cache/llm/spend.json): delete it to reset, or raise the limit deliberately.
-Prices are list prices per million tokens as recorded in this project; a model not in the table is
-charged at a deliberately high fallback so an unknown model can only make the cap trip early.
+Prices are list prices per million tokens as recorded in this project (or supplied with LLM_PRICES); a model
+with no known price is charged at a deliberately high fallback so it can only make the cap trip early.
 """
 
 from __future__ import annotations
 
 import json
+import logging
 import os
 import threading
 from pathlib import Path
 from typing import Any
+
+log = logging.getLogger("payments_rag.llm")
 
 DEFAULT_LIMIT_USD = 0.50
 DEFAULT_LEDGER = Path(".cache/llm/spend.json")
@@ -33,7 +36,20 @@ class BudgetExceededError(RuntimeError):
 
 
 def price_for(model: str) -> tuple[float, float]:
-    return PRICES.get(model, FALLBACK_PRICE)
+    """USD per million (input, output) tokens: the built-in table, then LLM_PRICES, then a high fallback.
+
+    LLM_PRICES is JSON such as {"us.anthropic.claude-haiku-...": [0.10, 0.50]}. Set it for any model not in the
+    table (every Bedrock model id), from the provider's current price list; prices are not guessed here.
+    """
+    if model in PRICES:
+        return PRICES[model]
+    try:
+        override = json.loads(os.environ.get("LLM_PRICES") or "{}").get(model)
+        if override:
+            return float(override[0]), float(override[1])
+    except (ValueError, TypeError, IndexError, AttributeError):
+        log.warning("LLM_PRICES is not valid JSON of {model: [input, output]}; using the high fallback price")
+    return FALLBACK_PRICE
 
 
 def cost_usd(model: str, input_tokens: int, output_tokens: int) -> float:
@@ -60,10 +76,10 @@ class Budget:
     def spent(self) -> float:
         return float(self._read()["spent_usd"])
 
-    def check(self, model: str, request: dict[str, Any]) -> None:
+    def check(self, model: str, request: dict[str, Any], max_tokens: int | None = None) -> None:
         """Refuse the call if the worst case for it would take the total past the limit."""
         est_input = len(json.dumps(request, default=str)) // CHARS_PER_TOKEN + 1
-        worst = cost_usd(model, est_input, int(request.get("max_tokens", 0)))
+        worst = cost_usd(model, est_input, int(max_tokens if max_tokens is not None else request.get("max_tokens", 0)))
         with self._lock:
             spent = float(self._read()["spent_usd"])
         if spent + worst > self.limit_usd:

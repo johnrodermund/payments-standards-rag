@@ -198,7 +198,7 @@ def main(argv: list[str] | None = None) -> int:
     from payments_rag.llm.cache import ResponseCache
     from payments_rag.llm.generation import Generator
 
-    generator = Generator(cache=ResponseCache(args.cache_dir))
+    generator = Generator.from_env(cache=ResponseCache(args.cache_dir))
     rows = run_golden(golden, build_retriever(), generator, DEFAULT_MIN_SCORE, guard=not args.no_guard)
 
     judged = None

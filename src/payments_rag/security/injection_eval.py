@@ -117,7 +117,7 @@ def main(argv: list[str] | None = None) -> int:
     from payments_rag.llm.cache import ResponseCache
     from payments_rag.llm.generation import Generator
 
-    generator = Generator(cache=ResponseCache(args.cache_dir))
+    generator = Generator.from_env(cache=ResponseCache(args.cache_dir))
     rows = run_cases(load_cases(args.set_path), generator, guard=args.guard == "on")
     summary = summarize(rows)
     report = {

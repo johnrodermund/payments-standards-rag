@@ -18,8 +18,12 @@ This README states only what has been built and run. What is missing is listed p
 | Drift check (retrieval score, answer length, escalation rate over time) | Built; tested by simulation only, **not yet run on real traffic** |
 | Phoenix tracing (OpenTelemetry spans per request) | Built; verified against a local Phoenix container |
 | Async ingest endpoint (`POST /ingest`, job status) | Built; verified against the real database |
-| Cloud deployment, recorded demo | **Not built** |
-| Bedrock / Azure OpenAI backend | **Not built** (see [Provider](#provider-and-why)) |
+| Container image | Built and run locally: starts healthy, ingests through `POST /ingest`, answers a recorded question in replay-only mode |
+| AWS stack (CDK: ECS Fargate, ALB, RDS PostgreSQL) | Deployed once on 2026-11-21 (us-east-2, replay mode, open to one IP only), exercised, then destroyed; **not running now** (see [Deployed run](#deployed-run-2026-11-21) and [infra/README.md](infra/README.md)) |
+| Public, always-on deployment | **Not done**: there is no live URL. The demo stack was reachable only from the operator's IP, and was torn down |
+| Recorded run against the deployed service | `evals/demo/deployed_run.json` (replay mode; one question had no recording) |
+| Amazon Bedrock generation backend (Converse API) | Built; tested with a stubbed client only, **never run against live Bedrock** (see [Provider](#provider-and-why)) |
+| Azure OpenAI backend | **Not built** |
 
 ## Architecture
 
@@ -48,7 +52,8 @@ question ─► FastAPI /ask ─► hybrid retrieval ─► passage screening �
 - **Generation:** Claude API, `claude-haiku-5-5`, effort low, 700 max output tokens.
 - **Embeddings:** local `BAAI/bge-small-en-v1.5` (quantised, 384 dimensions) through `fastembed`. No API, no per-call cost. The model name and dimension are stored in the database and mixing is refused.
 - **Eval judge:** TypeSafe JEV (a separate model family from the generator, so the generator does not grade itself). A Claude judge is also implemented but was not used.
-- **Why not Bedrock or Azure OpenAI:** the original plan was AWS Bedrock. On this new AWS account every Bedrock inference quota is 0, and the account-level restriction needs an Anthropic use-case form and a support case before it lifts. No Bedrock call was ever made. The generation code is one small module (`llm/generation.py`), so a Bedrock backend would be a contained addition, but **it does not exist**.
+- **Bedrock:** the original plan was AWS Bedrock. On this new AWS account every Bedrock inference quota is 0 (an account-level restriction that needs an Anthropic use-case form and a support case), so **no Bedrock call has ever been made and no Bedrock result is reported here**. The backend itself exists and is selected with `LLM_PROVIDER=bedrock`: it calls the Converse API on `bedrock-runtime` with `maxTokens` always set, adaptive retries, credentials from the standard AWS chain (profile, SSO or an ECS task role, so no keys in code), and the same response cache, replay-only mode, spend cap, citation checks, audit log and tracing as the Claude API path. It is tested with botocore's `Stubber` on a real boto3 client, which validates each request and response against AWS's API model, so the request and response shapes are checked but real behaviour is not. Known differences from the Claude API path: the `effort: low` setting is not sent to Bedrock, so answers from the two providers may differ; the model id is not defaulted (`BEDROCK_GENERATION_MODEL_ID`, an inference-profile id from `aws bedrock list-inference-profiles`); and prices are not guessed (set `LLM_PRICES`, otherwise a deliberately high fallback price makes the spend cap trip early). Embeddings stay local; there is no Bedrock embedding backend.
+- **Azure OpenAI:** not built.
 - Keys are read from environment variables only (`ANTHROPIC_API_KEY`, `TYPESAFE_API_KEY`).
 
 ## Design decisions
@@ -201,6 +206,14 @@ curl -s -X POST localhost:8000/ingest -H "authorization: Bearer $INGEST_API_TOKE
 curl -s localhost:8000/ingest/<job_id> -H "authorization: Bearer $INGEST_API_TOKEN"
 ```
 
+To use Bedrock instead of the Claude API (not yet exercised live; the check below makes one billed call):
+
+```
+export LLM_PROVIDER=bedrock AWS_REGION=<region> BEDROCK_GENERATION_MODEL_ID=<inference-profile id>
+export LLM_PRICES='{"<that id>": [<input USD per M tokens>, <output USD per M tokens>]}'
+uv run python -m payments_rag.llm.bedrock_check
+```
+
 Serve and ask (needs `ANTHROPIC_API_KEY` in the environment; every call is capped by `LLM_BUDGET_USD`):
 
 ```
@@ -222,15 +235,28 @@ The compose `app` service was only verified to serve `/health` at the scaffold s
 
 ## Tests and CI
 
-279 tests. CI (`.github/workflows/ci.yml`) runs lint and tests, then downloads and hash-verifies the ISO source, builds the index and runs the retrieval and confidence gate on every push. The LLM-scored eval (faithfulness, relevancy, behaviour) runs only when `ANTHROPIC_API_KEY` and the judge key are repository secrets, and is skipped with a warning otherwise. The gate fails the build if any metric is below its minimum in `evals/thresholds.json`. A deliberately reversed-ranking retriever failed the retrieval gate (MRR 0.23), which is why hit@1 and MRR are gated and not hit@5 alone.
+309 tests. CI (`.github/workflows/ci.yml`) runs lint and tests, then downloads and hash-verifies the ISO source, builds the index and runs the retrieval and confidence gate on every push. The LLM-scored eval (faithfulness, relevancy, behaviour) runs only when `ANTHROPIC_API_KEY` and the judge key are repository secrets, and is skipped with a warning otherwise. The gate fails the build if any metric is below its minimum in `evals/thresholds.json`. A deliberately reversed-ranking retriever failed the retrieval gate (MRR 0.23), which is why hit@1 and MRR are gated and not hit@5 alone.
+
+## Deployed run (2026-11-21)
+
+The stack in `infra/` was deployed once to AWS (us-east-2), used for about 25 minutes, and destroyed; nothing from it is running. It ran in **replay mode**, so the service made no model calls: answers were replayed from earlier recordings of live Claude runs. The load balancer accepted traffic only from the operator's IP.
+
+| Measurement | Result |
+|---|---|
+| Ingest on Fargate (1 vCPU, 2 GB), `POST /ingest` from the committed extract | 1,245 chunks embedded in 4 min 41 s; pgvector worked on RDS PostgreSQL 16 |
+| Golden set through the deployed `/ask` (44 answerable) | 41 answered, 3 escalated (`insufficient_context`), no errors; hit@5 39/44 (0.886, same as the local run) |
+| Questions that should escalate (8 golden unanswerable + 12 off-topic) | 19 of 20 escalated; 0 answered; 1 returned 503 because replay mode had no recording for it (a euro/dollar rate question) |
+
+The full responses are in `evals/demo/deployed_run.json`, produced by `evals/demo/record_run.py`. What this does not show: live model calls from AWS (neither Claude API mode nor Bedrock was run there), behaviour under a task restart, or the audit log's contents (a write failure would have made `/ask` return 503, and none did, but the table was not inspected). The injection test set is passage-level and is not reproducible through `/ask`, so it was not part of this run.
+
+**Cost.** Billing data had not posted when this was written, so there is no billed figure yet. From the runtime and list prices (load balancer, one Fargate task, one `db.t4g.micro`, public IPv4 addresses, two secrets, all for well under an hour) the estimate is under $0.10, drawn from AWS Free Plan credits. Left behind: the CDK bootstrap bucket and image repository (a 338 MB image, a few cents a month) and one automated database snapshot that expires by itself.
 
 ## Not built yet
 
 - **Traces for ingestion and the evals.** Only `/ask` is traced; tracing against an authenticated Phoenix is untested.
 - **Scheduled drift runs and a real-traffic baseline.** The drift check exists but nothing runs it on a schedule, and it has no real traffic to check yet.
-- **Cloud deployment.** The service is not deployed and is not reachable from the internet. The plan was AWS ECS on Fargate; the Dockerfile exists but the cloud path is untested.
-- **Recorded demo.** Replay mode exists, but no recording has been made.
-- **Bedrock or Azure OpenAI backend** (see [Provider](#provider-and-why)).
+- **A standing cloud deployment.** The stack was deployed and verified once, then destroyed (see above); there is no public URL. Untested on AWS: Claude API mode, Bedrock mode, HTTPS, task restarts.
+- **Live Bedrock verification and results.** The backend is built but unproven against the real service until the account quotas are fixed; `python -m payments_rag.llm.bedrock_check` makes one tiny billed call to confirm it. A golden-set run on both providers is the planned comparison and does not exist yet. Also not built: Azure OpenAI and Bedrock embeddings.
 - **Other sources.** A BIS report on harmonised ISO 20022 data requirements was approved but not ingested; FedNow and CBPR+ material is out of scope for licensing reasons (see `data/SOURCES.md`).
 - **Known quality gaps:** the 5 retrieval misses above, and the guard's paraphrase evasion.
 - **Not independent:** the golden set and the injection sets were written by the same author as the system.

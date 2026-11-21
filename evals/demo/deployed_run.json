@@ -1,0 +1,3857 @@
+{
+  "summary": {
+    "service": "http://Paymen-Servi-85hLKHkwYp4d-339853903.us-east-2.elb.amazonaws.com",
+    "answerable_questions": 44,
+    "answered": 41,
+    "answerable_escalated": 3,
+    "answerable_http_errors": 0,
+    "hit_at_5": 39,
+    "should_escalate": 20,
+    "escalated_correctly": 19,
+    "answered_but_should_escalate": 0,
+    "http_errors_total": 1
+  },
+  "results": [
+    {
+      "set": "golden",
+      "id": "gold-01",
+      "category": "max_length",
+      "question": "What is the maximum length of Instruction Identification in pacs.008?",
+      "answerable": true,
+      "reference_ids": [
+        "pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/PmtId/InstrId"
+      ],
+      "hit_at_5": true,
+      "status": 200,
+      "seconds": 1.38,
+      "request_id": "d8363fef-85f1-450d-9db9-b3243462ee42",
+      "answer": "The maximum length of Instruction Identification in pacs.008 is 35 characters. Its type is Max35Text, with a length of 1 to 35 characters [1].",
+      "escalated": false,
+      "reason": null,
+      "sources": [
+        {
+          "id": "pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/PmtId/InstrId",
+          "kind": "element",
+          "score": 0.7215067480198497,
+          "snippet": "Instruction Identification: Unique identification, as assigned by an instructing party for an instructed party, to unambiguously identify the instruction. Usage: The instruction identification is a point to point reference that can be used between the instructing party and the instructed party to refer to the individual instruction. It can be included in several messages related to the instruct..."
+        }
+      ],
+      "retrieval": [
+        {
+          "id": "pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/PmtId/InstrId",
+          "score": 0.7215067480198497
+        },
+        {
+          "id": "pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/InstrForCdtrAgt/InstrInf",
+          "score": 0.6940867900848389
+        },
+        {
+          "id": "pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/PmtId/ClrSysRef",
+          "score": 0.6836277623620365
+        },
+        {
+          "id": "pacs.008.001.14#FIToFICstmrCdtTrf/GrpHdr/NbOfTxs",
+          "score": 0.6321465811554737
+        },
+        {
+          "id": "pacs.008.001.14#rule:ChargesInformationAndInstructedAmountRule",
+          "score": 0.7004549860411948
+        }
+      ],
+      "retrieved": 5,
+      "quarantined": [],
+      "model": "claude-haiku-5-5",
+      "cached": true,
+      "usage": {
+        "input_tokens": 1724,
+        "output_tokens": 55
+      }
+    },
+    {
+      "set": "golden",
+      "id": "gold-02",
+      "category": "max_length",
+      "question": "How many characters can Description hold in pacs.008?",
+      "answerable": true,
+      "reference_ids": [
+        "pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/RmtInf/Strd/RfrdDocInf/LineDtls/Desc"
+      ],
+      "hit_at_5": true,
+      "status": 200,
+      "seconds": 0.22,
+      "request_id": "e01cbbdc-9c1c-4dbe-b6ad-9caa07107d8c",
+      "answer": "The Description element can hold 1 to 2048 characters (type Max2048Text) [1].",
+      "escalated": false,
+      "reason": null,
+      "sources": [
+        {
+          "id": "pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/RmtInf/Strd/RfrdDocInf/LineDtls/Desc",
+          "kind": "element",
+          "score": 0.7049579972078803,
+          "snippet": "Description: Description associated with the document line. Path: Credit Transfer Transaction Information > Remittance Information > Structured > Referred Document Information > Line Details > Description (XML path: FIToFICstmrCdtTrf/CdtTrfTxInf/RmtInf/Strd/RfrdDocInf/LineDtls/Desc) Type: Max2048Text (text, 1 to 2048 characters); occurrence 0..1 (optional) Parent: Credit Transfer Transaction In..."
+        }
+      ],
+      "retrieval": [
+        {
+          "id": "pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/RmtInf/Strd/RfrdDocInf/LineDtls/Desc",
+          "score": 0.7049579972078803
+        },
+        {
+          "id": "pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/InstrForCdtrAgt/Cd",
+          "score": 0.6174824693819917
+        },
+        {
+          "id": "pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/Tax/Mtd",
+          "score": 0.5434491310447982
+        },
+        {
+          "id": "pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/Cdtr/Nm",
+          "score": 0.6175230557464667
+        },
+        {
+          "id": "pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/Dbtr/Nm",
+          "score": 0.6006946205678819
+        }
+      ],
+      "retrieved": 5,
+      "quarantined": [],
+      "model": "claude-haiku-5-5",
+      "cached": true,
+      "usage": {
+        "input_tokens": 1926,
+        "output_tokens": 31
+      }
+    },
+    {
+      "set": "golden",
+      "id": "gold-03",
+      "category": "max_length",
+      "question": "What are the length limits for Message Identification in a pacs.008 message?",
+      "answerable": true,
+      "reference_ids": [
+        "pacs.008.001.14#FIToFICstmrCdtTrf/GrpHdr/MsgId"
+      ],
+      "hit_at_5": true,
+      "status": 200,
+      "seconds": 0.26,
+      "request_id": "c69402a2-87da-463e-ae2f-0041de83d031",
+      "answer": "Message Identification (FIToFICstmrCdtTrf/GrpHdr/MsgId) is of type Max35Text, which is text of 1 to 35 characters, with mandatory occurrence 1..1 [1].",
+      "escalated": false,
+      "reason": null,
+      "sources": [
+        {
+          "id": "pacs.008.001.14#FIToFICstmrCdtTrf/GrpHdr/MsgId",
+          "kind": "element",
+          "score": 0.6817210885785076,
+          "snippet": "Message Identification: Point to point reference, as assigned by the instructing party, and sent to the next party in the chain to unambiguously identify the message. Usage: The instructing party has to make sure that MessageIdentification is unique per instructed party for a pre-agreed period. Path: Group Header > Message Identification (XML path: FIToFICstmrCdtTrf/GrpHdr/MsgId) Type: Max35Tex..."
+        }
+      ],
+      "retrieval": [
+        {
+          "id": "pacs.008.001.14#FIToFICstmrCdtTrf/GrpHdr/MsgId",
+          "score": 0.6817210885785076
+        },
+        {
+          "id": "pacs.008.001.14#message:usage",
+          "score": 0.6922515218108096
+        },
+        {
+          "id": "pacs.008.001.14#rule:NumberOfTransactionsAndCreditTransfersRule",
+          "score": 0.6696690318284378
+        },
+        {
+          "id": "pacs.008.001.14#rule:TransactionIdentificationPresenceRule",
+          "score": 0.6846996513546149
+        },
+        {
+          "id": "pacs.008.001.14#FIToFICstmrCdtTrf/GrpHdr/NbOfTxs",
+          "score": 0.6451642167176683
+        }
+      ],
+      "retrieved": 5,
+      "quarantined": [],
+      "model": "claude-haiku-5-5",
+      "cached": true,
+      "usage": {
+        "input_tokens": 1476,
+        "output_tokens": 75
+      }
+    },
+    {
+      "set": "golden",
+      "id": "gold-04",
+      "category": "max_length",
+      "question": "What is the maximum length of Remittance Identification in pacs.008?",
+      "answerable": true,
+      "reference_ids": [
+        "pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/RltdRmtInf/RmtId"
+      ],
+      "hit_at_5": true,
+      "status": 200,
+      "seconds": 0.2,
+      "request_id": "337a8dad-805d-4f6d-8bc4-5a086e313a2b",
+      "answer": "The maximum length of Remittance Identification (RmtId) in pacs.008 is 35 characters, with type Max35Text (text, 1 to 35 characters) [1].",
+      "escalated": false,
+      "reason": null,
+      "sources": [
+        {
+          "id": "pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/RltdRmtInf/RmtId",
+          "kind": "element",
+          "score": 0.7930545210838374,
+          "snippet": "Remittance Identification: Unique identification, as assigned by the initiating party, to unambiguously identify the remittance information sent separately from the payment instruction, such as a remittance advice. Path: Credit Transfer Transaction Information > Related Remittance Information > Remittance Identification (XML path: FIToFICstmrCdtTrf/CdtTrfTxInf/RltdRmtInf/RmtId) Type: Max35Text ..."
+        }
+      ],
+      "retrieval": [
+        {
+          "id": "pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/RltdRmtInf/RmtId",
+          "score": 0.7930545210838374
+        },
+        {
+          "id": "pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/RmtInf/Strd/Invcee/Id",
+          "score": 0.7288085545529658
+        },
+        {
+          "id": "pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/RmtInf/Strd/Invcr/Id",
+          "score": 0.7238693617621283
+        },
+        {
+          "id": "pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/RltdRmtInf/RmtLctnDtls/PstlAdr/Adr/Dept",
+          "score": 0.7384182526566682
+        },
+        {
+          "id": "pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/RmtInf/Strd/RfrdDocInf/Nb",
+          "score": 0.7468855230144097
+        }
+      ],
+      "retrieved": 5,
+      "quarantined": [],
+      "model": "claude-haiku-5-5",
+      "cached": true,
+      "usage": {
+        "input_tokens": 2167,
+        "output_tokens": 58
+      }
+    },
+    {
+      "set": "golden",
+      "id": "gold-05",
+      "category": "requirement",
+      "question": "Is Final Payment Date mandatory or optional in pacs.008?",
+      "answerable": true,
+      "reference_ids": [
+        "pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/MndtRltdInf/FnlPmtDt"
+      ],
+      "hit_at_5": true,
+      "status": 200,
+      "seconds": 0.2,
+      "request_id": "a8f9a19f-a2e8-47cb-be4d-5656c884e188",
+      "answer": "Final Payment Date is optional in pacs.008.001.14: its occurrence is 0..1 [1].",
+      "escalated": false,
+      "reason": null,
+      "sources": [
+        {
+          "id": "pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/MndtRltdInf/FnlPmtDt",
+          "kind": "element",
+          "score": 0.7638990738331719,
+          "snippet": "Final Payment Date: Date of the final payment of a recurrent credit transfer as per the mandate. Path: Credit Transfer Transaction Information > Mandate Related Information > Final Payment Date (XML path: FIToFICstmrCdtTrf/CdtTrfTxInf/MndtRltdInf/FnlPmtDt) Type: ISODate (date: A particular point in the progression of time in a calendar year expressed in the YYYY-MM-DD format. This representat....."
+        }
+      ],
+      "retrieval": [
+        {
+          "id": "pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/MndtRltdInf/FnlPmtDt",
+          "score": 0.7638990738331719
+        },
+        {
+          "id": "pacs.008.001.14#rule:TransactionInterbankSettlementDateRule",
+          "score": 0.7398565787119723
+        },
+        {
+          "id": "pacs.008.001.14#rule:GroupHeaderInterbankSettlementDateRule",
+          "score": 0.73968879164193
+        },
+        {
+          "id": "pacs.008.001.14#rule:GroupHeaderExpiryDateTimeRule",
+          "score": 0.7360941233719105
+        },
+        {
+          "id": "pacs.008.001.14#rule:AdditionalDateTimePresenceRule",
+          "score": 0.735199137639948
+        }
+      ],
+      "retrieved": 5,
+      "quarantined": [],
+      "model": "claude-haiku-5-5",
+      "cached": true,
+      "usage": {
+        "input_tokens": 1371,
+        "output_tokens": 37
+      }
+    },
+    {
+      "set": "golden",
+      "id": "gold-06",
+      "category": "requirement",
+      "question": "Does pacs.008 require Tax?",
+      "answerable": true,
+      "reference_ids": [
+        "pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/Tax"
+      ],
+      "hit_at_5": true,
+      "status": 200,
+      "seconds": 0.2,
+      "request_id": "54ad4c13-585d-443c-9c3d-b37c1a14756c",
+      "answer": "Tax is optional in pacs.008.001.14. The Tax element has occurrence 0..1 (optional) [1]. Its child Record also has occurrence 0..* (optional, repeatable) [5], and the Debtor under Tax is 0..1 (optional) [3]. The passages do not state any condition under which Tax becomes mandatory.",
+      "escalated": false,
+      "reason": null,
+      "sources": [
+        {
+          "id": "pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/Tax",
+          "kind": "element",
+          "score": 0.6380181744076998,
+          "snippet": "Tax: Provides details on the tax. Path: Credit Transfer Transaction Information > Tax (XML path: FIToFICstmrCdtTrf/CdtTrfTxInf/Tax) Type: TaxData1; occurrence 0..1 (optional) Parent: Credit Transfer Transaction Information. Set of elements providing information specific to the individual credit transfer(s). Also used at: Remittance Information > Structured > Tax Remittance ISO 20022 pacs.008.00..."
+        },
+        {
+          "id": "pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/Tax/Dbtr",
+          "kind": "element",
+          "score": 0.5856057899468196,
+          "snippet": "Debtor: Party on the debit side of the transaction to which the tax applies. Path: Credit Transfer Transaction Information > Tax > Debtor (XML path: FIToFICstmrCdtTrf/CdtTrfTxInf/Tax/Dbtr) Type: TaxParty2; occurrence 0..1 (optional) Parent: Credit Transfer Transaction Information > Tax. Provides details on the tax. Also used at: Credit Transfer Transaction Information > Tax > Ultimate Debtor; S..."
+        },
+        {
+          "id": "pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/Tax/Rcrd",
+          "kind": "element",
+          "score": 0.638849799838699,
+          "snippet": "Record: Record of tax details. Path: Credit Transfer Transaction Information > Tax > Record (XML path: FIToFICstmrCdtTrf/CdtTrfTxInf/Tax/Rcrd) Type: TaxRecord3; occurrence 0..* (optional, repeatable) Parent: Credit Transfer Transaction Information > Tax. Provides details on the tax. Also used at: Structured > Tax Remittance > Record ISO 20022 pacs.008.001.14 (FIToFICustomerCreditTransferV14)"
+        }
+      ],
+      "retrieval": [
+        {
+          "id": "pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/Tax",
+          "score": 0.6380181744076998
+        },
+        {
+          "id": "pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/RgltryRptg/Authrty/Ctry",
+          "score": 0.5843296894830661
+        },
+        {
+          "id": "pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/Tax/Dbtr",
+          "score": 0.5856057899468196
+        },
+        {
+          "id": "pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/Tax/Rcrd/TaxAmt",
+          "score": 0.6358701803761625
+        },
+        {
+          "id": "pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/Tax/Rcrd",
+          "score": 0.638849799838699
+        }
+      ],
+      "retrieved": 5,
+      "quarantined": [],
+      "model": "claude-haiku-5-5",
+      "cached": true,
+      "usage": {
+        "input_tokens": 1796,
+        "output_tokens": 115
+      }
+    },
+    {
+      "set": "golden",
+      "id": "gold-07",
+      "category": "requirement",
+      "question": "Can Agent be omitted from a pacs.008 message?",
+      "answerable": true,
+      "reference_ids": [
+        "pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/ChrgsInf/Agt"
+      ],
+      "hit_at_5": false,
+      "status": 200,
+      "seconds": 0.26,
+      "request_id": "9ccbd052-4f4d-4a83-af75-3d0819311981",
+      "answer": null,
+      "escalated": true,
+      "reason": "insufficient_context",
+      "sources": [
+        {
+          "id": "pacs.008.001.14#rule:InstructingAgentRule",
+          "kind": "rule",
+          "score": 0.7293789709354725,
+          "snippet": "ISO 20022 pacs.008.001.14 (FIToFICustomerCreditTransferV14) Business rule InstructingAgentRule (Instructing Agent Rule): If Group Header / Instructing Agent is present, then Credit Transfer Transaction Information / Instructing Agent is not allowed. Applies to the whole message."
+        },
+        {
+          "id": "pacs.008.001.14#rule:InstructedAgentRule",
+          "kind": "rule",
+          "score": 0.7094854462760205,
+          "snippet": "ISO 20022 pacs.008.001.14 (FIToFICustomerCreditTransferV14) Business rule InstructedAgentRule (Instructed Agent Rule): If Group Header / Instructed Agent is present, then Credit Transfer Transaction Information / Instructed Agent is not allowed. Applies to the whole message."
+        },
+        {
+          "id": "pacs.008.001.14#message:usage",
+          "kind": "message",
+          "score": 0.6857681683163755,
+          "snippet": "ISO 20022 pacs.008.001.14 (FIToFICustomerCreditTransferV14) Usage (how and when the message is used) of the FI To FI Customer Credit Transfer V14 message (pacs.008.001.14): The FI To FI Customer Credit Transfer message is exchanged between agents and can contain one or more customer credit transfer instructions. The FI To FI Customer Credit Transfer message does not allow for grouping: a Credit..."
+        },
+        {
+          "id": "pacs.008.001.14#rule:PreviousInstructingAgent2AccountRule",
+          "kind": "rule",
+          "score": 0.7271090745925903,
+          "snippet": "ISO 20022 pacs.008.001.14 (FIToFICustomerCreditTransferV14) Business rule PreviousInstructingAgent2AccountRule (Previous Instructing Agent2 Account Rule): If Previous Instructing Agent2 Account is present, then Previous Instructing Agent2 must be present. Applies at: FIToFICstmrCdtTrf/CdtTrfTxInf"
+        },
+        {
+          "id": "pacs.008.001.14#message:scope",
+          "kind": "message",
+          "score": 0.6613442099895614,
+          "snippet": "ISO 20022 pacs.008.001.14 (FIToFICustomerCreditTransferV14) Scope (purpose of the message: what it is for and who sends it to whom) of the FI To FI Customer Credit Transfer V14 message (pacs.008.001.14): The Financial Institution To Financial Institution Customer Credit Transfer message is sent by the debtor agent to the creditor agent, directly or through other agents and / or a payment cleari..."
+        }
+      ],
+      "retrieval": [
+        {
+          "id": "pacs.008.001.14#rule:InstructingAgentRule",
+          "score": 0.7293789709354725
+        },
+        {
+          "id": "pacs.008.001.14#rule:InstructedAgentRule",
+          "score": 0.7094854462760205
+        },
+        {
+          "id": "pacs.008.001.14#message:usage",
+          "score": 0.6857681683163755
+        },
+        {
+          "id": "pacs.008.001.14#rule:PreviousInstructingAgent2AccountRule",
+          "score": 0.7271090745925903
+        },
+        {
+          "id": "pacs.008.001.14#message:scope",
+          "score": 0.6613442099895614
+        }
+      ],
+      "retrieved": 5,
+      "quarantined": [],
+      "model": "claude-haiku-5-5",
+      "cached": true,
+      "usage": {
+        "input_tokens": 1280,
+        "output_tokens": 328
+      }
+    },
+    {
+      "set": "golden",
+      "id": "gold-08",
+      "category": "requirement",
+      "question": "Is Referred Document Amount mandatory or optional in pacs.008?",
+      "answerable": true,
+      "reference_ids": [
+        "pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/RmtInf/Strd/RfrdDocAmt"
+      ],
+      "hit_at_5": true,
+      "status": 200,
+      "seconds": 0.25,
+      "request_id": "f4d9e4c4-9bd4-4613-9919-d41556342405",
+      "answer": "Referred Document Amount is optional in pacs.008. Its occurrence is 0..1, which means it may be present at most once or omitted [1].",
+      "escalated": false,
+      "reason": null,
+      "sources": [
+        {
+          "id": "pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/RmtInf/Strd/RfrdDocAmt",
+          "kind": "element",
+          "score": 0.7805489301681519,
+          "snippet": "Referred Document Amount: Provides details on the amounts of the referred document. Path: Credit Transfer Transaction Information > Remittance Information > Structured > Referred Document Amount (XML path: FIToFICstmrCdtTrf/CdtTrfTxInf/RmtInf/Strd/RfrdDocAmt) Type: RemittanceAmount4; occurrence 0..1 (optional) Parent: Credit Transfer Transaction Information > Remittance Information > Structured..."
+        }
+      ],
+      "retrieval": [
+        {
+          "id": "pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/RmtInf/Strd/RfrdDocAmt",
+          "score": 0.7805489301681519
+        },
+        {
+          "id": "pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/RmtInf/Strd/RfrdDocAmt/RmtAmtAndTp",
+          "score": 0.7646843650748961
+        },
+        {
+          "id": "pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/RmtInf/Strd/RfrdDocInf/LineDtls/Amt",
+          "score": 0.7547285185673395
+        },
+        {
+          "id": "pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/RmtInf/Strd/RfrdDocInf/LineDtls/Amt/RmtAmtAndTp/Amt",
+          "score": 0.7551560693793268
+        },
+        {
+          "id": "pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/RmtInf/Strd/RfrdDocAmt/AdjstmntAmtAndRsn",
+          "score": 0.7427335534850639
+        }
+      ],
+      "retrieved": 5,
+      "quarantined": [],
+      "model": "claude-haiku-5-5",
+      "cached": true,
+      "usage": {
+        "input_tokens": 2538,
+        "output_tokens": 48
+      }
+    },
+    {
+      "set": "golden",
+      "id": "gold-09",
+      "category": "definition",
+      "question": "What is Message Identification in pacs.008?",
+      "answerable": true,
+      "reference_ids": [
+        "pacs.008.001.14#FIToFICstmrCdtTrf/GrpHdr/MsgId"
+      ],
+      "hit_at_5": true,
+      "status": 200,
+      "seconds": 0.22,
+      "request_id": "a42e6664-cb3e-4d5a-b780-ab07b49f2b7f",
+      "answer": "Message Identification is a point-to-point reference, assigned by the instructing party and sent to the next party in the chain to unambiguously identify the message [1]. Its XML path is FIToFICstmrCdtTrf/GrpHdr/MsgId, it is of type Max35Text (1 to 35 characters), and it is mandatory (occurrence 1..1) [1]. The instructing party must ensure it is unique per instructed party for a pre-agreed period [1].",
+      "escalated": false,
+      "reason": null,
+      "sources": [
+        {
+          "id": "pacs.008.001.14#FIToFICstmrCdtTrf/GrpHdr/MsgId",
+          "kind": "element",
+          "score": 0.7216332290609802,
+          "snippet": "Message Identification: Point to point reference, as assigned by the instructing party, and sent to the next party in the chain to unambiguously identify the message. Usage: The instructing party has to make sure that MessageIdentification is unique per instructed party for a pre-agreed period. Path: Group Header > Message Identification (XML path: FIToFICstmrCdtTrf/GrpHdr/MsgId) Type: Max35Tex..."
+        }
+      ],
+      "retrieval": [
+        {
+          "id": "pacs.008.001.14#FIToFICstmrCdtTrf/GrpHdr/MsgId",
+          "score": 0.7216332290609802
+        },
+        {
+          "id": "pacs.008.001.14#message:usage",
+          "score": 0.6990792155265858
+        },
+        {
+          "id": "pacs.008.001.14#rule:TransactionIdentificationPresenceRule",
+          "score": 0.7124653205316877
+        },
+        {
+          "id": "pacs.008.001.14#message:scope",
+          "score": 0.6846609115600635
+        },
+        {
+          "id": "pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/UltmtDbtr/Id",
+          "score": 0.6298451048228093
+        }
+      ],
+      "retrieved": 5,
+      "quarantined": [],
+      "model": "claude-haiku-5-5",
+      "cached": true,
+      "usage": {
+        "input_tokens": 1544,
+        "output_tokens": 154
+      }
+    },
+    {
+      "set": "golden",
+      "id": "gold-10",
+      "category": "definition",
+      "question": "What does End To End Identification mean in pacs.008?",
+      "answerable": true,
+      "reference_ids": [
+        "pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/PmtId/EndToEndId"
+      ],
+      "hit_at_5": true,
+      "status": 200,
+      "seconds": 0.22,
+      "request_id": "1caa2373-3522-4041-bba4-bf50c5a62478",
+      "answer": "End To End Identification is a unique identification, assigned by the initiating party, that unambiguously identifies the transaction [1]. It is passed on unchanged throughout the entire end-to-end chain [1]. It can be used for reconciliation or to link tasks relating to the transaction, and it can appear in several messages related to the transaction [1]. If technical limitations prevent passing on multiple references, the end-to-end identification must still be passed on throughout the chain [1]. It is a Max35Text field of 1 to 35 characters and is mandatory (occurrence 1..1) [1].",
+      "escalated": false,
+      "reason": null,
+      "sources": [
+        {
+          "id": "pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/PmtId/EndToEndId",
+          "kind": "element",
+          "score": 0.7950910329818782,
+          "snippet": "End To End Identification: Unique identification, as assigned by the initiating party, to unambiguously identify the transaction. This identification is passed on, unchanged, throughout the entire end-to-end chain. Usage: The end-to-end identification can be used for reconciliation or to link tasks relating to the transaction. It can be included in several messages related to the transaction. U..."
+        }
+      ],
+      "retrieval": [
+        {
+          "id": "pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/PmtId/EndToEndId",
+          "score": 0.7950910329818782
+        },
+        {
+          "id": "pacs.008.001.14#rule:TransactionIdentificationPresenceRule",
+          "score": 0.7221680879592947
+        },
+        {
+          "id": "pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/DbtrAcct/Id",
+          "score": 0.7011038064956715
+        },
+        {
+          "id": "pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/CdtrAcct/Id",
+          "score": 0.6984518198774895
+        },
+        {
+          "id": "pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/AgrdRate/QtId",
+          "score": 0.6900462734754411
+        }
+      ],
+      "retrieved": 5,
+      "quarantined": [],
+      "model": "claude-haiku-5-5",
+      "cached": true,
+      "usage": {
+        "input_tokens": 1945,
+        "output_tokens": 190
+      }
+    },
+    {
+      "set": "golden",
+      "id": "gold-11",
+      "category": "definition",
+      "question": "Explain the CLS Time element of pacs.008.",
+      "answerable": true,
+      "reference_ids": [
+        "pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/SttlmTmReq/CLSTm"
+      ],
+      "hit_at_5": true,
+      "status": 200,
+      "seconds": 0.21,
+      "request_id": "396dc69b-f766-4e78-9d4e-1b37144367ed",
+      "answer": "The CLS Time element (XML path FIToFICstmrCdtTrf/CdtTrfTxInf/SttlmTmReq/CLSTm) is the time by which the amount of money must be credited, with confirmation, to the CLS Bank's account at the central bank [1]. Its usage requires the time to be expressed in Central European Time (CET) [1]. It is an ISOTime type, is optional with occurrence 0..1, and sits under Credit Transfer Transaction Information > Settlement Time Request, which provides information on the requested settlement time of the payment instruction [1].",
+      "escalated": false,
+      "reason": null,
+      "sources": [
+        {
+          "id": "pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/SttlmTmReq/CLSTm",
+          "kind": "element",
+          "score": 0.7473686488051041,
+          "snippet": "CLS Time: Time by which the amount of money must be credited, with confirmation, to the CLS Bank's account at the central bank. Usage: Time must be expressed in Central European Time (CET). Path: Credit Transfer Transaction Information > Settlement Time Request > CLS Time (XML path: FIToFICstmrCdtTrf/CdtTrfTxInf/SttlmTmReq/CLSTm) Type: ISOTime (time: A particular point in the progression of tim..."
+        }
+      ],
+      "retrieval": [
+        {
+          "id": "pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/SttlmTmReq/CLSTm",
+          "score": 0.7473686488051041
+        },
+        {
+          "id": "pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/SttlmTmReq/FrTm",
+          "score": 0.6773222473475639
+        },
+        {
+          "id": "pacs.008.001.14#rule:GroupHeaderExpiryDateTimeRule",
+          "score": 0.6782022118568468
+        },
+        {
+          "id": "pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/SttlmTmReq/TillTm",
+          "score": 0.6376534320322625
+        },
+        {
+          "id": "pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/SttlmTmReq/RjctTm",
+          "score": 0.6615165875534311
+        }
+      ],
+      "retrieved": 5,
+      "quarantined": [],
+      "model": "claude-haiku-5-5",
+      "cached": true,
+      "usage": {
+        "input_tokens": 1804,
+        "output_tokens": 193
+      }
+    },
+    {
+      "set": "golden",
+      "id": "gold-12",
+      "category": "definition",
+      "question": "What is Mandate Related Information in pacs.008?",
+      "answerable": true,
+      "reference_ids": [
+        "pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/MndtRltdInf"
+      ],
+      "hit_at_5": true,
+      "status": 200,
+      "seconds": 0.21,
+      "request_id": "12021dfb-33ae-4f0f-a9d7-042198f639dc",
+      "answer": "Mandate Related Information provides further details of the mandate signed between the creditor and the debtor [1]. It is an optional element (occurrence 0..1) within Credit Transfer Transaction Information, and its type is CreditTransferMandateData1 [1].",
+      "escalated": false,
+      "reason": null,
+      "sources": [
+        {
+          "id": "pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/MndtRltdInf",
+          "kind": "element",
+          "score": 0.772934959705769,
+          "snippet": "Mandate Related Information: Provides further details of the mandate signed between the creditor and the debtor. Path: Credit Transfer Transaction Information > Mandate Related Information (XML path: FIToFICstmrCdtTrf/CdtTrfTxInf/MndtRltdInf) Type: CreditTransferMandateData1; occurrence 0..1 (optional) Parent: Credit Transfer Transaction Information. Set of elements providing information specif..."
+        }
+      ],
+      "retrieval": [
+        {
+          "id": "pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/MndtRltdInf",
+          "score": 0.772934959705769
+        },
+        {
+          "id": "pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/MndtRltdInf/Tp",
+          "score": 0.7256858401613692
+        },
+        {
+          "id": "pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/MndtRltdInf/Rsn",
+          "score": 0.7104350194983217
+        },
+        {
+          "id": "pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/MndtRltdInf/MndtId",
+          "score": 0.7071814362514888
+        },
+        {
+          "id": "pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/MndtRltdInf/Tp/SvcLvl",
+          "score": 0.6987674236297657
+        }
+      ],
+      "retrieved": 5,
+      "quarantined": [],
+      "model": "claude-haiku-5-5",
+      "cached": true,
+      "usage": {
+        "input_tokens": 1819,
+        "output_tokens": 85
+      }
+    },
+    {
+      "set": "golden",
+      "id": "gold-13",
+      "category": "definition",
+      "question": "What does Unstructured mean in pacs.008?",
+      "answerable": true,
+      "reference_ids": [
+        "pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/RmtInf/Ustrd"
+      ],
+      "hit_at_5": true,
+      "status": 200,
+      "seconds": 0.23,
+      "request_id": "f47162ce-96bd-4d3c-a52f-32469d543c6a",
+      "answer": "In pacs.008, Unstructured is remittance information supplied to enable matching/reconciliation of an entry with the items the payment is intended to settle, such as commercial invoices in an accounts' receivable system, in unstructured form [1]. It is a text field of 1 to 140 characters and is optional and repeatable (0..*) [1].",
+      "escalated": false,
+      "reason": null,
+      "sources": [
+        {
+          "id": "pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/RmtInf/Ustrd",
+          "kind": "element",
+          "score": 0.7924443011019064,
+          "snippet": "Unstructured: Information supplied to enable the matching/reconciliation of an entry with the items that the payment is intended to settle, such as commercial invoices in an accounts' receivable system, in an unstructured form. Path: Credit Transfer Transaction Information > Remittance Information > Unstructured (XML path: FIToFICstmrCdtTrf/CdtTrfTxInf/RmtInf/Ustrd) Type: Max140Text (text, 1 to..."
+        }
+      ],
+      "retrieval": [
+        {
+          "id": "pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/RmtInf/Ustrd",
+          "score": 0.7924443011019064
+        },
+        {
+          "id": "pacs.008.001.14#rule:UltimateCreditorGuideline",
+          "score": 0.6928910613059998
+        },
+        {
+          "id": "pacs.008.001.14#rule:UltimateDebtorGuideline",
+          "score": 0.6908394466830009
+        },
+        {
+          "id": "pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/DbtrAcct/Nm",
+          "score": 0.5687929391860962
+        },
+        {
+          "id": "pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/CdtrAcct/Nm",
+          "score": 0.5748453140258789
+        }
+      ],
+      "retrieved": 5,
+      "quarantined": [],
+      "model": "claude-haiku-5-5",
+      "cached": true,
+      "usage": {
+        "input_tokens": 1717,
+        "output_tokens": 111
+      }
+    },
+    {
+      "set": "golden",
+      "id": "gold-14",
+      "category": "codes",
+      "question": "Which values can Charge Bearer take in pacs.008?",
+      "answerable": true,
+      "reference_ids": [
+        "pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/ChrgBr"
+      ],
+      "hit_at_5": true,
+      "status": 200,
+      "seconds": 0.23,
+      "request_id": "80f892c0-3fda-4250-a5db-9ebcd9a2798e",
+      "answer": "Charge Bearer (ChargeBearerType1Code, mandatory, occurrence 1..1) can take the codes Borne By Debtor, Borne By Creditor, Shared, and Following Service Level [1]. In the business rules these correspond to DEBT, CRED, SHAR, and SLEV [2].",
+      "escalated": false,
+      "reason": null,
+      "sources": [
+        {
+          "id": "pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/ChrgBr",
+          "kind": "element",
+          "score": 0.7494066506977899,
+          "snippet": "Charge Bearer: Specifies which party/parties will bear the charges associated with the processing of the payment transaction. Path: Credit Transfer Transaction Information > Charge Bearer (XML path: FIToFICstmrCdtTrf/CdtTrfTxInf/ChrgBr) Type: ChargeBearerType1Code (code set: Specifies which party(ies) will pay charges due for processing of the instruction. Codes: Borne By Debtor, Borne By Credi..."
+        },
+        {
+          "id": "pacs.008.001.14#rule:ChargeBearerAndChargesInformationRule",
+          "kind": "rule",
+          "score": 0.8019516468048096,
+          "snippet": "ISO 20022 pacs.008.001.14 (FIToFICustomerCreditTransferV14) Business rule ChargeBearerAndChargesInformationRule (Charge Bearer And Charges Information Rule): If Charge Bearer contains DEBT, then Charges Information may be present to communicate charges that have been added for (the) Instructed Agent(s). If Charge Bearer contains CRED, then at least one occurrence of Charges Information must be ..."
+        }
+      ],
+      "retrieval": [
+        {
+          "id": "pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/ChrgBr",
+          "score": 0.7494066506977899
+        },
+        {
+          "id": "pacs.008.001.14#rule:ChargeBearerAndChargesInformationRule",
+          "score": 0.8019516468048096
+        },
+        {
+          "id": "pacs.008.001.14#rule:ChargesInformationAndInstructedAmountRule",
+          "score": 0.7537632282062551
+        },
+        {
+          "id": "pacs.008.001.14#rule:ChargesInformationGuideline",
+          "score": 0.7420722842216492
+        },
+        {
+          "id": "pacs.008.001.14#rule:ChargesAmountGuideline",
+          "score": 0.718567566957024
+        }
+      ],
+      "retrieved": 5,
+      "quarantined": [],
+      "model": "claude-haiku-5-5",
+      "cached": true,
+      "usage": {
+        "input_tokens": 1444,
+        "output_tokens": 106
+      }
+    },
+    {
+      "set": "golden",
+      "id": "gold-15",
+      "category": "codes",
+      "question": "What codes are allowed for Settlement Method in pacs.008?",
+      "answerable": true,
+      "reference_ids": [
+        "pacs.008.001.14#FIToFICstmrCdtTrf/GrpHdr/SttlmInf/SttlmMtd"
+      ],
+      "hit_at_5": false,
+      "status": 200,
+      "seconds": 0.21,
+      "request_id": "38b043c3-330c-4ce4-9176-273f6813ecc4",
+      "answer": "The passages don't give a complete list of allowed Settlement Method codes. They only describe rules for four values: COVE [1][3], CLRG [2], and INDA or INGA [4]. Each rule sets which other elements are allowed or required for that code, but none says these are the only permitted codes.",
+      "escalated": false,
+      "reason": null,
+      "sources": [
+        {
+          "id": "pacs.008.001.14#rule:SettlementMethodCoverRule",
+          "kind": "rule",
+          "score": 0.7626672983169556,
+          "snippet": "ISO 20022 pacs.008.001.14 (FIToFICustomerCreditTransferV14) Business rule SettlementMethodCoverRule (Settlement Method Cover Rule): If Settlement Method is equal to COVE, then Settlement Account and Clearing System are not allowed. Applies at: FIToFICstmrCdtTrf/GrpHdr/SttlmInf"
+        },
+        {
+          "id": "pacs.008.001.14#rule:SettlementMethodClearingRule",
+          "kind": "rule",
+          "score": 0.7544812256716275,
+          "snippet": "ISO 20022 pacs.008.001.14 (FIToFICustomerCreditTransferV14) Business rule SettlementMethodClearingRule (Settlement Method Clearing Rule): If Settlement Method is equal to CLRG, then Settlement Account and Reimbursement Agent(s) are not allowed. Applies at: FIToFICstmrCdtTrf/GrpHdr/SttlmInf"
+        },
+        {
+          "id": "pacs.008.001.14#rule:SettlementMethodCoverAgentRule",
+          "kind": "rule",
+          "score": 0.7378976345062256,
+          "snippet": "ISO 20022 pacs.008.001.14 (FIToFICustomerCreditTransferV14) Business rule SettlementMethodCoverAgentRule (Settlement Method Cover Agent Rule): If Settlement Method is equal to COVE, then Instructed Reimbursement Agent or Instructing Reimbursement Agent must be present. Applies at: FIToFICstmrCdtTrf/GrpHdr/SttlmInf"
+        },
+        {
+          "id": "pacs.008.001.14#rule:SettlementMethodAgentRule",
+          "kind": "rule",
+          "score": 0.726806792401463,
+          "snippet": "ISO 20022 pacs.008.001.14 (FIToFICustomerCreditTransferV14) Business rule SettlementMethodAgentRule (Settlement Method Agent Rule): If Settlement Method is equal to INDA or INGA, then Reimbursement Agent(s) and Clearing System are not allowed. Applies at: FIToFICstmrCdtTrf/GrpHdr/SttlmInf"
+        }
+      ],
+      "retrieval": [
+        {
+          "id": "pacs.008.001.14#rule:SettlementMethodCoverRule",
+          "score": 0.7626672983169556
+        },
+        {
+          "id": "pacs.008.001.14#rule:SettlementMethodClearingRule",
+          "score": 0.7544812256716275
+        },
+        {
+          "id": "pacs.008.001.14#rule:SettlementMethodCoverAgentRule",
+          "score": 0.7378976345062256
+        },
+        {
+          "id": "pacs.008.001.14#rule:SettlementMethodAgentRule",
+          "score": 0.726806792401463
+        },
+        {
+          "id": "pacs.008.001.14#rule:ReportingCodeAndInformationRule",
+          "score": 0.7185647823137356
+        }
+      ],
+      "retrieved": 5,
+      "quarantined": [],
+      "model": "claude-haiku-5-5",
+      "cached": true,
+      "usage": {
+        "input_tokens": 1195,
+        "output_tokens": 305
+      }
+    },
+    {
+      "set": "golden",
+      "id": "gold-16",
+      "category": "codes",
+      "question": "Which values can Settlement Priority take in pacs.008?",
+      "answerable": true,
+      "reference_ids": [
+        "pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/SttlmPrty"
+      ],
+      "hit_at_5": true,
+      "status": 200,
+      "seconds": 0.21,
+      "request_id": "132ed029-be3f-45ef-a66e-ab4bec0fe3da",
+      "answer": "Settlement Priority (FIToFICstmrCdtTrf/CdtTrfTxInf/SttlmPrty) is of type Priority3Code, with the codes Urgent, High, and Normal. It is optional (occurrence 0..1) [1].",
+      "escalated": false,
+      "reason": null,
+      "sources": [
+        {
+          "id": "pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/SttlmPrty",
+          "kind": "element",
+          "score": 0.7569596009922754,
+          "snippet": "Settlement Priority: Indicator of the urgency or order of importance that the instructing party would like the instructed party to apply to the processing of the settlement instruction. Path: Credit Transfer Transaction Information > Settlement Priority (XML path: FIToFICstmrCdtTrf/CdtTrfTxInf/SttlmPrty) Type: Priority3Code (code set: Specifies the priority level of an event. Codes: Urgent, Hig..."
+        }
+      ],
+      "retrieval": [
+        {
+          "id": "pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/SttlmPrty",
+          "score": 0.7569596009922754
+        },
+        {
+          "id": "pacs.008.001.14#rule:SettlementMethodCoverRule",
+          "score": 0.7260552211966992
+        },
+        {
+          "id": "pacs.008.001.14#rule:TotalInterbankSettlementAmountAndDateRule",
+          "score": 0.7223196029663137
+        },
+        {
+          "id": "pacs.008.001.14#rule:SettlementMethodClearingRule",
+          "score": 0.7115962425000246
+        },
+        {
+          "id": "pacs.008.001.14#FIToFICstmrCdtTrf/GrpHdr/PmtTpInf/InstrPrty",
+          "score": 0.6585578525925975
+        }
+      ],
+      "retrieved": 5,
+      "quarantined": [],
+      "model": "claude-haiku-5-5",
+      "cached": true,
+      "usage": {
+        "input_tokens": 1441,
+        "output_tokens": 87
+      }
+    },
+    {
+      "set": "golden",
+      "id": "gold-17",
+      "category": "children",
+      "question": "What does the Agreed Rate block of pacs.008 contain?",
+      "answerable": true,
+      "reference_ids": [
+        "pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/AgrdRate#children"
+      ],
+      "hit_at_5": true,
+      "status": 200,
+      "seconds": 0.23,
+      "request_id": "6a86515f-53d8-4550-ac35-3b5247eb9e36",
+      "answer": "The Agreed Rate block (FIToFICstmrCdtTrf/CdtTrfTxInf/AgrdRate) contains these direct children:\n- Unit Currency (UnitCcy, optional) [1]\n- Quoted Currency (QtdCcy, optional) [1]\n- Pre Agreed Exchange Rate (PreAgrdXchgRate, mandatory) [1]\n- Quotation Date Time (QtnDtTm, optional) [1]\n- Quote Identification (QtId, optional) [1]\n- Foreign Exchange Agent (FXAgt, optional) [1]",
+      "escalated": false,
+      "reason": null,
+      "sources": [
+        {
+          "id": "pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/AgrdRate#children",
+          "kind": "children",
+          "score": 0.7447137680479163,
+          "snippet": "ISO 20022 pacs.008.001.14 (FIToFICustomerCreditTransferV14) Element: Credit Transfer Transaction Information > Agreed Rate (XML path: FIToFICstmrCdtTrf/CdtTrfTxInf/AgrdRate) contains these direct children: - Unit Currency (UnitCcy, optional) - Quoted Currency (QtdCcy, optional) - Pre Agreed Exchange Rate (PreAgrdXchgRate, mandatory) - Quotation Date Time (QtnDtTm, optional) - Quote Identificati..."
+        }
+      ],
+      "retrieval": [
+        {
+          "id": "pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/AgrdRate#children",
+          "score": 0.7447137680479163
+        },
+        {
+          "id": "pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf#children",
+          "score": 0.7431643452146273
+        },
+        {
+          "id": "pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/AgrdRate/FXAgt/FinInstnId#children",
+          "score": 0.6992793679237416
+        },
+        {
+          "id": "pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/ChrgsInf#children",
+          "score": 0.7055775943742761
+        },
+        {
+          "id": "pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/IntrmyAgt2Acct/Prxy#children",
+          "score": 0.6960370955489347
+        }
+      ],
+      "retrieved": 5,
+      "quarantined": [],
+      "model": "claude-haiku-5-5",
+      "cached": true,
+      "usage": {
+        "input_tokens": 2142,
+        "output_tokens": 204
+      }
+    },
+    {
+      "set": "golden",
+      "id": "gold-18",
+      "category": "children",
+      "question": "Which elements make up Intermediary Agent2 Account in pacs.008?",
+      "answerable": true,
+      "reference_ids": [
+        "pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/IntrmyAgt2Acct#children"
+      ],
+      "hit_at_5": false,
+      "status": 200,
+      "seconds": 0.21,
+      "request_id": "04a770ae-e690-462f-b322-fd32c435c82e",
+      "answer": null,
+      "escalated": true,
+      "reason": "insufficient_context",
+      "sources": [
+        {
+          "id": "pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/IntrmyAgt2Acct",
+          "kind": "element",
+          "score": 0.8016204597497592,
+          "snippet": "Intermediary Agent2 Account: Unambiguous identification of the account of the intermediary agent 2 at its servicing agent in the payment chain. Path: Credit Transfer Transaction Information > Intermediary Agent2 Account (XML path: FIToFICstmrCdtTrf/CdtTrfTxInf/IntrmyAgt2Acct) Type: CashAccount40; occurrence 0..1 (optional) Parent: Credit Transfer Transaction Information. Set of elements providi..."
+        },
+        {
+          "id": "pacs.008.001.14#rule:IntermediaryAgent2AccountRule",
+          "kind": "rule",
+          "score": 0.8285164526432385,
+          "snippet": "ISO 20022 pacs.008.001.14 (FIToFICustomerCreditTransferV14) Business rule IntermediaryAgent2AccountRule (Intermediary Agent2 Account Rule): If Intermediary Agent2 Account is present, then Intermediary Agent2 must be present. Applies at: FIToFICstmrCdtTrf/CdtTrfTxInf"
+        },
+        {
+          "id": "pacs.008.001.14#rule:IntermediaryAgent1AccountRule",
+          "kind": "rule",
+          "score": 0.8028974894163057,
+          "snippet": "ISO 20022 pacs.008.001.14 (FIToFICustomerCreditTransferV14) Business rule IntermediaryAgent1AccountRule (Intermediary Agent1 Account Rule): If Intermediary Agent1 Account is present, then Intermediary Agent1 must be present. Applies at: FIToFICstmrCdtTrf/CdtTrfTxInf"
+        },
+        {
+          "id": "pacs.008.001.14#rule:IntermediaryAgent2Rule",
+          "kind": "rule",
+          "score": 0.7806964487875208,
+          "snippet": "ISO 20022 pacs.008.001.14 (FIToFICustomerCreditTransferV14) Business rule IntermediaryAgent2Rule (Intermediary Agent2 Rule): If Intermediary Agent2 is present, then Intermediary Agent1 must be present. Applies at: FIToFICstmrCdtTrf/CdtTrfTxInf"
+        },
+        {
+          "id": "pacs.008.001.14#rule:IntermediaryAgent3AccountRule",
+          "kind": "rule",
+          "score": 0.801041400556737,
+          "snippet": "ISO 20022 pacs.008.001.14 (FIToFICustomerCreditTransferV14) Business rule IntermediaryAgent3AccountRule (Intermediary Agent3 Account Rule): If Intermediary Agent3 Account is present, then Intermediary Agent3 must be present. Applies at: FIToFICstmrCdtTrf/CdtTrfTxInf"
+        }
+      ],
+      "retrieval": [
+        {
+          "id": "pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/IntrmyAgt2Acct",
+          "score": 0.8016204597497592
+        },
+        {
+          "id": "pacs.008.001.14#rule:IntermediaryAgent2AccountRule",
+          "score": 0.8285164526432385
+        },
+        {
+          "id": "pacs.008.001.14#rule:IntermediaryAgent1AccountRule",
+          "score": 0.8028974894163057
+        },
+        {
+          "id": "pacs.008.001.14#rule:IntermediaryAgent2Rule",
+          "score": 0.7806964487875208
+        },
+        {
+          "id": "pacs.008.001.14#rule:IntermediaryAgent3AccountRule",
+          "score": 0.801041400556737
+        }
+      ],
+      "retrieved": 5,
+      "quarantined": [],
+      "model": "claude-haiku-5-5",
+      "cached": true,
+      "usage": {
+        "input_tokens": 1353,
+        "output_tokens": 281
+      }
+    },
+    {
+      "set": "golden",
+      "id": "gold-19",
+      "category": "children",
+      "question": "What does the Previous Instructing Agent3 Account block of pacs.008 contain?",
+      "answerable": true,
+      "reference_ids": [
+        "pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/PrvsInstgAgt3Acct#children"
+      ],
+      "hit_at_5": true,
+      "status": 200,
+      "seconds": 0.19,
+      "request_id": "7697d3d1-9198-4025-92fb-6d77b6f91bbf",
+      "answer": "The Previous Instructing Agent3 Account block (FIToFICstmrCdtTrf/CdtTrfTxInf/PrvsInstgAgt3Acct) contains these optional direct children:\n- Identification (Id) [1]\n- Type (Tp) [1]\n- Currency (Ccy) [1]\n- Name (Nm) [1]\n- Proxy (Prxy) [1]\n\nThe Proxy child itself contains Type (Tp, optional) and Identification (Id, mandatory) [3].",
+      "escalated": false,
+      "reason": null,
+      "sources": [
+        {
+          "id": "pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/PrvsInstgAgt3Acct#children",
+          "kind": "children",
+          "score": 0.7783635622750682,
+          "snippet": "ISO 20022 pacs.008.001.14 (FIToFICustomerCreditTransferV14) Element: Credit Transfer Transaction Information > Previous Instructing Agent3 Account (XML path: FIToFICstmrCdtTrf/CdtTrfTxInf/PrvsInstgAgt3Acct) contains these direct children: - Identification (Id, optional) - Type (Tp, optional) - Currency (Ccy, optional) - Name (Nm, optional) - Proxy (Prxy, optional)"
+        },
+        {
+          "id": "pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/PrvsInstgAgt3Acct/Prxy#children",
+          "kind": "children",
+          "score": 0.7613573159000862,
+          "snippet": "ISO 20022 pacs.008.001.14 (FIToFICustomerCreditTransferV14) Element: Credit Transfer Transaction Information > Previous Instructing Agent3 Account > Proxy (XML path: FIToFICstmrCdtTrf/CdtTrfTxInf/PrvsInstgAgt3Acct/Prxy) contains these direct children: - Type (Tp, optional) - Identification (Id, mandatory)"
+        }
+      ],
+      "retrieval": [
+        {
+          "id": "pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/PrvsInstgAgt3Acct#children",
+          "score": 0.7783635622750682
+        },
+        {
+          "id": "pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/PrvsInstgAgt3#children",
+          "score": 0.7501349374853011
+        },
+        {
+          "id": "pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/PrvsInstgAgt3Acct/Prxy#children",
+          "score": 0.7613573159000862
+        },
+        {
+          "id": "pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/PrvsInstgAgt2Acct#children",
+          "score": 0.7595210301733327
+        },
+        {
+          "id": "pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf#children",
+          "score": 0.7261076189907679
+        }
+      ],
+      "retrieved": 5,
+      "quarantined": [],
+      "model": "claude-haiku-5-5",
+      "cached": true,
+      "usage": {
+        "input_tokens": 2062,
+        "output_tokens": 171
+      }
+    },
+    {
+      "set": "golden",
+      "id": "gold-20",
+      "category": "message",
+      "question": "What is the purpose of the pacs.008 message?",
+      "answerable": true,
+      "reference_ids": [
+        "pacs.008.001.14#message:scope"
+      ],
+      "hit_at_5": true,
+      "status": 200,
+      "seconds": 0.26,
+      "request_id": "addb97d5-2080-4182-812e-8be1f8d7038a",
+      "answer": "The pacs.008.001.14 (FIToFICustomerCreditTransfer) message is sent by the debtor agent to the creditor agent, directly or through other agents and/or a payment clearing and settlement system, and is used to move funds from a debtor account to a creditor [1]. It can contain one or more customer credit transfer instructions, with a Credit Transfer Transaction Information block required for each transaction [2].",
+      "escalated": false,
+      "reason": null,
+      "sources": [
+        {
+          "id": "pacs.008.001.14#message:scope",
+          "kind": "message",
+          "score": 0.7354044756534396,
+          "snippet": "ISO 20022 pacs.008.001.14 (FIToFICustomerCreditTransferV14) Scope (purpose of the message: what it is for and who sends it to whom) of the FI To FI Customer Credit Transfer V14 message (pacs.008.001.14): The Financial Institution To Financial Institution Customer Credit Transfer message is sent by the debtor agent to the creditor agent, directly or through other agents and / or a payment cleari..."
+        },
+        {
+          "id": "pacs.008.001.14#message:usage",
+          "kind": "message",
+          "score": 0.722420675898832,
+          "snippet": "ISO 20022 pacs.008.001.14 (FIToFICustomerCreditTransferV14) Usage (how and when the message is used) of the FI To FI Customer Credit Transfer V14 message (pacs.008.001.14): The FI To FI Customer Credit Transfer message is exchanged between agents and can contain one or more customer credit transfer instructions. The FI To FI Customer Credit Transfer message does not allow for grouping: a Credit..."
+        }
+      ],
+      "retrieval": [
+        {
+          "id": "pacs.008.001.14#message:scope",
+          "score": 0.7354044756534396
+        },
+        {
+          "id": "pacs.008.001.14#message:usage",
+          "score": 0.722420675898832
+        },
+        {
+          "id": "pacs.008.001.14#message:usage:2",
+          "score": 0.6931461302383584
+        },
+        {
+          "id": "pacs.008.001.14#rule:NumberOfTransactionsAndCreditTransfersRule",
+          "score": 0.6961452572389026
+        },
+        {
+          "id": "pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/Purp",
+          "score": 0.6299464890344888
+        }
+      ],
+      "retrieved": 5,
+      "quarantined": [],
+      "model": "claude-haiku-5-5",
+      "cached": true,
+      "usage": {
+        "input_tokens": 1709,
+        "output_tokens": 136
+      }
+    },
+    {
+      "set": "golden",
+      "id": "gold-21",
+      "category": "rule",
+      "question": "What does the rule Instructing Agent Rule require in pacs.008?",
+      "answerable": true,
+      "reference_ids": [
+        "pacs.008.001.14#rule:InstructingAgentRule"
+      ],
+      "hit_at_5": true,
+      "status": 200,
+      "seconds": 0.18,
+      "request_id": "4b515d7a-7631-4b79-8be6-07336d59199c",
+      "answer": "The Instructing Agent Rule states that if Group Header / Instructing Agent is present, then Credit Transfer Transaction Information / Instructing Agent is not allowed. It applies to the whole message. [1]",
+      "escalated": false,
+      "reason": null,
+      "sources": [
+        {
+          "id": "pacs.008.001.14#rule:InstructingAgentRule",
+          "kind": "rule",
+          "score": 0.8449241703839159,
+          "snippet": "ISO 20022 pacs.008.001.14 (FIToFICustomerCreditTransferV14) Business rule InstructingAgentRule (Instructing Agent Rule): If Group Header / Instructing Agent is present, then Credit Transfer Transaction Information / Instructing Agent is not allowed. Applies to the whole message."
+        }
+      ],
+      "retrieval": [
+        {
+          "id": "pacs.008.001.14#rule:InstructingAgentRule",
+          "score": 0.8449241703839159
+        },
+        {
+          "id": "pacs.008.001.14#rule:InstructingReimbursementAgentAccountRule",
+          "score": 0.8234261274337769
+        },
+        {
+          "id": "pacs.008.001.14#rule:PreviousInstructingAgent2Rule",
+          "score": 0.8304773771193829
+        },
+        {
+          "id": "pacs.008.001.14#rule:PreviousInstructingAgent3Rule",
+          "score": 0.8270354763886631
+        },
+        {
+          "id": "pacs.008.001.14#rule:PreviousInstructingAgent1AccountRule",
+          "score": 0.8260161876678467
+        }
+      ],
+      "retrieved": 5,
+      "quarantined": [],
+      "model": "claude-haiku-5-5",
+      "cached": true,
+      "usage": {
+        "input_tokens": 1179,
+        "output_tokens": 71
+      }
+    },
+    {
+      "set": "golden",
+      "id": "gold-22",
+      "category": "rule",
+      "question": "What does the rule Total Interbank Settlement Amount And Sum Rule require in pacs.008?",
+      "answerable": true,
+      "reference_ids": [
+        "pacs.008.001.14#rule:TotalInterbankSettlementAmountAndSumRule"
+      ],
+      "hit_at_5": true,
+      "status": 200,
+      "seconds": 0.23,
+      "request_id": "8b8c9598-0e5e-4dd3-8589-deaaf054cbf2",
+      "answer": "The TotalInterbankSettlementAmountAndSumRule requires that, if Group Header / Total Interbank Settlement Amount is present, it must equal the sum of all occurrences of Credit Transfer Transaction Information / Interbank Settlement Amount. It applies to the whole message. [1]",
+      "escalated": false,
+      "reason": null,
+      "sources": [
+        {
+          "id": "pacs.008.001.14#rule:TotalInterbankSettlementAmountAndSumRule",
+          "kind": "rule",
+          "score": 0.8740614056587219,
+          "snippet": "ISO 20022 pacs.008.001.14 (FIToFICustomerCreditTransferV14) Business rule TotalInterbankSettlementAmountAndSumRule (Total Interbank Settlement Amount And Sum Rule): If Group Header / Total Interbank Settlement Amount is present, then it must equal the sum of all occurrences of Credit Transfer Transaction Information / Interbank Settlement Amount. Applies to the whole message."
+        }
+      ],
+      "retrieval": [
+        {
+          "id": "pacs.008.001.14#rule:TotalInterbankSettlementAmountAndSumRule",
+          "score": 0.8740614056587219
+        },
+        {
+          "id": "pacs.008.001.14#rule:TotalInterbankSettlementAmountAndDateRule",
+          "score": 0.8527821810711745
+        },
+        {
+          "id": "pacs.008.001.14#rule:TotalInterbankSettlementAmountRule",
+          "score": 0.8422227156824686
+        },
+        {
+          "id": "pacs.008.001.14#rule:ChargesAmountGuideline",
+          "score": 0.794062805529667
+        },
+        {
+          "id": "pacs.008.001.14#rule:InstructedAmountAndExchangeRate2Rule",
+          "score": 0.786735581561065
+        }
+      ],
+      "retrieved": 5,
+      "quarantined": [],
+      "model": "claude-haiku-5-5",
+      "cached": true,
+      "usage": {
+        "input_tokens": 1293,
+        "output_tokens": 101
+      }
+    },
+    {
+      "set": "golden",
+      "id": "gold-23",
+      "category": "max_length",
+      "question": "What is the maximum length of Certificate Identification in pacs.002?",
+      "answerable": true,
+      "reference_ids": [
+        "pacs.002.001.16#FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/RmtInf/Strd/TaxRmt/Rcrd/CertId"
+      ],
+      "hit_at_5": true,
+      "status": 200,
+      "seconds": 0.22,
+      "request_id": "c42713c2-efbe-4a1d-9f30-57a0110cc905",
+      "answer": "Certificate Identification (CertId) has a type of Max35Text, which is text of 1 to 35 characters, so the maximum length is 35 characters [1].",
+      "escalated": false,
+      "reason": null,
+      "sources": [
+        {
+          "id": "pacs.002.001.16#FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/RmtInf/Strd/TaxRmt/Rcrd/CertId",
+          "kind": "element",
+          "score": 0.7445913857708762,
+          "snippet": "Certificate Identification: Identification number of the tax report as assigned by the taxing authority. Path: Transaction Information And Status > Original Transaction Reference > Remittance Information > Structured > Tax Remittance > Record > Certificate Identification (XML path: FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/RmtInf/Strd/TaxRmt/Rcrd/CertId) Type: Max35Text (text, 1 to 35 characters);..."
+        }
+      ],
+      "retrieval": [
+        {
+          "id": "pacs.002.001.16#FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/RmtInf/Strd/TaxRmt/Rcrd/CertId",
+          "score": 0.7445913857708762
+        },
+        {
+          "id": "pacs.002.001.16#FIToFIPmtStsRpt/OrgnlGrpInfAndSts/OrgnlNbOfTxs",
+          "score": 0.6549314270974983
+        },
+        {
+          "id": "pacs.002.001.16#FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/CdtrSchmeId/Id",
+          "score": 0.645012361405811
+        },
+        {
+          "id": "pacs.002.001.16#FIToFIPmtStsRpt/OrgnlGrpInfAndSts/NbOfTxsPerSts/DtldNbOfTxs",
+          "score": 0.6570158200566951
+        },
+        {
+          "id": "pacs.002.001.16#FIToFIPmtStsRpt/TxInfAndSts/CdtSttlmKey",
+          "score": 0.6340339620072932
+        }
+      ],
+      "retrieved": 5,
+      "quarantined": [],
+      "model": "claude-haiku-5-5",
+      "cached": true,
+      "usage": {
+        "input_tokens": 1991,
+        "output_tokens": 53
+      }
+    },
+    {
+      "set": "golden",
+      "id": "gold-24",
+      "category": "max_length",
+      "question": "How many characters can Original Instruction Identification hold in pacs.002?",
+      "answerable": true,
+      "reference_ids": [
+        "pacs.002.001.16#FIToFIPmtStsRpt/TxInfAndSts/OrgnlInstrId"
+      ],
+      "hit_at_5": true,
+      "status": 200,
+      "seconds": 0.23,
+      "request_id": "12c50d44-d510-499d-adbb-c3561337ce08",
+      "answer": "Original Instruction Identification can hold 1 to 35 characters; its type is Max35Text [1].",
+      "escalated": false,
+      "reason": null,
+      "sources": [
+        {
+          "id": "pacs.002.001.16#FIToFIPmtStsRpt/TxInfAndSts/OrgnlInstrId",
+          "kind": "element",
+          "score": 0.756160973033673,
+          "snippet": "Original Instruction Identification: Unique identification, as assigned by the original instructing party for the original instructed party, to unambiguously identify the original instruction. Path: Transaction Information And Status > Original Instruction Identification (XML path: FIToFIPmtStsRpt/TxInfAndSts/OrgnlInstrId) Type: Max35Text (text, 1 to 35 characters); occurrence 0..1 (optional) P..."
+        }
+      ],
+      "retrieval": [
+        {
+          "id": "pacs.002.001.16#FIToFIPmtStsRpt/TxInfAndSts/OrgnlInstrId",
+          "score": 0.756160973033673
+        },
+        {
+          "id": "pacs.002.001.16#FIToFIPmtStsRpt/TxInfAndSts/OrgnlGrpInf/OrgnlMsgId",
+          "score": 0.7106576561927997
+        },
+        {
+          "id": "pacs.002.001.16#FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/RmtInf/Strd/RfrdDocInf/Nb",
+          "score": 0.7025763150958689
+        },
+        {
+          "id": "pacs.002.001.16#message:usage",
+          "score": 0.6134981012049744
+        },
+        {
+          "id": "pacs.002.001.16#FIToFIPmtStsRpt/TxInfAndSts/StsId",
+          "score": 0.6705339347679741
+        }
+      ],
+      "retrieved": 5,
+      "quarantined": [],
+      "model": "claude-haiku-5-5",
+      "cached": true,
+      "usage": {
+        "input_tokens": 1958,
+        "output_tokens": 35
+      }
+    },
+    {
+      "set": "golden",
+      "id": "gold-25",
+      "category": "max_length",
+      "question": "What are the length limits for Clearing System Reference in a pacs.002 message?",
+      "answerable": true,
+      "reference_ids": [
+        "pacs.002.001.16#FIToFIPmtStsRpt/TxInfAndSts/ClrSysRef"
+      ],
+      "hit_at_5": true,
+      "status": 200,
+      "seconds": 0.2,
+      "request_id": "37f65508-47b3-4ba5-9b84-76abdc42a679",
+      "answer": "According to the passage, Clearing System Reference is of type Max35Text, which is text of 1 to 35 characters, and it is optional (occurrence 0..1) [1].",
+      "escalated": false,
+      "reason": null,
+      "sources": [
+        {
+          "id": "pacs.002.001.16#FIToFIPmtStsRpt/TxInfAndSts/ClrSysRef",
+          "kind": "element",
+          "score": 0.7382612228393555,
+          "snippet": "Clearing System Reference: Unique reference, as assigned by a clearing system, to unambiguously identify the instruction. Path: Transaction Information And Status > Clearing System Reference (XML path: FIToFIPmtStsRpt/TxInfAndSts/ClrSysRef) Type: Max35Text (text, 1 to 35 characters); occurrence 0..1 (optional) Parent: Transaction Information And Status. Information concerning the original trans..."
+        }
+      ],
+      "retrieval": [
+        {
+          "id": "pacs.002.001.16#FIToFIPmtStsRpt/TxInfAndSts/ClrSysRef",
+          "score": 0.7382612228393555
+        },
+        {
+          "id": "pacs.002.001.16#FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/PmtTpInf/ClrChanl",
+          "score": 0.6582742929458618
+        },
+        {
+          "id": "pacs.002.001.16#FIToFIPmtStsRpt/TxInfAndSts/AcctSvcrRef",
+          "score": 0.6633693375211571
+        },
+        {
+          "id": "pacs.002.001.16#FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/SttlmInf/ClrSys",
+          "score": 0.6454096821194709
+        },
+        {
+          "id": "pacs.002.001.16#FIToFIPmtStsRpt/OrgnlGrpInfAndSts/OrgnlNbOfTxs",
+          "score": 0.6349533985541287
+        }
+      ],
+      "retrieved": 5,
+      "quarantined": [],
+      "model": "claude-haiku-5-5",
+      "cached": true,
+      "usage": {
+        "input_tokens": 1884,
+        "output_tokens": 57
+      }
+    },
+    {
+      "set": "golden",
+      "id": "gold-26",
+      "category": "max_length",
+      "question": "What is the maximum length of Debtor Status in pacs.002?",
+      "answerable": true,
+      "reference_ids": [
+        "pacs.002.001.16#FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/RmtInf/Strd/TaxRmt/Rcrd/DbtrSts"
+      ],
+      "hit_at_5": true,
+      "status": 200,
+      "seconds": 0.21,
+      "request_id": "1a63e75e-d8a9-4e86-8f98-3bd571a7165c",
+      "answer": "Debtor Status has a maximum length of 35 characters (Max35Text, 1 to 35 characters) [1].",
+      "escalated": false,
+      "reason": null,
+      "sources": [
+        {
+          "id": "pacs.002.001.16#FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/RmtInf/Strd/TaxRmt/Rcrd/DbtrSts",
+          "kind": "element",
+          "score": 0.7881943692142729,
+          "snippet": "Debtor Status: Code provided by local authority to identify the status of the party that has drawn up the settlement document. Path: Transaction Information And Status > Original Transaction Reference > Remittance Information > Structured > Tax Remittance > Record > Debtor Status (XML path: FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/RmtInf/Strd/TaxRmt/Rcrd/DbtrSts) Type: Max35Text (text, 1 to 35 ch..."
+        }
+      ],
+      "retrieval": [
+        {
+          "id": "pacs.002.001.16#FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/RmtInf/Strd/TaxRmt/Rcrd/DbtrSts",
+          "score": 0.7881943692142729
+        },
+        {
+          "id": "pacs.002.001.16#FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/Dbtr",
+          "score": 0.6955203076792408
+        },
+        {
+          "id": "pacs.002.001.16#FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/DbtrAcct",
+          "score": 0.7137522568929582
+        },
+        {
+          "id": "pacs.002.001.16#FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/RmtInf/Strd/TaxRmt/Dbtr/Authstn/Titl",
+          "score": 0.722618806752385
+        },
+        {
+          "id": "pacs.002.001.16#FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/DbtrAgtAcct",
+          "score": 0.6947508065328319
+        }
+      ],
+      "retrieved": 5,
+      "quarantined": [],
+      "model": "claude-haiku-5-5",
+      "cached": true,
+      "usage": {
+        "input_tokens": 2223,
+        "output_tokens": 40
+      }
+    },
+    {
+      "set": "golden",
+      "id": "gold-27",
+      "category": "requirement",
+      "question": "Is Invoicee mandatory or optional in pacs.002?",
+      "answerable": true,
+      "reference_ids": [
+        "pacs.002.001.16#FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/RmtInf/Strd/Invcee"
+      ],
+      "hit_at_5": true,
+      "status": 200,
+      "seconds": 0.2,
+      "request_id": "5a18cd0c-a44c-4641-a99c-25112371cefc",
+      "answer": "Invoicee is optional in pacs.002. Its occurrence is 0..1, which the passage labels as optional [1].",
+      "escalated": false,
+      "reason": null,
+      "sources": [
+        {
+          "id": "pacs.002.001.16#FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/RmtInf/Strd/Invcee",
+          "kind": "element",
+          "score": 0.6935005140005636,
+          "snippet": "Invoicee: Identification of the party to whom an invoice is issued, when it is different from the debtor or ultimate debtor. Path: Transaction Information And Status > Original Transaction Reference > Remittance Information > Structured > Invoicee (XML path: FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/RmtInf/Strd/Invcee) Type: PartyIdentification272; occurrence 0..1 (optional) Parent: Transaction In..."
+        }
+      ],
+      "retrieval": [
+        {
+          "id": "pacs.002.001.16#FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/RmtInf/Strd/Invcee",
+          "score": 0.6935005140005636
+        },
+        {
+          "id": "pacs.002.001.16#FIToFIPmtStsRpt/OrgnlGrpInfAndSts/StsRsnInf/Orgtr",
+          "score": 0.5890627642161682
+        },
+        {
+          "id": "pacs.002.001.16#FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/RmtInf/Strd/Invcee/CtctDtls",
+          "score": 0.6347148853880349
+        },
+        {
+          "id": "pacs.002.001.16#rule:InstructingReimbursementAgentAccountRule",
+          "score": 0.7031299648803606
+        },
+        {
+          "id": "pacs.002.001.16#FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/RmtInf/Strd/Invcee/Id",
+          "score": 0.668377200558524
+        }
+      ],
+      "retrieved": 5,
+      "quarantined": [],
+      "model": "claude-haiku-5-5",
+      "cached": true,
+      "usage": {
+        "input_tokens": 2124,
+        "output_tokens": 41
+      }
+    },
+    {
+      "set": "golden",
+      "id": "gold-28",
+      "category": "requirement",
+      "question": "Does pacs.002 require Debtor Agent Account?",
+      "answerable": true,
+      "reference_ids": [
+        "pacs.002.001.16#FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/DbtrAgtAcct"
+      ],
+      "hit_at_5": true,
+      "status": 200,
+      "seconds": 0.19,
+      "request_id": "7cf6cd43-664d-4378-864a-a97562e27df8",
+      "answer": "No. Debtor Agent Account is optional, with occurrence 0..1 [1]. Its parent, Original Transaction Reference, is used to identify the original transaction [1].",
+      "escalated": false,
+      "reason": null,
+      "sources": [
+        {
+          "id": "pacs.002.001.16#FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/DbtrAgtAcct",
+          "kind": "element",
+          "score": 0.7296410960172967,
+          "snippet": "Debtor Agent Account: Unambiguous identification of the account of the debtor agent at its servicing agent in the payment chain. Path: Transaction Information And Status > Original Transaction Reference > Debtor Agent Account (XML path: FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/DbtrAgtAcct) Type: CashAccount40; occurrence 0..1 (optional) Parent: Transaction Information And Status > Original Transa..."
+        }
+      ],
+      "retrieval": [
+        {
+          "id": "pacs.002.001.16#FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/DbtrAgtAcct",
+          "score": 0.7296410960172967
+        },
+        {
+          "id": "pacs.002.001.16#rule:InstructingReimbursementAgentAccountRule",
+          "score": 0.7323364455900471
+        },
+        {
+          "id": "pacs.002.001.16#rule:ThirdReimbursementAgentAccountRule",
+          "score": 0.727878158796864
+        },
+        {
+          "id": "pacs.002.001.16#rule:InstructedReimbursementAgentAccountRule",
+          "score": 0.7168409824371338
+        },
+        {
+          "id": "pacs.002.001.16#FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/DbtrAgtAcct/Tp",
+          "score": 0.7020260869249066
+        }
+      ],
+      "retrieved": 5,
+      "quarantined": [],
+      "model": "claude-haiku-5-5",
+      "cached": true,
+      "usage": {
+        "input_tokens": 1625,
+        "output_tokens": 112
+      }
+    },
+    {
+      "set": "golden",
+      "id": "gold-29",
+      "category": "requirement",
+      "question": "Can Acceptance Date Time be omitted from a pacs.002 message?",
+      "answerable": true,
+      "reference_ids": [
+        "pacs.002.001.16#FIToFIPmtStsRpt/TxInfAndSts/AccptncDtTm"
+      ],
+      "hit_at_5": true,
+      "status": 200,
+      "seconds": 0.19,
+      "request_id": "4ea5f9d0-f014-478b-bbfa-ae40b340b7e8",
+      "answer": "Yes. Acceptance Date Time has occurrence 0..1, which means it is optional [1]. The passages do not state any rule that makes it mandatory in every case.",
+      "escalated": false,
+      "reason": null,
+      "sources": [
+        {
+          "id": "pacs.002.001.16#FIToFIPmtStsRpt/TxInfAndSts/AccptncDtTm",
+          "kind": "element",
+          "score": 0.728059248443888,
+          "snippet": "Acceptance Date Time: Point in time when the payment order from the initiating party meets the processing conditions of the account servicing agent. This means that the account servicing agent has received the payment order and has applied checks such as authorisation, availability of funds. Path: Transaction Information And Status > Acceptance Date Time (XML path: FIToFIPmtStsRpt/TxInfAndSts/A..."
+        }
+      ],
+      "retrieval": [
+        {
+          "id": "pacs.002.001.16#FIToFIPmtStsRpt/TxInfAndSts/AccptncDtTm",
+          "score": 0.728059248443888
+        },
+        {
+          "id": "pacs.002.001.16#FIToFIPmtStsRpt/TxInfAndSts/OrgnlGrpInf/OrgnlCreDtTm",
+          "score": 0.6985752762213198
+        },
+        {
+          "id": "pacs.002.001.16#FIToFIPmtStsRpt/GrpHdr/OrgnlBizQry/CreDtTm",
+          "score": 0.6829466819763184
+        },
+        {
+          "id": "pacs.002.001.16#rule:OriginalGroupInformationAbsenceRule",
+          "score": 0.6974519699052566
+        },
+        {
+          "id": "pacs.002.001.16#rule:OriginalGroupInformationMultiplePresenceRule",
+          "score": 0.6821030567823031
+        }
+      ],
+      "retrieved": 5,
+      "quarantined": [],
+      "model": "claude-haiku-5-5",
+      "cached": true,
+      "usage": {
+        "input_tokens": 1607,
+        "output_tokens": 56
+      }
+    },
+    {
+      "set": "golden",
+      "id": "gold-30",
+      "category": "requirement",
+      "question": "Is Forms Code mandatory or optional in pacs.002?",
+      "answerable": true,
+      "reference_ids": [
+        "pacs.002.001.16#FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/RmtInf/Strd/TaxRmt/Rcrd/FrmsCd"
+      ],
+      "hit_at_5": true,
+      "status": 200,
+      "seconds": 0.19,
+      "request_id": "7dd166c6-52bc-4995-bcf6-0fb86ffe74ab",
+      "answer": "Forms Code is optional in pacs.002. Its occurrence is 0..1, and its type is Max35Text (1 to 35 characters) [1].",
+      "escalated": false,
+      "reason": null,
+      "sources": [
+        {
+          "id": "pacs.002.001.16#FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/RmtInf/Strd/TaxRmt/Rcrd/FrmsCd",
+          "kind": "element",
+          "score": 0.7110429829980733,
+          "snippet": "Forms Code: Identifies, in a coded form, on which template the tax report is to be provided. Path: Transaction Information And Status > Original Transaction Reference > Remittance Information > Structured > Tax Remittance > Record > Forms Code (XML path: FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/RmtInf/Strd/TaxRmt/Rcrd/FrmsCd) Type: Max35Text (text, 1 to 35 characters); occurrence 0..1 (optional) ..."
+        }
+      ],
+      "retrieval": [
+        {
+          "id": "pacs.002.001.16#FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/RmtInf/Strd/TaxRmt/Rcrd/FrmsCd",
+          "score": 0.7110429829980733
+        },
+        {
+          "id": "pacs.002.001.16#rule:InstructingReimbursementAgentAccountRule",
+          "score": 0.7185947727319475
+        },
+        {
+          "id": "pacs.002.001.16#FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/SttlmInf/SttlmMtd",
+          "score": 0.5725813508033752
+        },
+        {
+          "id": "pacs.002.001.16#rule:StatusReasonRule",
+          "score": 0.7154568860207144
+        },
+        {
+          "id": "pacs.002.001.16#FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/RmtInf/Strd/AddtlRmtInf",
+          "score": 0.5744754076004028
+        }
+      ],
+      "retrieved": 5,
+      "quarantined": [],
+      "model": "claude-haiku-5-5",
+      "cached": true,
+      "usage": {
+        "input_tokens": 1881,
+        "output_tokens": 51
+      }
+    },
+    {
+      "set": "golden",
+      "id": "gold-31",
+      "category": "definition",
+      "question": "What is Garnishment Administrator in pacs.002?",
+      "answerable": true,
+      "reference_ids": [
+        "pacs.002.001.16#FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/RmtInf/Strd/GrnshmtRmt/GrnshmtAdmstr"
+      ],
+      "hit_at_5": true,
+      "status": 200,
+      "seconds": 0.21,
+      "request_id": "6cdb6be0-035b-43a2-8d19-4f98a66b633e",
+      "answer": "In pacs.002.001.16, Garnishment Administrator is the party on the credit side of the transaction who administers the garnishment on behalf of the ultimate beneficiary [1]. It sits under Original Transaction Reference > Remittance Information > Structured > Garnishment Remittance, is optional (0..1), and is of type PartyIdentification272 [1]. Its sub-elements are Identification (Party52Choice, optional) [2], Contact Details (Contact13, optional) [3], Name (Max140Text, 1 to 140 characters, optional) [4], and Postal Address (PostalAddress27, optional) [5].",
+      "escalated": false,
+      "reason": null,
+      "sources": [
+        {
+          "id": "pacs.002.001.16#FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/RmtInf/Strd/GrnshmtRmt/GrnshmtAdmstr",
+          "kind": "element",
+          "score": 0.793396997058214,
+          "snippet": "Garnishment Administrator: Party on the credit side of the transaction who administers the garnishment on behalf of the ultimate beneficiary. Path: Transaction Information And Status > Original Transaction Reference > Remittance Information > Structured > Garnishment Remittance > Garnishment Administrator (XML path: FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/RmtInf/Strd/GrnshmtRmt/GrnshmtAdmstr) Ty..."
+        },
+        {
+          "id": "pacs.002.001.16#FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/RmtInf/Strd/GrnshmtRmt/GrnshmtAdmstr/Id",
+          "kind": "element",
+          "score": 0.7151821938482882,
+          "snippet": "Identification: Unique and unambiguous identification of a party. Path: Transaction Information And Status > Original Transaction Reference > Remittance Information > Structured > Garnishment Remittance > Garnishment Administrator > Identification (XML path: FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/RmtInf/Strd/GrnshmtRmt/GrnshmtAdmstr/Id) Type: Party52Choice (choice component: Specifies the ident..."
+        },
+        {
+          "id": "pacs.002.001.16#FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/RmtInf/Strd/GrnshmtRmt/GrnshmtAdmstr/CtctDtls",
+          "kind": "element",
+          "score": 0.7013521434488468,
+          "snippet": "Contact Details: Set of elements used to indicate how to contact the party. Path: Transaction Information And Status > Original Transaction Reference > Remittance Information > Structured > Garnishment Remittance > Garnishment Administrator > Contact Details (XML path: FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/RmtInf/Strd/GrnshmtRmt/GrnshmtAdmstr/CtctDtls) Type: Contact13; occurrence 0..1 (optiona..."
+        },
+        {
+          "id": "pacs.002.001.16#FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/RmtInf/Strd/GrnshmtRmt/GrnshmtAdmstr/Nm",
+          "kind": "element",
+          "score": 0.7137462326136979,
+          "snippet": "Name: Name by which a party is known and which is usually used to identify that party. Path: Transaction Information And Status > Original Transaction Reference > Remittance Information > Structured > Garnishment Remittance > Garnishment Administrator > Name (XML path: FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/RmtInf/Strd/GrnshmtRmt/GrnshmtAdmstr/Nm) Type: Max140Text (text, 1 to 140 characters); o..."
+        },
+        {
+          "id": "pacs.002.001.16#FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/RmtInf/Strd/GrnshmtRmt/GrnshmtAdmstr/PstlAdr",
+          "kind": "element",
+          "score": 0.6678639650344896,
+          "snippet": "Postal Address: Information that locates and identifies a specific address, as defined by postal services. Path: Transaction Information And Status > Original Transaction Reference > Remittance Information > Structured > Garnishment Remittance > Garnishment Administrator > Postal Address (XML path: FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/RmtInf/Strd/GrnshmtRmt/GrnshmtAdmstr/PstlAdr) Type: Postal..."
+        }
+      ],
+      "retrieval": [
+        {
+          "id": "pacs.002.001.16#FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/RmtInf/Strd/GrnshmtRmt/GrnshmtAdmstr",
+          "score": 0.793396997058214
+        },
+        {
+          "id": "pacs.002.001.16#FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/RmtInf/Strd/GrnshmtRmt/GrnshmtAdmstr/Id",
+          "score": 0.7151821938482882
+        },
+        {
+          "id": "pacs.002.001.16#FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/RmtInf/Strd/GrnshmtRmt/GrnshmtAdmstr/CtctDtls",
+          "score": 0.7013521434488468
+        },
+        {
+          "id": "pacs.002.001.16#FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/RmtInf/Strd/GrnshmtRmt/GrnshmtAdmstr/Nm",
+          "score": 0.7137462326136979
+        },
+        {
+          "id": "pacs.002.001.16#FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/RmtInf/Strd/GrnshmtRmt/GrnshmtAdmstr/PstlAdr",
+          "score": 0.6678639650344896
+        }
+      ],
+      "retrieved": 5,
+      "quarantined": [],
+      "model": "claude-haiku-5-5",
+      "cached": true,
+      "usage": {
+        "input_tokens": 2676,
+        "output_tokens": 210
+      }
+    },
+    {
+      "set": "golden",
+      "id": "gold-32",
+      "category": "definition",
+      "question": "What does Garnishee mean in pacs.002?",
+      "answerable": true,
+      "reference_ids": [
+        "pacs.002.001.16#FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/RmtInf/Strd/GrnshmtRmt/Grnshee"
+      ],
+      "hit_at_5": true,
+      "status": 200,
+      "seconds": 0.24,
+      "request_id": "4ebe1753-4cf1-4387-ab01-ac1dfa5ceb42",
+      "answer": "In pacs.002.001.16, Garnishee is the ultimate party that owes an amount of money to the (ultimate) creditor, which in this case is the garnisher [1]. It sits under Original Transaction Reference > Remittance Information > Structured > Garnishment Remittance, is optional (0..1), and is of type PartyIdentification272 [1].",
+      "escalated": false,
+      "reason": null,
+      "sources": [
+        {
+          "id": "pacs.002.001.16#FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/RmtInf/Strd/GrnshmtRmt/Grnshee",
+          "kind": "element",
+          "score": 0.7709012031555176,
+          "snippet": "Garnishee: Ultimate party that owes an amount of money to the (ultimate) creditor, in this case, to the garnisher. Path: Transaction Information And Status > Original Transaction Reference > Remittance Information > Structured > Garnishment Remittance > Garnishee (XML path: FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/RmtInf/Strd/GrnshmtRmt/Grnshee) Type: PartyIdentification272; occurrence 0..1 (opti..."
+        }
+      ],
+      "retrieval": [
+        {
+          "id": "pacs.002.001.16#FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/RmtInf/Strd/GrnshmtRmt/Grnshee",
+          "score": 0.7709012031555176
+        },
+        {
+          "id": "pacs.002.001.16#FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/RmtInf/Strd/GrnshmtRmt/Grnshee/Id",
+          "score": 0.7078620791435242
+        },
+        {
+          "id": "pacs.002.001.16#FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/RmtInf/Strd/GrnshmtRmt/Grnshee/Nm",
+          "score": 0.7099687457084656
+        },
+        {
+          "id": "pacs.002.001.16#FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/RmtInf/Strd/GrnshmtRmt/Grnshee/CtctDtls",
+          "score": 0.7017401875102645
+        },
+        {
+          "id": "pacs.002.001.16#FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/RmtInf/Strd/GrnshmtRmt/Grnshee/PstlAdr",
+          "score": 0.6732875905420661
+        }
+      ],
+      "retrieved": 5,
+      "quarantined": [],
+      "model": "claude-haiku-5-5",
+      "cached": true,
+      "usage": {
+        "input_tokens": 2579,
+        "output_tokens": 118
+      }
+    },
+    {
+      "set": "golden",
+      "id": "gold-33",
+      "category": "definition",
+      "question": "Explain the Instructed Reimbursement Agent element of pacs.002.",
+      "answerable": true,
+      "reference_ids": [
+        "pacs.002.001.16#FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/SttlmInf/InstdRmbrsmntAgt"
+      ],
+      "hit_at_5": true,
+      "status": 200,
+      "seconds": 0.21,
+      "request_id": "124d39d9-e595-465e-883a-4b22815da9ef",
+      "answer": "The Instructed Reimbursement Agent is the agent at which the instructed agent will be reimbursed. If it contains a branch of the InstructedAgent, the party in InstructedAgent will claim reimbursement from that branch or be paid by that branch [1]. If InstructingAgent and InstructedAgent have the same reimbursement agent, only the Instructing Reimbursement Agent must be used [1][5]. The element is at FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/SttlmInf/InstdRmbrsmntAgt, is of type BranchAndFinancialInstitutionIdentification8, and is optional (0..1) [1]. It is part of the Settlement Information of the Original Transaction Reference and describes how settlement of the original transaction(s) between the instructing and instructed agents was completed [1].\n\nRelated rules: if Instructed Reimbursement Agent Account is present, Instructed Reimbursement Agent must be present [2]. If Third Reimbursement Agent is present, both Instructing and Instructed Reimbursement Agent must be present [3].",
+      "escalated": false,
+      "reason": null,
+      "sources": [
+        {
+          "id": "pacs.002.001.16#FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/SttlmInf/InstdRmbrsmntAgt",
+          "kind": "element",
+          "score": 0.7827604542517406,
+          "snippet": "Instructed Reimbursement Agent: Agent at which the instructed agent will be reimbursed. Usage: If InstructedReimbursementAgent contains a branch of the InstructedAgent, then the party in InstructedAgent will claim reimbursement from that branch/will be paid by that branch. Usage: If InstructingAgent and InstructedAgent have the same reimbursement agent, then only InstructingReimbursementAgent m..."
+        },
+        {
+          "id": "pacs.002.001.16#rule:InstructedReimbursementAgentAccountRule",
+          "kind": "rule",
+          "score": 0.8032556176185608,
+          "snippet": "ISO 20022 pacs.002.001.16 (FIToFIPaymentStatusReportV16) Business rule InstructedReimbursementAgentAccountRule (Instructed Reimbursement Agent Account Rule): If Instructed Reimbursement Agent Account is present, then Instructed Reimbursement Agent must be present. Applies at: FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/SttlmInf"
+        },
+        {
+          "id": "pacs.002.001.16#rule:ThirdReimbursementAgentRule",
+          "kind": "rule",
+          "score": 0.7974360464475196,
+          "snippet": "ISO 20022 pacs.002.001.16 (FIToFIPaymentStatusReportV16) Business rule ThirdReimbursementAgentRule (Third Reimbursement Agent Rule): If Third Reimbursement Agent is present, then Instructing Reimbursement Agent and Instructed Reimbursement Agent must both be present. Applies at: FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/SttlmInf"
+        },
+        {
+          "id": "pacs.002.001.16#FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/SttlmInf/InstgRmbrsmntAgt",
+          "kind": "element",
+          "score": 0.7851729521052284,
+          "snippet": "Instructing Reimbursement Agent: Agent through which the instructing agent will reimburse the instructed agent. Usage: If InstructingAgent and InstructedAgent have the same reimbursement agent, then only InstructingReimbursementAgent must be used. Path: Transaction Information And Status > Original Transaction Reference > Settlement Information > Instructing Reimbursement Agent (XML path: FIToF..."
+        }
+      ],
+      "retrieval": [
+        {
+          "id": "pacs.002.001.16#FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/SttlmInf/InstdRmbrsmntAgt",
+          "score": 0.7827604542517406
+        },
+        {
+          "id": "pacs.002.001.16#rule:InstructedReimbursementAgentAccountRule",
+          "score": 0.8032556176185608
+        },
+        {
+          "id": "pacs.002.001.16#rule:ThirdReimbursementAgentRule",
+          "score": 0.7974360464475196
+        },
+        {
+          "id": "pacs.002.001.16#rule:InstructingReimbursementAgentAccountRule",
+          "score": 0.7915018076599736
+        },
+        {
+          "id": "pacs.002.001.16#FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/SttlmInf/InstgRmbrsmntAgt",
+          "score": 0.7851729521052284
+        }
+      ],
+      "retrieved": 5,
+      "quarantined": [],
+      "model": "claude-haiku-5-5",
+      "cached": true,
+      "usage": {
+        "input_tokens": 1868,
+        "output_tokens": 372
+      }
+    },
+    {
+      "set": "golden",
+      "id": "gold-34",
+      "category": "definition",
+      "question": "What is Garnishment Remittance in pacs.002?",
+      "answerable": true,
+      "reference_ids": [
+        "pacs.002.001.16#FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/RmtInf/Strd/GrnshmtRmt"
+      ],
+      "hit_at_5": true,
+      "status": 200,
+      "seconds": 0.24,
+      "request_id": "b1e98673-2ca8-4449-afde-546ae5f6fa85",
+      "answer": "Garnishment Remittance is an optional element (occurrence 0..1) under Original Transaction Reference > Remittance Information > Structured in pacs.002.001.16. It provides remittance information about a payment for garnishment-related purposes [1]. Its type is Garnishment4 [1], and it can contain Reference Number, Garnishment Administrator, Type, and Remitted Amount [2][3][4][5].",
+      "escalated": false,
+      "reason": null,
+      "sources": [
+        {
+          "id": "pacs.002.001.16#FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/RmtInf/Strd/GrnshmtRmt",
+          "kind": "element",
+          "score": 0.790144681930542,
+          "snippet": "Garnishment Remittance: Provides remittance information about a payment for garnishment-related purposes. Path: Transaction Information And Status > Original Transaction Reference > Remittance Information > Structured > Garnishment Remittance (XML path: FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/RmtInf/Strd/GrnshmtRmt) Type: Garnishment4; occurrence 0..1 (optional) Parent: Transaction Information A..."
+        },
+        {
+          "id": "pacs.002.001.16#FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/RmtInf/Strd/GrnshmtRmt/RefNb",
+          "kind": "element",
+          "score": 0.7470064314003939,
+          "snippet": "Reference Number: Reference information that is specific to the agency receiving the garnishment. Path: Transaction Information And Status > Original Transaction Reference > Remittance Information > Structured > Garnishment Remittance > Reference Number (XML path: FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/RmtInf/Strd/GrnshmtRmt/RefNb) Type: Max140Text (text, 1 to 140 characters); occurrence 0..1 (..."
+        },
+        {
+          "id": "pacs.002.001.16#FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/RmtInf/Strd/GrnshmtRmt/GrnshmtAdmstr",
+          "kind": "element",
+          "score": 0.743672251701355,
+          "snippet": "Garnishment Administrator: Party on the credit side of the transaction who administers the garnishment on behalf of the ultimate beneficiary. Path: Transaction Information And Status > Original Transaction Reference > Remittance Information > Structured > Garnishment Remittance > Garnishment Administrator (XML path: FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/RmtInf/Strd/GrnshmtRmt/GrnshmtAdmstr) Ty..."
+        },
+        {
+          "id": "pacs.002.001.16#FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/RmtInf/Strd/GrnshmtRmt/Tp",
+          "kind": "element",
+          "score": 0.7339903553718553,
+          "snippet": "Type: Specifies the type of garnishment. Path: Transaction Information And Status > Original Transaction Reference > Remittance Information > Structured > Garnishment Remittance > Type (XML path: FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/RmtInf/Strd/GrnshmtRmt/Tp) Type: GarnishmentType1; occurrence 1..1 (mandatory) Parent: Transaction Information And Status > Original Transaction Reference > Remit..."
+        },
+        {
+          "id": "pacs.002.001.16#FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/RmtInf/Strd/GrnshmtRmt/RmtdAmt",
+          "kind": "element",
+          "score": 0.7722752365737926,
+          "snippet": "Remitted Amount: Amount of money remitted for the referred document. Path: Transaction Information And Status > Original Transaction Reference > Remittance Information > Structured > Garnishment Remittance > Remitted Amount (XML path: FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/RmtInf/Strd/GrnshmtRmt/RmtdAmt) Type: ActiveOrHistoricCurrencyAndAmount (amount: A number of monetary units specified in an..."
+        }
+      ],
+      "retrieval": [
+        {
+          "id": "pacs.002.001.16#FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/RmtInf/Strd/GrnshmtRmt",
+          "score": 0.790144681930542
+        },
+        {
+          "id": "pacs.002.001.16#FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/RmtInf/Strd/GrnshmtRmt/RefNb",
+          "score": 0.7470064314003939
+        },
+        {
+          "id": "pacs.002.001.16#FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/RmtInf/Strd/GrnshmtRmt/GrnshmtAdmstr",
+          "score": 0.743672251701355
+        },
+        {
+          "id": "pacs.002.001.16#FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/RmtInf/Strd/GrnshmtRmt/Tp",
+          "score": 0.7339903553718553
+        },
+        {
+          "id": "pacs.002.001.16#FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/RmtInf/Strd/GrnshmtRmt/RmtdAmt",
+          "score": 0.7722752365737926
+        }
+      ],
+      "retrieved": 5,
+      "quarantined": [],
+      "model": "claude-haiku-5-5",
+      "cached": true,
+      "usage": {
+        "input_tokens": 2306,
+        "output_tokens": 138
+      }
+    },
+    {
+      "set": "golden",
+      "id": "gold-35",
+      "category": "definition",
+      "question": "What does Category mean in pacs.002?",
+      "answerable": true,
+      "reference_ids": [
+        "pacs.002.001.16#FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/RmtInf/Strd/TaxRmt/Rcrd/Ctgy"
+      ],
+      "hit_at_5": true,
+      "status": 200,
+      "seconds": 0.24,
+      "request_id": "eb93a514-e54a-4099-b801-22c48159effd",
+      "answer": "In pacs.002.001.16, Category (Ctgy) is a tax-related element: it specifies the tax code as published by the tax authority. It is a Max35Text field (1 to 35 characters), optional, and sits under Tax Remittance > Record within Original Transaction Reference > Remittance Information > Structured [1].\n\nNote that this is different from \"Category Purpose\" (CtgyPurp) under Payment Type Information, which specifies the high-level purpose of the instruction using pre-defined categories [5].",
+      "escalated": false,
+      "reason": null,
+      "sources": [
+        {
+          "id": "pacs.002.001.16#FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/RmtInf/Strd/TaxRmt/Rcrd/Ctgy",
+          "kind": "element",
+          "score": 0.7180774761965227,
+          "snippet": "Category: Specifies the tax code as published by the tax authority. Path: Transaction Information And Status > Original Transaction Reference > Remittance Information > Structured > Tax Remittance > Record > Category (XML path: FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/RmtInf/Strd/TaxRmt/Rcrd/Ctgy) Type: Max35Text (text, 1 to 35 characters); occurrence 0..1 (optional) Parent: Transaction Informati..."
+        },
+        {
+          "id": "pacs.002.001.16#FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/PmtTpInf/CtgyPurp",
+          "kind": "element",
+          "score": 0.6587847667570346,
+          "snippet": "Category Purpose: Specifies the high level purpose of the instruction based on a set of pre-defined categories. Usage: This is used by the initiating party to provide information concerning the processing of the payment. It is likely to trigger special processing by any of the agents involved in the payment chain. Path: Transaction Information And Status > Original Transaction Reference > Payme..."
+        }
+      ],
+      "retrieval": [
+        {
+          "id": "pacs.002.001.16#FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/RmtInf/Strd/TaxRmt/Rcrd/Ctgy",
+          "score": 0.7180774761965227
+        },
+        {
+          "id": "pacs.002.001.16#FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/RmtInf/Strd/TaxRmt/Rcrd/CtgyDtls",
+          "score": 0.7365581612753324
+        },
+        {
+          "id": "pacs.002.001.16#rule:NumberOfTransactionPerStatusGuideline",
+          "score": 0.6932521669045739
+        },
+        {
+          "id": "pacs.002.001.16#message:usage",
+          "score": 0.6145630295704917
+        },
+        {
+          "id": "pacs.002.001.16#FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/PmtTpInf/CtgyPurp",
+          "score": 0.6587847667570346
+        }
+      ],
+      "retrieved": 5,
+      "quarantined": [],
+      "model": "claude-haiku-5-5",
+      "cached": true,
+      "usage": {
+        "input_tokens": 2088,
+        "output_tokens": 168
+      }
+    },
+    {
+      "set": "golden",
+      "id": "gold-36",
+      "category": "codes",
+      "question": "Which values can Detailed Status take in pacs.002?",
+      "answerable": true,
+      "reference_ids": [
+        "pacs.002.001.16#FIToFIPmtStsRpt/OrgnlGrpInfAndSts/NbOfTxsPerSts/DtldSts"
+      ],
+      "hit_at_5": true,
+      "status": 200,
+      "seconds": 0.23,
+      "request_id": "b013f05b-3fbb-47ff-804a-a0461c1657de",
+      "answer": "Detailed Status is of type ExternalPaymentTransactionStatus1Code and is mandatory (1..1). The passage lists these codes:\n\n- Accepted Settlement Completed Creditor Account\n- Accepted Customer Profile\n- Accepted Funds Checked\n- Acceptedand Cheque Issued\n- Accepted Settlement Completed Debitor Account\n- Accepted Settlement In Process\n- Accepted Technical Validation\n- Accepted With Change\n- Accepted Without Posting\n- Blocked\n- Cancelled\n- Cash Picked Up By Creditor\n\nThe passage says there are 13 more codes that it does not list, so the full set cannot be determined from the given passages [1].",
+      "escalated": false,
+      "reason": null,
+      "sources": [
+        {
+          "id": "pacs.002.001.16#FIToFIPmtStsRpt/OrgnlGrpInfAndSts/NbOfTxsPerSts/DtldSts",
+          "kind": "element",
+          "score": 0.7127026148261211,
+          "snippet": "Detailed Status: Common transaction status for all individual transactions reported. Path: Original Group Information And Status > Number Of Transactions Per Status > Detailed Status (XML path: FIToFIPmtStsRpt/OrgnlGrpInfAndSts/NbOfTxsPerSts/DtldSts) Type: ExternalPaymentTransactionStatus1Code (code set: Specifies the status of an individual payment instructions, as published in an external pay..."
+        }
+      ],
+      "retrieval": [
+        {
+          "id": "pacs.002.001.16#FIToFIPmtStsRpt/OrgnlGrpInfAndSts/NbOfTxsPerSts/DtldSts",
+          "score": 0.7127026148261211
+        },
+        {
+          "id": "pacs.002.001.16#rule:StatusReasonInformationRule",
+          "score": 0.753015398979187
+        },
+        {
+          "id": "pacs.002.001.16#rule:NumberOfTransactionPerStatusGuideline",
+          "score": 0.7529281377792358
+        },
+        {
+          "id": "pacs.002.001.16#FIToFIPmtStsRpt/OrgnlGrpInfAndSts/NbOfTxsPerSts/DtldCtrlSum",
+          "score": 0.7224689722061157
+        },
+        {
+          "id": "pacs.002.001.16#FIToFIPmtStsRpt/OrgnlGrpInfAndSts/NbOfTxsPerSts/DtldNbOfTxs",
+          "score": 0.7190869926045904
+        }
+      ],
+      "retrieved": 5,
+      "quarantined": [],
+      "model": "claude-haiku-5-5",
+      "cached": true,
+      "usage": {
+        "input_tokens": 1852,
+        "output_tokens": 425
+      }
+    },
+    {
+      "set": "golden",
+      "id": "gold-37",
+      "category": "codes",
+      "question": "What codes are allowed for Clearing Channel in pacs.002?",
+      "answerable": true,
+      "reference_ids": [
+        "pacs.002.001.16#FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/PmtTpInf/ClrChanl"
+      ],
+      "hit_at_5": false,
+      "status": 200,
+      "seconds": 0.2,
+      "request_id": "04284b9d-8d78-48ca-8ae9-8ef8019deb64",
+      "answer": null,
+      "escalated": true,
+      "reason": "insufficient_context",
+      "sources": [
+        {
+          "id": "pacs.002.001.16#rule:SettlementMethodClearingRule",
+          "kind": "rule",
+          "score": 0.6630384329225107,
+          "snippet": "ISO 20022 pacs.002.001.16 (FIToFIPaymentStatusReportV16) Business rule SettlementMethodClearingRule (Settlement Method Clearing Rule): If Settlement Method is equal to CLRG, then Settlement Account and Reimbursement Agent(s) are not allowed. Applies at: FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/SttlmInf"
+        },
+        {
+          "id": "pacs.002.001.16#rule:SettlementMethodCoverRule",
+          "kind": "rule",
+          "score": 0.647839647789048,
+          "snippet": "ISO 20022 pacs.002.001.16 (FIToFIPaymentStatusReportV16) Business rule SettlementMethodCoverRule (Settlement Method Cover Rule): If Settlement Method is equal to COVE, then Settlement Account and Clearing System are not allowed. Applies at: FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/SttlmInf"
+        },
+        {
+          "id": "pacs.002.001.16#rule:SettlementMethodAgentRule",
+          "kind": "rule",
+          "score": 0.5919509663669538,
+          "snippet": "ISO 20022 pacs.002.001.16 (FIToFIPaymentStatusReportV16) Business rule SettlementMethodAgentRule (Settlement Method Agent Rule): If Settlement Method is equal to INDA or INGA, then Reimbursement Agent(s) and Clearing System are not allowed. Applies at: FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/SttlmInf"
+        },
+        {
+          "id": "pacs.002.001.16#rule:GroupStatusReceivedRule",
+          "kind": "rule",
+          "score": 0.6190555549793818,
+          "snippet": "ISO 20022 pacs.002.001.16 (FIToFIPaymentStatusReportV16) Business rule GroupStatusReceivedRule (Group Status Received Rule): If Original Group Information And Status / Group Status is present and is equal to RCVD (Received), then Transaction Information And Status / Transaction Status is not allowed. Applies to the whole message."
+        },
+        {
+          "id": "pacs.002.001.16#rule:StatusReasonRule",
+          "kind": "rule",
+          "score": 0.659637173435867,
+          "snippet": "ISO 20022 pacs.002.001.16 (FIToFIPaymentStatusReportV16) Business rule StatusReasonRule (Status Reason Rule): If Reason / Code is equal to NARR, then Addititional Information must be present. Applies at: FIToFIPmtStsRpt/OrgnlGrpInfAndSts/StsRsnInf, FIToFIPmtStsRpt/TxInfAndSts/StsRsnInf"
+        }
+      ],
+      "retrieval": [
+        {
+          "id": "pacs.002.001.16#rule:SettlementMethodClearingRule",
+          "score": 0.6630384329225107
+        },
+        {
+          "id": "pacs.002.001.16#rule:SettlementMethodCoverRule",
+          "score": 0.647839647789048
+        },
+        {
+          "id": "pacs.002.001.16#rule:SettlementMethodAgentRule",
+          "score": 0.5919509663669538
+        },
+        {
+          "id": "pacs.002.001.16#rule:GroupStatusReceivedRule",
+          "score": 0.6190555549793818
+        },
+        {
+          "id": "pacs.002.001.16#rule:StatusReasonRule",
+          "score": 0.659637173435867
+        }
+      ],
+      "retrieved": 5,
+      "quarantined": [],
+      "model": "claude-haiku-5-5",
+      "cached": true,
+      "usage": {
+        "input_tokens": 1221,
+        "output_tokens": 18
+      }
+    },
+    {
+      "set": "golden",
+      "id": "gold-38",
+      "category": "codes",
+      "question": "Which values can Instruction Priority take in pacs.002?",
+      "answerable": true,
+      "reference_ids": [
+        "pacs.002.001.16#FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/PmtTpInf/InstrPrty"
+      ],
+      "hit_at_5": true,
+      "status": 200,
+      "seconds": 0.2,
+      "request_id": "4e9dcb10-a7dd-4dd6-85b5-ea5980f5d255",
+      "answer": "Instruction Priority (InstrPrty) in pacs.002.001.16 is of type Priority2Code, with the code set \"High\" and \"Normal\" [1]. It is optional (occurrence 0..1) [1].",
+      "escalated": false,
+      "reason": null,
+      "sources": [
+        {
+          "id": "pacs.002.001.16#FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/PmtTpInf/InstrPrty",
+          "kind": "element",
+          "score": 0.773067689744604,
+          "snippet": "Instruction Priority: Indicator of the urgency or order of importance that the instructing party would like the instructed party to apply to the processing of the instruction. Path: Transaction Information And Status > Original Transaction Reference > Payment Type Information > Instruction Priority (XML path: FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/PmtTpInf/InstrPrty) Type: Priority2Code (code s..."
+        }
+      ],
+      "retrieval": [
+        {
+          "id": "pacs.002.001.16#FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/PmtTpInf/InstrPrty",
+          "score": 0.773067689744604
+        },
+        {
+          "id": "pacs.002.001.16#rule:StatusReasonRule",
+          "score": 0.7223132302445084
+        },
+        {
+          "id": "pacs.002.001.16#rule:NumberOfTransactionPerStatusGuideline",
+          "score": 0.697992703258774
+        },
+        {
+          "id": "pacs.002.001.16#message:usage",
+          "score": 0.6169832760994675
+        },
+        {
+          "id": "pacs.002.001.16#message:scope",
+          "score": 0.6496051937106367
+        }
+      ],
+      "retrieved": 5,
+      "quarantined": [],
+      "model": "claude-haiku-5-5",
+      "cached": true,
+      "usage": {
+        "input_tokens": 1655,
+        "output_tokens": 72
+      }
+    },
+    {
+      "set": "golden",
+      "id": "gold-39",
+      "category": "children",
+      "question": "What does the Creditor Account block of pacs.002 contain?",
+      "answerable": true,
+      "reference_ids": [
+        "pacs.002.001.16#FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/CdtrAcct#children"
+      ],
+      "hit_at_5": true,
+      "status": 200,
+      "seconds": 0.21,
+      "request_id": "27ab731f-1df2-4290-8411-d9ad46f9cfcb",
+      "answer": "The Creditor Account block (FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/CdtrAcct) has these direct child elements, all optional:\n- Identification (Id) [1]\n- Type (Tp) [1]\n- Currency (Ccy) [1]\n- Name (Nm) [1]\n- Proxy (Prxy) [1]\n\nWithin Proxy, Identification (Id) is mandatory and Type (Tp) is optional [4].",
+      "escalated": false,
+      "reason": null,
+      "sources": [
+        {
+          "id": "pacs.002.001.16#FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/CdtrAcct#children",
+          "kind": "children",
+          "score": 0.7987890361656909,
+          "snippet": "ISO 20022 pacs.002.001.16 (FIToFIPaymentStatusReportV16) Element: Transaction Information And Status > Original Transaction Reference > Creditor Account (XML path: FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/CdtrAcct) contains these direct children: - Identification (Id, optional) - Type (Tp, optional) - Currency (Ccy, optional) - Name (Nm, optional) - Proxy (Prxy, optional)"
+        },
+        {
+          "id": "pacs.002.001.16#FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/CdtrAcct/Prxy#children",
+          "kind": "children",
+          "score": 0.7682681861403321,
+          "snippet": "ISO 20022 pacs.002.001.16 (FIToFIPaymentStatusReportV16) Element: Transaction Information And Status > Original Transaction Reference > Creditor Account > Proxy (XML path: FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/CdtrAcct/Prxy) contains these direct children: - Type (Tp, optional) - Identification (Id, mandatory)"
+        }
+      ],
+      "retrieval": [
+        {
+          "id": "pacs.002.001.16#FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/CdtrAcct#children",
+          "score": 0.7987890361656909
+        },
+        {
+          "id": "pacs.002.001.16#FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef#children",
+          "score": 0.76508958027568
+        },
+        {
+          "id": "pacs.002.001.16#FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/CdtrAgtAcct#children",
+          "score": 0.7856048089986826
+        },
+        {
+          "id": "pacs.002.001.16#FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/CdtrAcct/Prxy#children",
+          "score": 0.7682681861403321
+        },
+        {
+          "id": "pacs.002.001.16#FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/CdtrAgtAcct/Prxy#children",
+          "score": 0.7636225906273089
+        }
+      ],
+      "retrieved": 5,
+      "quarantined": [],
+      "model": "claude-haiku-5-5",
+      "cached": true,
+      "usage": {
+        "input_tokens": 1924,
+        "output_tokens": 163
+      }
+    },
+    {
+      "set": "golden",
+      "id": "gold-40",
+      "category": "children",
+      "question": "Which elements make up Creditor Agent Account in pacs.002?",
+      "answerable": true,
+      "reference_ids": [
+        "pacs.002.001.16#FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/CdtrAgtAcct#children"
+      ],
+      "hit_at_5": false,
+      "status": 200,
+      "seconds": 0.23,
+      "request_id": "59a147b8-a331-4325-a599-3d61a75b920a",
+      "answer": "Based on the passages, the Creditor Agent Account (FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/CdtrAgtAcct) has these child elements:\n\n- **Name** (Max70Text, optional): the account name assigned by the account servicing institution [2]\n- **Type** (CashAccountType2Choice, optional): the nature or use of the account [3]\n- **Identification** (AccountIdentification4Choice, optional): the unique identification of the account between the account owner and the account servicer [4]\n\nThe passages describe the Creditor Agent Account as a CashAccount40 type, and its full contents are described under Settlement Account, which is not included in the passages [1].",
+      "escalated": false,
+      "reason": null,
+      "sources": [
+        {
+          "id": "pacs.002.001.16#FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/CdtrAgtAcct",
+          "kind": "element",
+          "score": 0.7929682248504366,
+          "snippet": "Creditor Agent Account: Unambiguous identification of the account of the creditor agent at its servicing agent to which a credit entry will be made as a result of the payment transaction. Path: Transaction Information And Status > Original Transaction Reference > Creditor Agent Account (XML path: FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/CdtrAgtAcct) Type: CashAccount40; occurrence 0..1 (optional)..."
+        },
+        {
+          "id": "pacs.002.001.16#FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/CdtrAgtAcct/Nm",
+          "kind": "element",
+          "score": 0.7576881954298252,
+          "snippet": "Name: Name of the account, as assigned by the account servicing institution, in agreement with the account owner in order to provide an additional means of identification of the account. Usage: The account name is different from the account owner name. The account name is used in certain user communities to provide a means of identifying the account, in addition to the account owner's identity ..."
+        },
+        {
+          "id": "pacs.002.001.16#FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/CdtrAgtAcct/Tp",
+          "kind": "element",
+          "score": 0.7485725879669243,
+          "snippet": "Type: Specifies the nature, or use of the account. Path: Transaction Information And Status > Original Transaction Reference > Creditor Agent Account > Type (XML path: FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/CdtrAgtAcct/Tp) Type: CashAccountType2Choice (choice component: Nature or use of the account.); occurrence 0..1 (optional) Parent: Transaction Information And Status > Original Transaction R..."
+        },
+        {
+          "id": "pacs.002.001.16#FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/CdtrAgtAcct/Id",
+          "kind": "element",
+          "score": 0.7467704264384776,
+          "snippet": "Identification: Unique and unambiguous identification for the account between the account owner and the account servicer. Path: Transaction Information And Status > Original Transaction Reference > Creditor Agent Account > Identification (XML path: FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/CdtrAgtAcct/Id) Type: AccountIdentification4Choice (choice component: Specifies the unique identification of ..."
+        }
+      ],
+      "retrieval": [
+        {
+          "id": "pacs.002.001.16#FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/CdtrAgtAcct",
+          "score": 0.7929682248504366
+        },
+        {
+          "id": "pacs.002.001.16#FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/CdtrAgtAcct/Nm",
+          "score": 0.7576881954298252
+        },
+        {
+          "id": "pacs.002.001.16#FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/CdtrAgtAcct/Tp",
+          "score": 0.7485725879669243
+        },
+        {
+          "id": "pacs.002.001.16#FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/CdtrAgtAcct/Id",
+          "score": 0.7467704264384776
+        },
+        {
+          "id": "pacs.002.001.16#FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/CdtrAcct",
+          "score": 0.7520263791084343
+        }
+      ],
+      "retrieved": 5,
+      "quarantined": [],
+      "model": "claude-haiku-5-5",
+      "cached": true,
+      "usage": {
+        "input_tokens": 2250,
+        "output_tokens": 233
+      }
+    },
+    {
+      "set": "golden",
+      "id": "gold-41",
+      "category": "children",
+      "question": "What does the Line Details block of pacs.002 contain?",
+      "answerable": true,
+      "reference_ids": [
+        "pacs.002.001.16#FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/RmtInf/Strd/RfrdDocInf/LineDtls#children"
+      ],
+      "hit_at_5": true,
+      "status": 200,
+      "seconds": 0.21,
+      "request_id": "de7bdbd0-37a6-41ef-816c-460721919730",
+      "answer": "The Line Details block (FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/RmtInf/Strd/RfrdDocInf/LineDtls) has three direct children: Identification (Id, mandatory, repeatable), Description (Desc, optional), and Amount (Amt, optional) [1].\n\nIts sub-elements are further described as follows:\n- Identification contains Type (Tp, optional), Number (Nb, optional), and Related Date (RltdDt, optional) [3].\n- Type contains Code Or Proprietary (CdOrPrtry, mandatory) and Issuer (Issr, optional) [4].\n- Amount contains Remittance Amount And Type (RmtAmtAndTp, optional, repeatable) and Adjustment Amount And Reason (AdjstmntAmtAndRsn, optional, repeatable) [5].",
+      "escalated": false,
+      "reason": null,
+      "sources": [
+        {
+          "id": "pacs.002.001.16#FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/RmtInf/Strd/RfrdDocInf/LineDtls#children",
+          "kind": "children",
+          "score": 0.771863084102319,
+          "snippet": "ISO 20022 pacs.002.001.16 (FIToFIPaymentStatusReportV16) Element: Transaction Information And Status > Original Transaction Reference > Remittance Information > Structured > Referred Document Information > Line Details (XML path: FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/RmtInf/Strd/RfrdDocInf/LineDtls) contains these direct children: - Identification (Id, mandatory, repeatable) - Description (Des..."
+        },
+        {
+          "id": "pacs.002.001.16#FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/RmtInf/Strd/RfrdDocInf/LineDtls/Id#children",
+          "kind": "children",
+          "score": 0.7403840577373484,
+          "snippet": "ISO 20022 pacs.002.001.16 (FIToFIPaymentStatusReportV16) Element: Transaction Information And Status > Original Transaction Reference > Remittance Information > Structured > Referred Document Information > Line Details > Identification (XML path: FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/RmtInf/Strd/RfrdDocInf/LineDtls/Id) contains these direct children: - Type (Tp, optional) - Number (Nb, optiona..."
+        },
+        {
+          "id": "pacs.002.001.16#FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/RmtInf/Strd/RfrdDocInf/LineDtls/Id/Tp#children",
+          "kind": "children",
+          "score": 0.7474460156294112,
+          "snippet": "ISO 20022 pacs.002.001.16 (FIToFIPaymentStatusReportV16) Element: Transaction Information And Status > Original Transaction Reference > Remittance Information > Structured > Referred Document Information > Line Details > Identification > Type (XML path: FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/RmtInf/Strd/RfrdDocInf/LineDtls/Id/Tp) contains these direct children: - Code Or Proprietary (CdOrPrtry,..."
+        },
+        {
+          "id": "pacs.002.001.16#FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/RmtInf/Strd/RfrdDocInf/LineDtls/Amt#children",
+          "kind": "children",
+          "score": 0.7250112675127038,
+          "snippet": "ISO 20022 pacs.002.001.16 (FIToFIPaymentStatusReportV16) Element: Transaction Information And Status > Original Transaction Reference > Remittance Information > Structured > Referred Document Information > Line Details > Amount (XML path: FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/RmtInf/Strd/RfrdDocInf/LineDtls/Amt) contains these direct children: - Remittance Amount And Type (RmtAmtAndTp, optiona..."
+        }
+      ],
+      "retrieval": [
+        {
+          "id": "pacs.002.001.16#FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/RmtInf/Strd/RfrdDocInf/LineDtls#children",
+          "score": 0.771863084102319
+        },
+        {
+          "id": "pacs.002.001.16#FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/RmtInf/Strd/RfrdDocInf#children",
+          "score": 0.7579033663388054
+        },
+        {
+          "id": "pacs.002.001.16#FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/RmtInf/Strd/RfrdDocInf/LineDtls/Id#children",
+          "score": 0.7403840577373484
+        },
+        {
+          "id": "pacs.002.001.16#FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/RmtInf/Strd/RfrdDocInf/LineDtls/Id/Tp#children",
+          "score": 0.7474460156294112
+        },
+        {
+          "id": "pacs.002.001.16#FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/RmtInf/Strd/RfrdDocInf/LineDtls/Amt#children",
+          "score": 0.7250112675127038
+        }
+      ],
+      "retrieved": 5,
+      "quarantined": [],
+      "model": "claude-haiku-5-5",
+      "cached": true,
+      "usage": {
+        "input_tokens": 1829,
+        "output_tokens": 298
+      }
+    },
+    {
+      "set": "golden",
+      "id": "gold-42",
+      "category": "message",
+      "question": "What is the purpose of the pacs.002 message?",
+      "answerable": true,
+      "reference_ids": [
+        "pacs.002.001.16#message:scope"
+      ],
+      "hit_at_5": true,
+      "status": 200,
+      "seconds": 0.29,
+      "request_id": "7fb6192f-2947-482e-9f72-19cc0b806269",
+      "answer": "The pacs.002.001.16 (FIToFIPaymentStatusReportV16) message is sent by an instructed agent to the previous party in the payment chain to inform that party about the positive or negative status of an instruction (single or file), and it is also used to report on a pending instruction [1]. It is exchanged between agents to provide status information about instructions previously sent, such as rejection or acceptance of credit transfer or direct debit instructions [2]. It may also be sent to the receiver of the payment in a real-time payment scenario so both sides are informed of the outcome [2].",
+      "escalated": false,
+      "reason": null,
+      "sources": [
+        {
+          "id": "pacs.002.001.16#message:scope",
+          "kind": "message",
+          "score": 0.7508794740628729,
+          "snippet": "ISO 20022 pacs.002.001.16 (FIToFIPaymentStatusReportV16) Scope (purpose of the message: what it is for and who sends it to whom) of the FI To FI Payment Status Report V16 message (pacs.002.001.16): The FI To FI Payment Status Report message is sent by an instructed agent to the previous party in the payment chain. It is used to inform this party about the positive or negative status of an instr..."
+        },
+        {
+          "id": "pacs.002.001.16#message:usage",
+          "kind": "message",
+          "score": 0.7053121328353932,
+          "snippet": "ISO 20022 pacs.002.001.16 (FIToFIPaymentStatusReportV16) Usage (how and when the message is used) of the FI To FI Payment Status Report V16 message (pacs.002.001.16): The FI To FI Payment Status Report message is exchanged between agents to provide status information about instructions previously sent. Its usage may be governed by a bilateral or multilateral agreement between the agents. The FI..."
+        }
+      ],
+      "retrieval": [
+        {
+          "id": "pacs.002.001.16#message:scope",
+          "score": 0.7508794740628729
+        },
+        {
+          "id": "pacs.002.001.16#message:usage",
+          "score": 0.7053121328353932
+        },
+        {
+          "id": "pacs.002.001.16#FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/Purp",
+          "score": 0.6477442366848206
+        },
+        {
+          "id": "pacs.002.001.16#rule:SupplementaryDataRule",
+          "score": 0.6831895331370273
+        },
+        {
+          "id": "pacs.002.001.16#FIToFIPmtStsRpt/TxInfAndSts/ChrgsInf",
+          "score": 0.6129075836754668
+        }
+      ],
+      "retrieved": 5,
+      "quarantined": [],
+      "model": "claude-haiku-5-5",
+      "cached": true,
+      "usage": {
+        "input_tokens": 1737,
+        "output_tokens": 185
+      }
+    },
+    {
+      "set": "golden",
+      "id": "gold-43",
+      "category": "rule",
+      "question": "What does the rule Group Status Received Rule require in pacs.002?",
+      "answerable": true,
+      "reference_ids": [
+        "pacs.002.001.16#rule:GroupStatusReceivedRule"
+      ],
+      "hit_at_5": true,
+      "status": 200,
+      "seconds": 0.22,
+      "request_id": "9a9cb3f6-998e-4b33-83e2-7cccd7a5126f",
+      "answer": "The GroupStatusReceivedRule states that if Original Group Information And Status / Group Status is present and equal to RCVD (Received), then Transaction Information And Status / Transaction Status is not allowed [1]. The rule applies to the whole message [1].",
+      "escalated": false,
+      "reason": null,
+      "sources": [
+        {
+          "id": "pacs.002.001.16#rule:GroupStatusReceivedRule",
+          "kind": "rule",
+          "score": 0.8326770563529182,
+          "snippet": "ISO 20022 pacs.002.001.16 (FIToFIPaymentStatusReportV16) Business rule GroupStatusReceivedRule (Group Status Received Rule): If Original Group Information And Status / Group Status is present and is equal to RCVD (Received), then Transaction Information And Status / Transaction Status is not allowed. Applies to the whole message."
+        }
+      ],
+      "retrieval": [
+        {
+          "id": "pacs.002.001.16#rule:GroupStatusReceivedRule",
+          "score": 0.8326770563529182
+        },
+        {
+          "id": "pacs.002.001.16#rule:GroupStatusPendingRule",
+          "score": 0.8222950591024806
+        },
+        {
+          "id": "pacs.002.001.16#rule:GroupStatusRejectedRule",
+          "score": 0.8105101698333054
+        },
+        {
+          "id": "pacs.002.001.16#rule:OriginalGroupInformationAbsenceRule",
+          "score": 0.7987228750040721
+        },
+        {
+          "id": "pacs.002.001.16#rule:GroupStatusAcceptedRule",
+          "score": 0.8162878642253809
+        }
+      ],
+      "retrieved": 5,
+      "quarantined": [],
+      "model": "claude-haiku-5-5",
+      "cached": true,
+      "usage": {
+        "input_tokens": 1227,
+        "output_tokens": 85
+      }
+    },
+    {
+      "set": "golden",
+      "id": "gold-44",
+      "category": "rule",
+      "question": "What does the rule Group Status Rejected Rule require in pacs.002?",
+      "answerable": true,
+      "reference_ids": [
+        "pacs.002.001.16#rule:GroupStatusRejectedRule"
+      ],
+      "hit_at_5": true,
+      "status": 200,
+      "seconds": 0.18,
+      "request_id": "25336e03-06d8-4ce7-b981-cdb0bd41af4e",
+      "answer": "The GroupStatusRejectedRule requires that if Original Group Information And Status / Group Status is present and equals RJCT (Rejected), then Transaction Information And Status / Transaction Status, if present, must also be RJCT (Rejected). The rule applies to the whole message. [1]",
+      "escalated": false,
+      "reason": null,
+      "sources": [
+        {
+          "id": "pacs.002.001.16#rule:GroupStatusRejectedRule",
+          "kind": "rule",
+          "score": 0.8535293602592912,
+          "snippet": "ISO 20022 pacs.002.001.16 (FIToFIPaymentStatusReportV16) Business rule GroupStatusRejectedRule (Group Status Rejected Rule): If Original Group Information And Status / Group Status is present and is equal to RJCT (Rejected), then Transaction Information And Status / Transaction Status, if present, must be equal to RJCT (Rejected). Applies to the whole message."
+        }
+      ],
+      "retrieval": [
+        {
+          "id": "pacs.002.001.16#rule:GroupStatusRejectedRule",
+          "score": 0.8535293602592912
+        },
+        {
+          "id": "pacs.002.001.16#rule:GroupStatusPendingRule",
+          "score": 0.807142626813495
+        },
+        {
+          "id": "pacs.002.001.16#rule:GroupStatusAcceptedRule",
+          "score": 0.8065059300359544
+        },
+        {
+          "id": "pacs.002.001.16#rule:GroupStatusReceivedRule",
+          "score": 0.8051975485564754
+        },
+        {
+          "id": "pacs.002.001.16#rule:StatusReasonInformationRule",
+          "score": 0.8161342253605007
+        }
+      ],
+      "retrieved": 5,
+      "quarantined": [],
+      "model": "claude-haiku-5-5",
+      "cached": true,
+      "usage": {
+        "input_tokens": 1238,
+        "output_tokens": 96
+      }
+    },
+    {
+      "set": "golden",
+      "id": "gold-45",
+      "category": "unanswerable_off_topic",
+      "question": "What is the capital of France?",
+      "answerable": false,
+      "reference_ids": [],
+      "hit_at_5": null,
+      "status": 200,
+      "seconds": 0.29,
+      "request_id": "60588d02-20ae-43aa-9bdd-23b8a95b0216",
+      "answer": null,
+      "escalated": true,
+      "reason": "low_retrieval_confidence",
+      "sources": [
+        {
+          "id": "pacs.008.001.14#rule:TotalInterbankSettlementAmountAndDateRule",
+          "kind": "rule",
+          "score": 0.46910295920118106,
+          "snippet": "ISO 20022 pacs.008.001.14 (FIToFICustomerCreditTransferV14) Business rule TotalInterbankSettlementAmountAndDateRule (Total Interbank Settlement Amount And Date Rule): If Total Interbank Settlement Amount is present, then Interbank Settlement Date must be present. Applies at: FIToFICstmrCdtTrf/GrpHdr"
+        },
+        {
+          "id": "pacs.008.001.14#rule:TotalInterbankSettlementAmountRule",
+          "kind": "rule",
+          "score": 0.460689599596215,
+          "snippet": "ISO 20022 pacs.008.001.14 (FIToFICustomerCreditTransferV14) Business rule TotalInterbankSettlementAmountRule (Total Interbank Settlement Amount Rule): If Group Header / Total Interbank Settlement Amount is present, then all occurrences of Credit Transfer Transaction Information / Interbank Settlement Amount must have the same currency as the currency of Group Header / Total Interbank Settlement..."
+        },
+        {
+          "id": "pacs.002.001.16#FIToFIPmtStsRpt/GrpHdr/InstgAgt/FinInstnId/PstlAdr/BldgNb",
+          "kind": "element",
+          "score": 0.4735902406695516,
+          "snippet": "Building Number: Number that identifies the position of a building on a street. Path: Group Header > Instructing Agent > Financial Institution Identification > Postal Address > Building Number (XML path: FIToFIPmtStsRpt/GrpHdr/InstgAgt/FinInstnId/PstlAdr/BldgNb) Type: Max16Text (text, 1 to 16 characters); occurrence 0..1 (optional) Parent: Group Header > Instructing Agent > Financial Institutio..."
+        },
+        {
+          "id": "pacs.002.001.16#FIToFIPmtStsRpt/GrpHdr/InstgAgt/BrnchId/PstlAdr/BldgNb",
+          "kind": "element",
+          "score": 0.4729319637655006,
+          "snippet": "Building Number: Number that identifies the position of a building on a street. Path: Group Header > Instructing Agent > Branch Identification > Postal Address > Building Number (XML path: FIToFIPmtStsRpt/GrpHdr/InstgAgt/BrnchId/PstlAdr/BldgNb) Type: Max16Text (text, 1 to 16 characters); occurrence 0..1 (optional) Parent: Group Header > Instructing Agent > Branch Identification > Postal Address..."
+        },
+        {
+          "id": "pacs.002.001.16#FIToFIPmtStsRpt/OrgnlGrpInfAndSts/StsRsnInf/Orgtr/PstlAdr/BldgNb",
+          "kind": "element",
+          "score": 0.4707653066744054,
+          "snippet": "Building Number: Number that identifies the position of a building on a street. Path: Original Group Information And Status > Status Reason Information > Originator > Postal Address > Building Number (XML path: FIToFIPmtStsRpt/OrgnlGrpInfAndSts/StsRsnInf/Orgtr/PstlAdr/BldgNb) Type: Max16Text (text, 1 to 16 characters); occurrence 0..1 (optional) Parent: Original Group Information And Status > S..."
+        }
+      ],
+      "retrieval": [
+        {
+          "id": "pacs.008.001.14#rule:TotalInterbankSettlementAmountAndDateRule",
+          "score": 0.46910295920118106
+        },
+        {
+          "id": "pacs.008.001.14#rule:TotalInterbankSettlementAmountRule",
+          "score": 0.460689599596215
+        },
+        {
+          "id": "pacs.002.001.16#FIToFIPmtStsRpt/GrpHdr/InstgAgt/FinInstnId/PstlAdr/BldgNb",
+          "score": 0.4735902406695516
+        },
+        {
+          "id": "pacs.002.001.16#FIToFIPmtStsRpt/GrpHdr/InstgAgt/BrnchId/PstlAdr/BldgNb",
+          "score": 0.4729319637655006
+        },
+        {
+          "id": "pacs.002.001.16#FIToFIPmtStsRpt/OrgnlGrpInfAndSts/StsRsnInf/Orgtr/PstlAdr/BldgNb",
+          "score": 0.4707653066744054
+        }
+      ],
+      "retrieved": 5,
+      "quarantined": []
+    },
+    {
+      "set": "golden",
+      "id": "gold-46",
+      "category": "unanswerable_off_topic",
+      "question": "How do I bake sourdough bread?",
+      "answerable": false,
+      "reference_ids": [],
+      "hit_at_5": null,
+      "status": 200,
+      "seconds": 0.27,
+      "request_id": "22a60673-0eed-443d-a3d7-58a38476e457",
+      "answer": null,
+      "escalated": true,
+      "reason": "low_retrieval_confidence",
+      "sources": [
+        {
+          "id": "pacs.002.001.16#FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/RmtInf/Strd/TaxRmt/Mtd",
+          "kind": "element",
+          "score": 0.4119104356979285,
+          "snippet": "Method: Method used to indicate the underlying business or how the tax is paid. Path: Transaction Information And Status > Original Transaction Reference > Remittance Information > Structured > Tax Remittance > Method (XML path: FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/RmtInf/Strd/TaxRmt/Mtd) Type: Max35Text (text, 1 to 35 characters); occurrence 0..1 (optional) Parent: Transaction Information An..."
+        },
+        {
+          "id": "pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/RmtInf/Strd/TaxRmt/Mtd",
+          "kind": "element",
+          "score": 0.40867223662088636,
+          "snippet": "Method: Method used to indicate the underlying business or how the tax is paid. Path: Credit Transfer Transaction Information > Remittance Information > Structured > Tax Remittance > Method (XML path: FIToFICstmrCdtTrf/CdtTrfTxInf/RmtInf/Strd/TaxRmt/Mtd) Type: Max35Text (text, 1 to 35 characters); occurrence 0..1 (optional) Parent: Credit Transfer Transaction Information > Remittance Informatio..."
+        },
+        {
+          "id": "pacs.002.001.16#FIToFIPmtStsRpt/GrpHdr/OrgnlBizQry/CreDtTm",
+          "kind": "element",
+          "score": 0.3976818147084962,
+          "snippet": "Creation Date Time: Date and time at which the message was created. Path: Group Header > Original Business Query > Creation Date Time (XML path: FIToFIPmtStsRpt/GrpHdr/OrgnlBizQry/CreDtTm) Type: ISODateTime (date time: A particular point in the progression of time defined by a mandatory date and a mandatory time component, expressed i...); occurrence 0..1 (optional) Parent: Group Header > Origi..."
+        },
+        {
+          "id": "pacs.002.001.16#FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/RmtInf/Strd/TaxRmt",
+          "kind": "element",
+          "score": 0.39671458045070684,
+          "snippet": "Tax Remittance: Provides remittance information about a payment made for tax-related purposes. Path: Transaction Information And Status > Original Transaction Reference > Remittance Information > Structured > Tax Remittance (XML path: FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/RmtInf/Strd/TaxRmt) Type: TaxData1; occurrence 0..1 (optional) Parent: Transaction Information And Status > Original Transa..."
+        },
+        {
+          "id": "pacs.002.001.16#rule:RemittanceAmountAndTypeGuideline",
+          "kind": "rule",
+          "score": 0.39264111010538505,
+          "snippet": "ISO 20022 pacs.002.001.16 (FIToFIPaymentStatusReportV16) Business rule RemittanceAmountAndTypeGuideline (Remittance Amount And Type Guideline): If Type / Code is equal to CREN, DUPA or REMI for Remittance Amount And Type, Remittance Amount And Type must not be repeated. Applies at: FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/RmtInf/Strd/RfrdDocInf/LineDtls/Amt, FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef..."
+        }
+      ],
+      "retrieval": [
+        {
+          "id": "pacs.002.001.16#FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/RmtInf/Strd/TaxRmt/Mtd",
+          "score": 0.4119104356979285
+        },
+        {
+          "id": "pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/RmtInf/Strd/TaxRmt/Mtd",
+          "score": 0.40867223662088636
+        },
+        {
+          "id": "pacs.002.001.16#FIToFIPmtStsRpt/GrpHdr/OrgnlBizQry/CreDtTm",
+          "score": 0.3976818147084962
+        },
+        {
+          "id": "pacs.002.001.16#FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/RmtInf/Strd/TaxRmt",
+          "score": 0.39671458045070684
+        },
+        {
+          "id": "pacs.002.001.16#rule:RemittanceAmountAndTypeGuideline",
+          "score": 0.39264111010538505
+        }
+      ],
+      "retrieved": 5,
+      "quarantined": []
+    },
+    {
+      "set": "golden",
+      "id": "gold-47",
+      "category": "unanswerable_off_topic",
+      "question": "Who won the football world cup in 2018?",
+      "answerable": false,
+      "reference_ids": [],
+      "hit_at_5": null,
+      "status": 200,
+      "seconds": 0.25,
+      "request_id": "f084706c-46d0-4181-a58d-254ab2a260aa",
+      "answer": null,
+      "escalated": true,
+      "reason": "low_retrieval_confidence",
+      "sources": [
+        {
+          "id": "pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/UltmtCdtr/CtryOfRes",
+          "kind": "element",
+          "score": 0.48556459122126205,
+          "snippet": "Country Of Residence: Country in which a person resides (the place of a person's home). In the case of a company, it is the country from which the affairs of that company are directed. Path: Credit Transfer Transaction Information > Ultimate Creditor > Country Of Residence (XML path: FIToFICstmrCdtTrf/CdtTrfTxInf/UltmtCdtr/CtryOfRes) Type: CountryCode (code set: Code to identify a country, a de..."
+        },
+        {
+          "id": "pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/UltmtDbtr/CtryOfRes",
+          "kind": "element",
+          "score": 0.48478637681048187,
+          "snippet": "Country Of Residence: Country in which a person resides (the place of a person's home). In the case of a company, it is the country from which the affairs of that company are directed. Path: Credit Transfer Transaction Information > Ultimate Debtor > Country Of Residence (XML path: FIToFICstmrCdtTrf/CdtTrfTxInf/UltmtDbtr/CtryOfRes) Type: CountryCode (code set: Code to identify a country, a depe..."
+        },
+        {
+          "id": "pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/InitgPty/CtryOfRes",
+          "kind": "element",
+          "score": 0.47207783245808577,
+          "snippet": "Country Of Residence: Country in which a person resides (the place of a person's home). In the case of a company, it is the country from which the affairs of that company are directed. Path: Credit Transfer Transaction Information > Initiating Party > Country Of Residence (XML path: FIToFICstmrCdtTrf/CdtTrfTxInf/InitgPty/CtryOfRes) Type: CountryCode (code set: Code to identify a country, a depe..."
+        },
+        {
+          "id": "pacs.002.001.16#FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/CdtrSchmeId/CtryOfRes",
+          "kind": "element",
+          "score": 0.47813532147372073,
+          "snippet": "Country Of Residence: Country in which a person resides (the place of a person's home). In the case of a company, it is the country from which the affairs of that company are directed. Path: Transaction Information And Status > Original Transaction Reference > Creditor Scheme Identification > Country Of Residence (XML path: FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/CdtrSchmeId/CtryOfRes) Type: Cou..."
+        },
+        {
+          "id": "pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/Cdtr/CtryOfRes",
+          "kind": "element",
+          "score": 0.47068929846946683,
+          "snippet": "Country Of Residence: Country in which a person resides (the place of a person's home). In the case of a company, it is the country from which the affairs of that company are directed. Path: Credit Transfer Transaction Information > Creditor > Country Of Residence (XML path: FIToFICstmrCdtTrf/CdtTrfTxInf/Cdtr/CtryOfRes) Type: CountryCode (code set: Code to identify a country, a dependency, or a..."
+        }
+      ],
+      "retrieval": [
+        {
+          "id": "pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/UltmtCdtr/CtryOfRes",
+          "score": 0.48556459122126205
+        },
+        {
+          "id": "pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/UltmtDbtr/CtryOfRes",
+          "score": 0.48478637681048187
+        },
+        {
+          "id": "pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/InitgPty/CtryOfRes",
+          "score": 0.47207783245808577
+        },
+        {
+          "id": "pacs.002.001.16#FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/CdtrSchmeId/CtryOfRes",
+          "score": 0.47813532147372073
+        },
+        {
+          "id": "pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/Cdtr/CtryOfRes",
+          "score": 0.47068929846946683
+        }
+      ],
+      "retrieved": 5,
+      "quarantined": []
+    },
+    {
+      "set": "golden",
+      "id": "gold-48",
+      "category": "unanswerable_not_in_corpus",
+      "question": "What is the maximum length of the BIC in a pacs.009 message?",
+      "answerable": false,
+      "reference_ids": [],
+      "hit_at_5": null,
+      "status": 200,
+      "seconds": 0.18,
+      "request_id": "15d2af8d-c324-4502-9d20-4685a5330eb4",
+      "answer": null,
+      "escalated": true,
+      "reason": "low_retrieval_confidence",
+      "sources": [],
+      "retrieval": [],
+      "retrieved": 0,
+      "quarantined": []
+    },
+    {
+      "set": "golden",
+      "id": "gold-49",
+      "category": "unanswerable_not_in_corpus",
+      "question": "What fees does FedNow charge per transaction?",
+      "answerable": false,
+      "reference_ids": [],
+      "hit_at_5": null,
+      "status": 200,
+      "seconds": 0.26,
+      "request_id": "7469deeb-c744-4b85-93d1-bfa3d5f43de8",
+      "answer": null,
+      "escalated": true,
+      "reason": "insufficient_context",
+      "sources": [
+        {
+          "id": "pacs.008.001.14#rule:ChargesAmountGuideline",
+          "kind": "rule",
+          "score": 0.6156024932861371,
+          "snippet": "ISO 20022 pacs.008.001.14 (FIToFICustomerCreditTransferV14) Business rule ChargesAmountGuideline (Charges Amount Guideline): If Charges Information is present, then the currency of Charges Information / Charges Amount is recommended to be the same as the currency of Interbank Settlement Amount. Applies at: FIToFICstmrCdtTrf/CdtTrfTxInf"
+        },
+        {
+          "id": "pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/ChrgsInf/Amt",
+          "kind": "element",
+          "score": 0.6433225061489657,
+          "snippet": "Amount: Transaction charges to be paid by the charge bearer. Path: Credit Transfer Transaction Information > Charges Information > Amount (XML path: FIToFICstmrCdtTrf/CdtTrfTxInf/ChrgsInf/Amt) Type: ActiveOrHistoricCurrencyAndAmount (amount: A number of monetary units specified in an active or a historic currency where the unit of currency is explicit and c...); occurrence 1..1 (mandatory) Pare..."
+        },
+        {
+          "id": "pacs.002.001.16#FIToFIPmtStsRpt/TxInfAndSts/ChrgsInf/Amt",
+          "kind": "element",
+          "score": 0.6689534785407915,
+          "snippet": "Amount: Transaction charges to be paid by the charge bearer. Path: Transaction Information And Status > Charges Information > Amount (XML path: FIToFIPmtStsRpt/TxInfAndSts/ChrgsInf/Amt) Type: ActiveOrHistoricCurrencyAndAmount (amount: A number of monetary units specified in an active or a historic currency where the unit of currency is explicit and c...); occurrence 1..1 (mandatory) Parent: Tra..."
+        },
+        {
+          "id": "pacs.002.001.16#FIToFIPmtStsRpt/TxInfAndSts/ChrgsInf",
+          "kind": "element",
+          "score": 0.6238560638299048,
+          "snippet": "Charges Information: Provides information on the charges related to the processing of the rejection of the instruction. Usage: This is passed on for information purposes only. Settlement of the charges will be done separately. Path: Transaction Information And Status > Charges Information (XML path: FIToFIPmtStsRpt/TxInfAndSts/ChrgsInf) Type: Charges16; occurrence 0..* (optional, repeatable) Pa..."
+        },
+        {
+          "id": "pacs.008.001.14#rule:ChargeBearerAndChargesInformationRule",
+          "kind": "rule",
+          "score": 0.6023149849364163,
+          "snippet": "ISO 20022 pacs.008.001.14 (FIToFICustomerCreditTransferV14) Business rule ChargeBearerAndChargesInformationRule (Charge Bearer And Charges Information Rule): If Charge Bearer contains DEBT, then Charges Information may be present to communicate charges that have been added for (the) Instructed Agent(s). If Charge Bearer contains CRED, then at least one occurrence of Charges Information must be ..."
+        }
+      ],
+      "retrieval": [
+        {
+          "id": "pacs.008.001.14#rule:ChargesAmountGuideline",
+          "score": 0.6156024932861371
+        },
+        {
+          "id": "pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/ChrgsInf/Amt",
+          "score": 0.6433225061489657
+        },
+        {
+          "id": "pacs.002.001.16#FIToFIPmtStsRpt/TxInfAndSts/ChrgsInf/Amt",
+          "score": 0.6689534785407915
+        },
+        {
+          "id": "pacs.002.001.16#FIToFIPmtStsRpt/TxInfAndSts/ChrgsInf",
+          "score": 0.6238560638299048
+        },
+        {
+          "id": "pacs.008.001.14#rule:ChargeBearerAndChargesInformationRule",
+          "score": 0.6023149849364163
+        }
+      ],
+      "retrieved": 5,
+      "quarantined": [],
+      "model": "claude-haiku-5-5",
+      "cached": true,
+      "usage": {
+        "input_tokens": 1704,
+        "output_tokens": 18
+      }
+    },
+    {
+      "set": "golden",
+      "id": "gold-50",
+      "category": "unanswerable_not_in_corpus",
+      "question": "How does a camt.053 statement report intraday balances?",
+      "answerable": false,
+      "reference_ids": [],
+      "hit_at_5": null,
+      "status": 200,
+      "seconds": 0.18,
+      "request_id": "7fefa3f2-e908-428a-8278-66929c87ef6a",
+      "answer": null,
+      "escalated": true,
+      "reason": "low_retrieval_confidence",
+      "sources": [],
+      "retrieval": [],
+      "retrieved": 0,
+      "quarantined": []
+    },
+    {
+      "set": "golden",
+      "id": "gold-51",
+      "category": "unanswerable_not_in_corpus",
+      "question": "What is the settlement cut-off time for SEPA Instant payments?",
+      "answerable": false,
+      "reference_ids": [],
+      "hit_at_5": null,
+      "status": 200,
+      "seconds": 0.24,
+      "request_id": "d546fc88-93d1-4337-b495-be819ba03629",
+      "answer": null,
+      "escalated": true,
+      "reason": "insufficient_context",
+      "sources": [
+        {
+          "id": "pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/SttlmTmReq/FrTm",
+          "kind": "element",
+          "score": 0.6496558398213493,
+          "snippet": "From Time: Time as from when the payment may be settled. Path: Credit Transfer Transaction Information > Settlement Time Request > From Time (XML path: FIToFICstmrCdtTrf/CdtTrfTxInf/SttlmTmReq/FrTm) Type: ISOTime (time: A particular point in the progression of time in a calendar day expressed in either UTC time format (hh:mm:ss.sssZ), ...); occurrence 0..1 (optional) Parent: Credit Transfer Tra..."
+        },
+        {
+          "id": "pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/SttlmTmReq",
+          "kind": "element",
+          "score": 0.6492234065897291,
+          "snippet": "Settlement Time Request: Provides information on the requested settlement time of the payment instruction. Path: Credit Transfer Transaction Information > Settlement Time Request (XML path: FIToFICstmrCdtTrf/CdtTrfTxInf/SttlmTmReq) Type: SettlementTimeRequest2; occurrence 0..1 (optional) Parent: Credit Transfer Transaction Information. Set of elements providing information specific to the indiv..."
+        },
+        {
+          "id": "pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/SttlmTmReq/TillTm",
+          "kind": "element",
+          "score": 0.6527659893035889,
+          "snippet": "Till Time: Time until when the payment may be settled. Path: Credit Transfer Transaction Information > Settlement Time Request > Till Time (XML path: FIToFICstmrCdtTrf/CdtTrfTxInf/SttlmTmReq/TillTm) Type: ISOTime (time: A particular point in the progression of time in a calendar day expressed in either UTC time format (hh:mm:ss.sssZ), ...); occurrence 0..1 (optional) Parent: Credit Transfer Tra..."
+        },
+        {
+          "id": "pacs.002.001.16#FIToFIPmtStsRpt/TxInfAndSts/FctvIntrBkSttlmDt",
+          "kind": "element",
+          "score": 0.6463819742202759,
+          "snippet": "Effective Interbank Settlement Date: Date and time at which a transaction is completed and cleared, that is, payment is effected. Path: Transaction Information And Status > Effective Interbank Settlement Date (XML path: FIToFIPmtStsRpt/TxInfAndSts/FctvIntrBkSttlmDt) Type: DateAndDateTime2Choice (choice component: Choice between a date or a date and time format.); occurrence 0..1 (optional) Pare..."
+        },
+        {
+          "id": "pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/SttlmTmReq/RjctTm",
+          "kind": "element",
+          "score": 0.6462679716188936,
+          "snippet": "Reject Time: Time by when the payment must be settled to avoid rejection. Path: Credit Transfer Transaction Information > Settlement Time Request > Reject Time (XML path: FIToFICstmrCdtTrf/CdtTrfTxInf/SttlmTmReq/RjctTm) Type: ISOTime (time: A particular point in the progression of time in a calendar day expressed in either UTC time format (hh:mm:ss.sssZ), ...); occurrence 0..1 (optional) Parent..."
+        }
+      ],
+      "retrieval": [
+        {
+          "id": "pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/SttlmTmReq/FrTm",
+          "score": 0.6496558398213493
+        },
+        {
+          "id": "pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/SttlmTmReq",
+          "score": 0.6492234065897291
+        },
+        {
+          "id": "pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/SttlmTmReq/TillTm",
+          "score": 0.6527659893035889
+        },
+        {
+          "id": "pacs.002.001.16#FIToFIPmtStsRpt/TxInfAndSts/FctvIntrBkSttlmDt",
+          "score": 0.6463819742202759
+        },
+        {
+          "id": "pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/SttlmTmReq/RjctTm",
+          "score": 0.6462679716188936
+        }
+      ],
+      "retrieved": 5,
+      "quarantined": [],
+      "model": "claude-haiku-5-5",
+      "cached": true,
+      "usage": {
+        "input_tokens": 1813,
+        "output_tokens": 18
+      }
+    },
+    {
+      "set": "golden",
+      "id": "gold-52",
+      "category": "unanswerable_not_in_corpus",
+      "question": "Which version of pacs.008 does CBPR+ require?",
+      "answerable": false,
+      "reference_ids": [],
+      "hit_at_5": null,
+      "status": 200,
+      "seconds": 0.22,
+      "request_id": "2743119a-9831-4e77-a3ac-3c88ab416732",
+      "answer": null,
+      "escalated": true,
+      "reason": "low_retrieval_confidence",
+      "sources": [
+        {
+          "id": "pacs.008.001.14#message:scope",
+          "kind": "message",
+          "score": 0.5956696030896677,
+          "snippet": "ISO 20022 pacs.008.001.14 (FIToFICustomerCreditTransferV14) Scope (purpose of the message: what it is for and who sends it to whom) of the FI To FI Customer Credit Transfer V14 message (pacs.008.001.14): The Financial Institution To Financial Institution Customer Credit Transfer message is sent by the debtor agent to the creditor agent, directly or through other agents and / or a payment cleari..."
+        },
+        {
+          "id": "pacs.008.001.14#message:usage",
+          "kind": "message",
+          "score": 0.6006235242261614,
+          "snippet": "ISO 20022 pacs.008.001.14 (FIToFICustomerCreditTransferV14) Usage (how and when the message is used) of the FI To FI Customer Credit Transfer V14 message (pacs.008.001.14): The FI To FI Customer Credit Transfer message is exchanged between agents and can contain one or more customer credit transfer instructions. The FI To FI Customer Credit Transfer message does not allow for grouping: a Credit..."
+        },
+        {
+          "id": "pacs.008.001.14#rule:InstructedAgentRule",
+          "kind": "rule",
+          "score": 0.572657934110415,
+          "snippet": "ISO 20022 pacs.008.001.14 (FIToFICustomerCreditTransferV14) Business rule InstructedAgentRule (Instructed Agent Rule): If Group Header / Instructed Agent is present, then Credit Transfer Transaction Information / Instructed Agent is not allowed. Applies to the whole message."
+        },
+        {
+          "id": "pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/PmtId/UETR",
+          "kind": "element",
+          "score": 0.5371608894217281,
+          "snippet": "UETR: Universally unique identifier to provide an end-to-end reference of a payment transaction. Path: Credit Transfer Transaction Information > Payment Identification > UETR (XML path: FIToFICstmrCdtTrf/CdtTrfTxInf/PmtId/UETR) Type: UUIDv4Identifier (identifier set: Universally Unique IDentifier (UUID) version 4, as described in IETC RFC 4122 \"Universally Unique IDentifier (UUID) U...); occurr..."
+        },
+        {
+          "id": "pacs.008.001.14#rule:InstructingAgentRule",
+          "kind": "rule",
+          "score": 0.6050456637089696,
+          "snippet": "ISO 20022 pacs.008.001.14 (FIToFICustomerCreditTransferV14) Business rule InstructingAgentRule (Instructing Agent Rule): If Group Header / Instructing Agent is present, then Credit Transfer Transaction Information / Instructing Agent is not allowed. Applies to the whole message."
+        }
+      ],
+      "retrieval": [
+        {
+          "id": "pacs.008.001.14#message:scope",
+          "score": 0.5956696030896677
+        },
+        {
+          "id": "pacs.008.001.14#message:usage",
+          "score": 0.6006235242261614
+        },
+        {
+          "id": "pacs.008.001.14#rule:InstructedAgentRule",
+          "score": 0.572657934110415
+        },
+        {
+          "id": "pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/PmtId/UETR",
+          "score": 0.5371608894217281
+        },
+        {
+          "id": "pacs.008.001.14#rule:InstructingAgentRule",
+          "score": 0.6050456637089696
+        }
+      ],
+      "retrieved": 5,
+      "quarantined": []
+    },
+    {
+      "set": "offtopic",
+      "id": "off-01",
+      "question": "What is the capital of France?",
+      "answerable": false,
+      "status": 200,
+      "seconds": 0.24,
+      "request_id": "6e148980-f2bf-4202-ac21-0a956c49a190",
+      "answer": null,
+      "escalated": true,
+      "reason": "low_retrieval_confidence",
+      "sources": [
+        {
+          "id": "pacs.008.001.14#rule:TotalInterbankSettlementAmountAndDateRule",
+          "kind": "rule",
+          "score": 0.46910295920118106,
+          "snippet": "ISO 20022 pacs.008.001.14 (FIToFICustomerCreditTransferV14) Business rule TotalInterbankSettlementAmountAndDateRule (Total Interbank Settlement Amount And Date Rule): If Total Interbank Settlement Amount is present, then Interbank Settlement Date must be present. Applies at: FIToFICstmrCdtTrf/GrpHdr"
+        },
+        {
+          "id": "pacs.008.001.14#rule:TotalInterbankSettlementAmountRule",
+          "kind": "rule",
+          "score": 0.460689599596215,
+          "snippet": "ISO 20022 pacs.008.001.14 (FIToFICustomerCreditTransferV14) Business rule TotalInterbankSettlementAmountRule (Total Interbank Settlement Amount Rule): If Group Header / Total Interbank Settlement Amount is present, then all occurrences of Credit Transfer Transaction Information / Interbank Settlement Amount must have the same currency as the currency of Group Header / Total Interbank Settlement..."
+        },
+        {
+          "id": "pacs.002.001.16#FIToFIPmtStsRpt/GrpHdr/InstgAgt/FinInstnId/PstlAdr/BldgNb",
+          "kind": "element",
+          "score": 0.4735902406695516,
+          "snippet": "Building Number: Number that identifies the position of a building on a street. Path: Group Header > Instructing Agent > Financial Institution Identification > Postal Address > Building Number (XML path: FIToFIPmtStsRpt/GrpHdr/InstgAgt/FinInstnId/PstlAdr/BldgNb) Type: Max16Text (text, 1 to 16 characters); occurrence 0..1 (optional) Parent: Group Header > Instructing Agent > Financial Institutio..."
+        },
+        {
+          "id": "pacs.002.001.16#FIToFIPmtStsRpt/GrpHdr/InstgAgt/BrnchId/PstlAdr/BldgNb",
+          "kind": "element",
+          "score": 0.4729319637655006,
+          "snippet": "Building Number: Number that identifies the position of a building on a street. Path: Group Header > Instructing Agent > Branch Identification > Postal Address > Building Number (XML path: FIToFIPmtStsRpt/GrpHdr/InstgAgt/BrnchId/PstlAdr/BldgNb) Type: Max16Text (text, 1 to 16 characters); occurrence 0..1 (optional) Parent: Group Header > Instructing Agent > Branch Identification > Postal Address..."
+        },
+        {
+          "id": "pacs.002.001.16#FIToFIPmtStsRpt/OrgnlGrpInfAndSts/StsRsnInf/Orgtr/PstlAdr/BldgNb",
+          "kind": "element",
+          "score": 0.4707653066744054,
+          "snippet": "Building Number: Number that identifies the position of a building on a street. Path: Original Group Information And Status > Status Reason Information > Originator > Postal Address > Building Number (XML path: FIToFIPmtStsRpt/OrgnlGrpInfAndSts/StsRsnInf/Orgtr/PstlAdr/BldgNb) Type: Max16Text (text, 1 to 16 characters); occurrence 0..1 (optional) Parent: Original Group Information And Status > S..."
+        }
+      ],
+      "retrieval": [
+        {
+          "id": "pacs.008.001.14#rule:TotalInterbankSettlementAmountAndDateRule",
+          "score": 0.46910295920118106
+        },
+        {
+          "id": "pacs.008.001.14#rule:TotalInterbankSettlementAmountRule",
+          "score": 0.460689599596215
+        },
+        {
+          "id": "pacs.002.001.16#FIToFIPmtStsRpt/GrpHdr/InstgAgt/FinInstnId/PstlAdr/BldgNb",
+          "score": 0.4735902406695516
+        },
+        {
+          "id": "pacs.002.001.16#FIToFIPmtStsRpt/GrpHdr/InstgAgt/BrnchId/PstlAdr/BldgNb",
+          "score": 0.4729319637655006
+        },
+        {
+          "id": "pacs.002.001.16#FIToFIPmtStsRpt/OrgnlGrpInfAndSts/StsRsnInf/Orgtr/PstlAdr/BldgNb",
+          "score": 0.4707653066744054
+        }
+      ],
+      "retrieved": 5,
+      "quarantined": []
+    },
+    {
+      "set": "offtopic",
+      "id": "off-02",
+      "question": "How do I bake sourdough bread?",
+      "answerable": false,
+      "status": 200,
+      "seconds": 0.23,
+      "request_id": "18f114b9-c44e-4bd3-88bb-71c43a78d5cf",
+      "answer": null,
+      "escalated": true,
+      "reason": "low_retrieval_confidence",
+      "sources": [
+        {
+          "id": "pacs.002.001.16#FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/RmtInf/Strd/TaxRmt/Mtd",
+          "kind": "element",
+          "score": 0.4119104356979285,
+          "snippet": "Method: Method used to indicate the underlying business or how the tax is paid. Path: Transaction Information And Status > Original Transaction Reference > Remittance Information > Structured > Tax Remittance > Method (XML path: FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/RmtInf/Strd/TaxRmt/Mtd) Type: Max35Text (text, 1 to 35 characters); occurrence 0..1 (optional) Parent: Transaction Information An..."
+        },
+        {
+          "id": "pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/RmtInf/Strd/TaxRmt/Mtd",
+          "kind": "element",
+          "score": 0.40867223662088636,
+          "snippet": "Method: Method used to indicate the underlying business or how the tax is paid. Path: Credit Transfer Transaction Information > Remittance Information > Structured > Tax Remittance > Method (XML path: FIToFICstmrCdtTrf/CdtTrfTxInf/RmtInf/Strd/TaxRmt/Mtd) Type: Max35Text (text, 1 to 35 characters); occurrence 0..1 (optional) Parent: Credit Transfer Transaction Information > Remittance Informatio..."
+        },
+        {
+          "id": "pacs.002.001.16#FIToFIPmtStsRpt/GrpHdr/OrgnlBizQry/CreDtTm",
+          "kind": "element",
+          "score": 0.3976818147084962,
+          "snippet": "Creation Date Time: Date and time at which the message was created. Path: Group Header > Original Business Query > Creation Date Time (XML path: FIToFIPmtStsRpt/GrpHdr/OrgnlBizQry/CreDtTm) Type: ISODateTime (date time: A particular point in the progression of time defined by a mandatory date and a mandatory time component, expressed i...); occurrence 0..1 (optional) Parent: Group Header > Origi..."
+        },
+        {
+          "id": "pacs.002.001.16#FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/RmtInf/Strd/TaxRmt",
+          "kind": "element",
+          "score": 0.39671458045070684,
+          "snippet": "Tax Remittance: Provides remittance information about a payment made for tax-related purposes. Path: Transaction Information And Status > Original Transaction Reference > Remittance Information > Structured > Tax Remittance (XML path: FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/RmtInf/Strd/TaxRmt) Type: TaxData1; occurrence 0..1 (optional) Parent: Transaction Information And Status > Original Transa..."
+        },
+        {
+          "id": "pacs.002.001.16#rule:RemittanceAmountAndTypeGuideline",
+          "kind": "rule",
+          "score": 0.39264111010538505,
+          "snippet": "ISO 20022 pacs.002.001.16 (FIToFIPaymentStatusReportV16) Business rule RemittanceAmountAndTypeGuideline (Remittance Amount And Type Guideline): If Type / Code is equal to CREN, DUPA or REMI for Remittance Amount And Type, Remittance Amount And Type must not be repeated. Applies at: FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/RmtInf/Strd/RfrdDocInf/LineDtls/Amt, FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef..."
+        }
+      ],
+      "retrieval": [
+        {
+          "id": "pacs.002.001.16#FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/RmtInf/Strd/TaxRmt/Mtd",
+          "score": 0.4119104356979285
+        },
+        {
+          "id": "pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/RmtInf/Strd/TaxRmt/Mtd",
+          "score": 0.40867223662088636
+        },
+        {
+          "id": "pacs.002.001.16#FIToFIPmtStsRpt/GrpHdr/OrgnlBizQry/CreDtTm",
+          "score": 0.3976818147084962
+        },
+        {
+          "id": "pacs.002.001.16#FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/RmtInf/Strd/TaxRmt",
+          "score": 0.39671458045070684
+        },
+        {
+          "id": "pacs.002.001.16#rule:RemittanceAmountAndTypeGuideline",
+          "score": 0.39264111010538505
+        }
+      ],
+      "retrieved": 5,
+      "quarantined": []
+    },
+    {
+      "set": "offtopic",
+      "id": "off-03",
+      "question": "Who won the football world cup in 2018?",
+      "answerable": false,
+      "status": 200,
+      "seconds": 0.22,
+      "request_id": "5ea96e92-929f-4386-8648-8d8c3b61f68d",
+      "answer": null,
+      "escalated": true,
+      "reason": "low_retrieval_confidence",
+      "sources": [
+        {
+          "id": "pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/UltmtCdtr/CtryOfRes",
+          "kind": "element",
+          "score": 0.48556459122126205,
+          "snippet": "Country Of Residence: Country in which a person resides (the place of a person's home). In the case of a company, it is the country from which the affairs of that company are directed. Path: Credit Transfer Transaction Information > Ultimate Creditor > Country Of Residence (XML path: FIToFICstmrCdtTrf/CdtTrfTxInf/UltmtCdtr/CtryOfRes) Type: CountryCode (code set: Code to identify a country, a de..."
+        },
+        {
+          "id": "pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/UltmtDbtr/CtryOfRes",
+          "kind": "element",
+          "score": 0.48478637681048187,
+          "snippet": "Country Of Residence: Country in which a person resides (the place of a person's home). In the case of a company, it is the country from which the affairs of that company are directed. Path: Credit Transfer Transaction Information > Ultimate Debtor > Country Of Residence (XML path: FIToFICstmrCdtTrf/CdtTrfTxInf/UltmtDbtr/CtryOfRes) Type: CountryCode (code set: Code to identify a country, a depe..."
+        },
+        {
+          "id": "pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/InitgPty/CtryOfRes",
+          "kind": "element",
+          "score": 0.47207783245808577,
+          "snippet": "Country Of Residence: Country in which a person resides (the place of a person's home). In the case of a company, it is the country from which the affairs of that company are directed. Path: Credit Transfer Transaction Information > Initiating Party > Country Of Residence (XML path: FIToFICstmrCdtTrf/CdtTrfTxInf/InitgPty/CtryOfRes) Type: CountryCode (code set: Code to identify a country, a depe..."
+        },
+        {
+          "id": "pacs.002.001.16#FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/CdtrSchmeId/CtryOfRes",
+          "kind": "element",
+          "score": 0.47813532147372073,
+          "snippet": "Country Of Residence: Country in which a person resides (the place of a person's home). In the case of a company, it is the country from which the affairs of that company are directed. Path: Transaction Information And Status > Original Transaction Reference > Creditor Scheme Identification > Country Of Residence (XML path: FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/CdtrSchmeId/CtryOfRes) Type: Cou..."
+        },
+        {
+          "id": "pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/Cdtr/CtryOfRes",
+          "kind": "element",
+          "score": 0.47068929846946683,
+          "snippet": "Country Of Residence: Country in which a person resides (the place of a person's home). In the case of a company, it is the country from which the affairs of that company are directed. Path: Credit Transfer Transaction Information > Creditor > Country Of Residence (XML path: FIToFICstmrCdtTrf/CdtTrfTxInf/Cdtr/CtryOfRes) Type: CountryCode (code set: Code to identify a country, a dependency, or a..."
+        }
+      ],
+      "retrieval": [
+        {
+          "id": "pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/UltmtCdtr/CtryOfRes",
+          "score": 0.48556459122126205
+        },
+        {
+          "id": "pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/UltmtDbtr/CtryOfRes",
+          "score": 0.48478637681048187
+        },
+        {
+          "id": "pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/InitgPty/CtryOfRes",
+          "score": 0.47207783245808577
+        },
+        {
+          "id": "pacs.002.001.16#FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/CdtrSchmeId/CtryOfRes",
+          "score": 0.47813532147372073
+        },
+        {
+          "id": "pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/Cdtr/CtryOfRes",
+          "score": 0.47068929846946683
+        }
+      ],
+      "retrieved": 5,
+      "quarantined": []
+    },
+    {
+      "set": "offtopic",
+      "id": "off-04",
+      "question": "How do I sort a list in Python?",
+      "answerable": false,
+      "status": 200,
+      "seconds": 0.25,
+      "request_id": "f043e24e-89fc-440c-aafa-a3ecf80ef72b",
+      "answer": null,
+      "escalated": true,
+      "reason": "low_retrieval_confidence",
+      "sources": [
+        {
+          "id": "pacs.002.001.16#FIToFIPmtStsRpt/TxInfAndSts/TxSts",
+          "kind": "element",
+          "score": 0.4373942743955338,
+          "snippet": "Transaction Status: Specifies the status of a transaction, as published in an external payment transaction status code list. Path: Transaction Information And Status > Transaction Status (XML path: FIToFIPmtStsRpt/TxInfAndSts/TxSts) Type: ExternalPaymentTransactionStatus1Code (code set: Specifies the status of an individual payment instructions, as published in an external payment transaction s..."
+        },
+        {
+          "id": "pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/PmtTpInf/InstrPrty",
+          "kind": "element",
+          "score": 0.5250071287155151,
+          "snippet": "Instruction Priority: Indicator of the urgency or order of importance that the instructing party would like the instructed party to apply to the processing of the instruction. Path: Credit Transfer Transaction Information > Payment Type Information > Instruction Priority (XML path: FIToFICstmrCdtTrf/CdtTrfTxInf/PmtTpInf/InstrPrty) Type: Priority2Code (code set: Specifies the priority level of a..."
+        },
+        {
+          "id": "pacs.008.001.14#FIToFICstmrCdtTrf/GrpHdr/PmtTpInf/InstrPrty",
+          "kind": "element",
+          "score": 0.5223517417907715,
+          "snippet": "Instruction Priority: Indicator of the urgency or order of importance that the instructing party would like the instructed party to apply to the processing of the instruction. Path: Group Header > Payment Type Information > Instruction Priority (XML path: FIToFICstmrCdtTrf/GrpHdr/PmtTpInf/InstrPrty) Type: Priority2Code (code set: Specifies the priority level of an event. Codes: High, Normal); o..."
+        },
+        {
+          "id": "pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/Tax/SeqNb",
+          "kind": "element",
+          "score": 0.5177724340233322,
+          "snippet": "Sequence Number: Sequential number of the tax report. Path: Credit Transfer Transaction Information > Tax > Sequence Number (XML path: FIToFICstmrCdtTrf/CdtTrfTxInf/Tax/SeqNb) Type: Number (quantity: Number of objects represented as an integer.); occurrence 0..1 (optional) Parent: Credit Transfer Transaction Information > Tax. Provides details on the tax. ISO 20022 pacs.008.001.14 (FIToFICustom..."
+        },
+        {
+          "id": "pacs.002.001.16#FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/PmtTpInf/InstrPrty",
+          "kind": "element",
+          "score": 0.5211164640714855,
+          "snippet": "Instruction Priority: Indicator of the urgency or order of importance that the instructing party would like the instructed party to apply to the processing of the instruction. Path: Transaction Information And Status > Original Transaction Reference > Payment Type Information > Instruction Priority (XML path: FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/PmtTpInf/InstrPrty) Type: Priority2Code (code s..."
+        }
+      ],
+      "retrieval": [
+        {
+          "id": "pacs.002.001.16#FIToFIPmtStsRpt/TxInfAndSts/TxSts",
+          "score": 0.4373942743955338
+        },
+        {
+          "id": "pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/PmtTpInf/InstrPrty",
+          "score": 0.5250071287155151
+        },
+        {
+          "id": "pacs.008.001.14#FIToFICstmrCdtTrf/GrpHdr/PmtTpInf/InstrPrty",
+          "score": 0.5223517417907715
+        },
+        {
+          "id": "pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/Tax/SeqNb",
+          "score": 0.5177724340233322
+        },
+        {
+          "id": "pacs.002.001.16#FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/PmtTpInf/InstrPrty",
+          "score": 0.5211164640714855
+        }
+      ],
+      "retrieved": 5,
+      "quarantined": []
+    },
+    {
+      "set": "offtopic",
+      "id": "off-05",
+      "question": "What will the weather be like tomorrow?",
+      "answerable": false,
+      "status": 200,
+      "seconds": 0.22,
+      "request_id": "43e2d48f-51a7-4fa5-bb9c-dd04c4214f3f",
+      "answer": null,
+      "escalated": true,
+      "reason": "low_retrieval_confidence",
+      "sources": [
+        {
+          "id": "pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/SttlmPrty",
+          "kind": "element",
+          "score": 0.4158555419703356,
+          "snippet": "Settlement Priority: Indicator of the urgency or order of importance that the instructing party would like the instructed party to apply to the processing of the settlement instruction. Path: Credit Transfer Transaction Information > Settlement Priority (XML path: FIToFICstmrCdtTrf/CdtTrfTxInf/SttlmPrty) Type: Priority3Code (code set: Specifies the priority level of an event. Codes: Urgent, Hig..."
+        },
+        {
+          "id": "pacs.008.001.14#FIToFICstmrCdtTrf/GrpHdr/PmtTpInf/InstrPrty",
+          "kind": "element",
+          "score": 0.4160196533191418,
+          "snippet": "Instruction Priority: Indicator of the urgency or order of importance that the instructing party would like the instructed party to apply to the processing of the instruction. Path: Group Header > Payment Type Information > Instruction Priority (XML path: FIToFICstmrCdtTrf/GrpHdr/PmtTpInf/InstrPrty) Type: Priority2Code (code set: Specifies the priority level of an event. Codes: High, Normal); o..."
+        },
+        {
+          "id": "pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/PmtTpInf/InstrPrty",
+          "kind": "element",
+          "score": 0.4129557363417313,
+          "snippet": "Instruction Priority: Indicator of the urgency or order of importance that the instructing party would like the instructed party to apply to the processing of the instruction. Path: Credit Transfer Transaction Information > Payment Type Information > Instruction Priority (XML path: FIToFICstmrCdtTrf/CdtTrfTxInf/PmtTpInf/InstrPrty) Type: Priority2Code (code set: Specifies the priority level of a..."
+        },
+        {
+          "id": "pacs.002.001.16#FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/PmtTpInf/InstrPrty",
+          "kind": "element",
+          "score": 0.40537581975748305,
+          "snippet": "Instruction Priority: Indicator of the urgency or order of importance that the instructing party would like the instructed party to apply to the processing of the instruction. Path: Transaction Information And Status > Original Transaction Reference > Payment Type Information > Instruction Priority (XML path: FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/PmtTpInf/InstrPrty) Type: Priority2Code (code s..."
+        },
+        {
+          "id": "pacs.002.001.16#FIToFIPmtStsRpt/TxInfAndSts/ChrgsInf",
+          "kind": "element",
+          "score": 0.39804379945863055,
+          "snippet": "Charges Information: Provides information on the charges related to the processing of the rejection of the instruction. Usage: This is passed on for information purposes only. Settlement of the charges will be done separately. Path: Transaction Information And Status > Charges Information (XML path: FIToFIPmtStsRpt/TxInfAndSts/ChrgsInf) Type: Charges16; occurrence 0..* (optional, repeatable) Pa..."
+        }
+      ],
+      "retrieval": [
+        {
+          "id": "pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/SttlmPrty",
+          "score": 0.4158555419703356
+        },
+        {
+          "id": "pacs.008.001.14#FIToFICstmrCdtTrf/GrpHdr/PmtTpInf/InstrPrty",
+          "score": 0.4160196533191418
+        },
+        {
+          "id": "pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/PmtTpInf/InstrPrty",
+          "score": 0.4129557363417313
+        },
+        {
+          "id": "pacs.002.001.16#FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/PmtTpInf/InstrPrty",
+          "score": 0.40537581975748305
+        },
+        {
+          "id": "pacs.002.001.16#FIToFIPmtStsRpt/TxInfAndSts/ChrgsInf",
+          "score": 0.39804379945863055
+        }
+      ],
+      "retrieved": 5,
+      "quarantined": []
+    },
+    {
+      "set": "offtopic",
+      "id": "off-06",
+      "question": "Recommend a good science fiction novel.",
+      "answerable": false,
+      "status": 200,
+      "seconds": 0.22,
+      "request_id": "5091ef3e-08da-4c45-a694-aa784425f807",
+      "answer": null,
+      "escalated": true,
+      "reason": "low_retrieval_confidence",
+      "sources": [
+        {
+          "id": "pacs.008.001.14#rule:UltimateDebtorGuideline",
+          "kind": "rule",
+          "score": 0.4410063098661561,
+          "snippet": "ISO 20022 pacs.008.001.14 (FIToFICustomerCreditTransferV14) Business rule UltimateDebtorGuideline (Ultimate Debtor Guideline): Ultimate Debtor may only be present if different from Debtor. Applies at: FIToFICstmrCdtTrf/CdtTrfTxInf"
+        },
+        {
+          "id": "pacs.008.001.14#rule:PreviousInstructingAgent3Rule",
+          "kind": "rule",
+          "score": 0.4356016776324326,
+          "snippet": "ISO 20022 pacs.008.001.14 (FIToFICustomerCreditTransferV14) Business rule PreviousInstructingAgent3Rule (Previous Instructing Agent3 Rule): If Previous Instructing Agent3 is present, then Previous Instructing Agent2 must be present. Applies at: FIToFICstmrCdtTrf/CdtTrfTxInf"
+        },
+        {
+          "id": "pacs.008.001.14#rule:IntermediaryAgent3Rule",
+          "kind": "rule",
+          "score": 0.4335564374923706,
+          "snippet": "ISO 20022 pacs.008.001.14 (FIToFICustomerCreditTransferV14) Business rule IntermediaryAgent3Rule (Intermediary Agent3 Rule): If Intermediary Agent3 is present, then Intermediary Agent2 must be present. Applies at: FIToFICstmrCdtTrf/CdtTrfTxInf"
+        },
+        {
+          "id": "pacs.008.001.14#rule:PreviousInstructingAgent2Rule",
+          "kind": "rule",
+          "score": 0.4299031579609951,
+          "snippet": "ISO 20022 pacs.008.001.14 (FIToFICustomerCreditTransferV14) Business rule PreviousInstructingAgent2Rule (Previous Instructing Agent2 Rule): If Previous Instructing Agent2 is present, then Previous Instructing Agent1 must be present. Applies at: FIToFICstmrCdtTrf/CdtTrfTxInf"
+        },
+        {
+          "id": "pacs.008.001.14#rule:UltimateCreditorGuideline",
+          "kind": "rule",
+          "score": 0.42914631962776184,
+          "snippet": "ISO 20022 pacs.008.001.14 (FIToFICustomerCreditTransferV14) Business rule UltimateCreditorGuideline (Ultimate Creditor Guideline): Ultimate Creditor may only be present if different from Creditor. Applies at: FIToFICstmrCdtTrf/CdtTrfTxInf"
+        }
+      ],
+      "retrieval": [
+        {
+          "id": "pacs.008.001.14#rule:UltimateDebtorGuideline",
+          "score": 0.4410063098661561
+        },
+        {
+          "id": "pacs.008.001.14#rule:PreviousInstructingAgent3Rule",
+          "score": 0.4356016776324326
+        },
+        {
+          "id": "pacs.008.001.14#rule:IntermediaryAgent3Rule",
+          "score": 0.4335564374923706
+        },
+        {
+          "id": "pacs.008.001.14#rule:PreviousInstructingAgent2Rule",
+          "score": 0.4299031579609951
+        },
+        {
+          "id": "pacs.008.001.14#rule:UltimateCreditorGuideline",
+          "score": 0.42914631962776184
+        }
+      ],
+      "retrieved": 5,
+      "quarantined": []
+    },
+    {
+      "set": "offtopic",
+      "id": "off-07",
+      "question": "How many calories are in a banana?",
+      "answerable": false,
+      "status": 200,
+      "seconds": 0.22,
+      "request_id": "6922b900-3072-41e4-a025-a2e137dc91aa",
+      "answer": null,
+      "escalated": true,
+      "reason": "low_retrieval_confidence",
+      "sources": [
+        {
+          "id": "pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/Tax/TtlTaxAmt",
+          "kind": "element",
+          "score": 0.48370471693845374,
+          "snippet": "Total Tax Amount: Total amount of money as result of the calculation of the tax. Path: Credit Transfer Transaction Information > Tax > Total Tax Amount (XML path: FIToFICstmrCdtTrf/CdtTrfTxInf/Tax/TtlTaxAmt) Type: ActiveOrHistoricCurrencyAndAmount (amount: A number of monetary units specified in an active or a historic currency where the unit of currency is explicit and c...); occurrence 0..1 (..."
+        },
+        {
+          "id": "pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/RmtInf/Strd/TaxRmt/TtlTaxAmt",
+          "kind": "element",
+          "score": 0.49223315715789795,
+          "snippet": "Total Tax Amount: Total amount of money as result of the calculation of the tax. Path: Credit Transfer Transaction Information > Remittance Information > Structured > Tax Remittance > Total Tax Amount (XML path: FIToFICstmrCdtTrf/CdtTrfTxInf/RmtInf/Strd/TaxRmt/TtlTaxAmt) Type: ActiveOrHistoricCurrencyAndAmount (amount: A number of monetary units specified in an active or a historic currency whe..."
+        },
+        {
+          "id": "pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/RgltryRptg/Dtls/Amt",
+          "kind": "element",
+          "score": 0.47742176055908203,
+          "snippet": "Amount: Amount of money to be reported for regulatory and statutory requirements. Path: Credit Transfer Transaction Information > Regulatory Reporting > Details > Amount (XML path: FIToFICstmrCdtTrf/CdtTrfTxInf/RgltryRptg/Dtls/Amt) Type: ActiveOrHistoricCurrencyAndAmount (amount: A number of monetary units specified in an active or a historic currency where the unit of currency is explicit and ..."
+        },
+        {
+          "id": "pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/Tax/Rcrd/TaxAmt/TtlAmt",
+          "kind": "element",
+          "score": 0.47788226868125916,
+          "snippet": "Total Amount: Total amount that is the result of the calculation of the tax for the record. Path: Credit Transfer Transaction Information > Tax > Record > Tax Amount > Total Amount (XML path: FIToFICstmrCdtTrf/CdtTrfTxInf/Tax/Rcrd/TaxAmt/TtlAmt) Type: ActiveOrHistoricCurrencyAndAmount (amount: A number of monetary units specified in an active or a historic currency where the unit of currency is..."
+        },
+        {
+          "id": "pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/Tax/TtlTaxblBaseAmt",
+          "kind": "element",
+          "score": 0.4729856832614956,
+          "snippet": "Total Taxable Base Amount: Total amount of money on which the tax is based. Path: Credit Transfer Transaction Information > Tax > Total Taxable Base Amount (XML path: FIToFICstmrCdtTrf/CdtTrfTxInf/Tax/TtlTaxblBaseAmt) Type: ActiveOrHistoricCurrencyAndAmount (amount: A number of monetary units specified in an active or a historic currency where the unit of currency is explicit and c...); occurre..."
+        }
+      ],
+      "retrieval": [
+        {
+          "id": "pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/Tax/TtlTaxAmt",
+          "score": 0.48370471693845374
+        },
+        {
+          "id": "pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/RmtInf/Strd/TaxRmt/TtlTaxAmt",
+          "score": 0.49223315715789795
+        },
+        {
+          "id": "pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/RgltryRptg/Dtls/Amt",
+          "score": 0.47742176055908203
+        },
+        {
+          "id": "pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/Tax/Rcrd/TaxAmt/TtlAmt",
+          "score": 0.47788226868125916
+        },
+        {
+          "id": "pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/Tax/TtlTaxblBaseAmt",
+          "score": 0.4729856832614956
+        }
+      ],
+      "retrieved": 5,
+      "quarantined": []
+    },
+    {
+      "set": "offtopic",
+      "id": "off-08",
+      "question": "What is the best way to learn the guitar?",
+      "answerable": false,
+      "status": 200,
+      "seconds": 0.22,
+      "request_id": "3435dbbd-4976-4a36-998e-19f48cb667da",
+      "answer": null,
+      "escalated": true,
+      "reason": "low_retrieval_confidence",
+      "sources": [
+        {
+          "id": "pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/PmtTpInf/LclInstrm",
+          "kind": "element",
+          "score": 0.42831925834177187,
+          "snippet": "Local Instrument: User community specific instrument. Usage: This element is used to specify a local instrument, local clearing option and/or further qualify the service or service level. Path: Credit Transfer Transaction Information > Payment Type Information > Local Instrument (XML path: FIToFICstmrCdtTrf/CdtTrfTxInf/PmtTpInf/LclInstrm) Type: LocalInstrument2Choice (choice component: Set of e..."
+        },
+        {
+          "id": "pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/Tax/Mtd",
+          "kind": "element",
+          "score": 0.4256964668216434,
+          "snippet": "Method: Method used to indicate the underlying business or how the tax is paid. Path: Credit Transfer Transaction Information > Tax > Method (XML path: FIToFICstmrCdtTrf/CdtTrfTxInf/Tax/Mtd) Type: Max35Text (text, 1 to 35 characters); occurrence 0..1 (optional) Parent: Credit Transfer Transaction Information > Tax. Provides details on the tax. ISO 20022 pacs.008.001.14 (FIToFICustomerCreditTran..."
+        },
+        {
+          "id": "pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/UltmtDbtr/CtctDtls/PrefrdMtd",
+          "kind": "element",
+          "score": 0.43579279077670774,
+          "snippet": "Preferred Method: Preferred method used to reach the contact. Path: Credit Transfer Transaction Information > Ultimate Debtor > Contact Details > Preferred Method (XML path: FIToFICstmrCdtTrf/CdtTrfTxInf/UltmtDbtr/CtctDtls/PrefrdMtd) Type: PreferredContactMethod2Code (code set: Preferred method used to reach the individual contact within an organisation. Codes: Email, Fax, Letter, Mobile Or Cel..."
+        },
+        {
+          "id": "pacs.008.001.14#FIToFICstmrCdtTrf/GrpHdr/PmtTpInf/LclInstrm",
+          "kind": "element",
+          "score": 0.41198990273535907,
+          "snippet": "Local Instrument: User community specific instrument. Usage: This element is used to specify a local instrument, local clearing option and/or further qualify the service or service level. Path: Group Header > Payment Type Information > Local Instrument (XML path: FIToFICstmrCdtTrf/GrpHdr/PmtTpInf/LclInstrm) Type: LocalInstrument2Choice (choice component: Set of elements that further identifies ..."
+        },
+        {
+          "id": "pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/Tax",
+          "kind": "element",
+          "score": 0.403690290011133,
+          "snippet": "Tax: Provides details on the tax. Path: Credit Transfer Transaction Information > Tax (XML path: FIToFICstmrCdtTrf/CdtTrfTxInf/Tax) Type: TaxData1; occurrence 0..1 (optional) Parent: Credit Transfer Transaction Information. Set of elements providing information specific to the individual credit transfer(s). Also used at: Remittance Information > Structured > Tax Remittance ISO 20022 pacs.008.00..."
+        }
+      ],
+      "retrieval": [
+        {
+          "id": "pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/PmtTpInf/LclInstrm",
+          "score": 0.42831925834177187
+        },
+        {
+          "id": "pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/Tax/Mtd",
+          "score": 0.4256964668216434
+        },
+        {
+          "id": "pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/UltmtDbtr/CtctDtls/PrefrdMtd",
+          "score": 0.43579279077670774
+        },
+        {
+          "id": "pacs.008.001.14#FIToFICstmrCdtTrf/GrpHdr/PmtTpInf/LclInstrm",
+          "score": 0.41198990273535907
+        },
+        {
+          "id": "pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/Tax",
+          "score": 0.403690290011133
+        }
+      ],
+      "retrieved": 5,
+      "quarantined": []
+    },
+    {
+      "set": "offtopic",
+      "id": "off-09",
+      "question": "How do I open a savings account at my bank?",
+      "answerable": false,
+      "status": 200,
+      "seconds": 0.26,
+      "request_id": "a76bc1d0-72d9-4128-a222-d86b422408f3",
+      "answer": null,
+      "escalated": true,
+      "reason": "low_retrieval_confidence",
+      "sources": [
+        {
+          "id": "pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/DbtrAcct/Nm",
+          "kind": "element",
+          "score": 0.5421694840293825,
+          "snippet": "Name: Name of the account, as assigned by the account servicing institution, in agreement with the account owner in order to provide an additional means of identification of the account. Usage: The account name is different from the account owner name. The account name is used in certain user communities to provide a means of identifying the account, in addition to the account owner's identity ..."
+        },
+        {
+          "id": "pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/CdtrAcct/Nm",
+          "kind": "element",
+          "score": 0.5243521645279038,
+          "snippet": "Name: Name of the account, as assigned by the account servicing institution, in agreement with the account owner in order to provide an additional means of identification of the account. Usage: The account name is different from the account owner name. The account name is used in certain user communities to provide a means of identifying the account, in addition to the account owner's identity ..."
+        },
+        {
+          "id": "pacs.002.001.16#FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/DbtrAcct/Nm",
+          "kind": "element",
+          "score": 0.5388683127007857,
+          "snippet": "Name: Name of the account, as assigned by the account servicing institution, in agreement with the account owner in order to provide an additional means of identification of the account. Usage: The account name is different from the account owner name. The account name is used in certain user communities to provide a means of identifying the account, in addition to the account owner's identity ..."
+        },
+        {
+          "id": "pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/PrvsInstgAgt1Acct/Nm",
+          "kind": "element",
+          "score": 0.5165936658736278,
+          "snippet": "Name: Name of the account, as assigned by the account servicing institution, in agreement with the account owner in order to provide an additional means of identification of the account. Usage: The account name is different from the account owner name. The account name is used in certain user communities to provide a means of identifying the account, in addition to the account owner's identity ..."
+        },
+        {
+          "id": "pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/IntrmyAgt1Acct/Nm",
+          "kind": "element",
+          "score": 0.5104065537452734,
+          "snippet": "Name: Name of the account, as assigned by the account servicing institution, in agreement with the account owner in order to provide an additional means of identification of the account. Usage: The account name is different from the account owner name. The account name is used in certain user communities to provide a means of identifying the account, in addition to the account owner's identity ..."
+        }
+      ],
+      "retrieval": [
+        {
+          "id": "pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/DbtrAcct/Nm",
+          "score": 0.5421694840293825
+        },
+        {
+          "id": "pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/CdtrAcct/Nm",
+          "score": 0.5243521645279038
+        },
+        {
+          "id": "pacs.002.001.16#FIToFIPmtStsRpt/TxInfAndSts/OrgnlTxRef/DbtrAcct/Nm",
+          "score": 0.5388683127007857
+        },
+        {
+          "id": "pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/PrvsInstgAgt1Acct/Nm",
+          "score": 0.5165936658736278
+        },
+        {
+          "id": "pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/IntrmyAgt1Acct/Nm",
+          "score": 0.5104065537452734
+        }
+      ],
+      "retrieved": 5,
+      "quarantined": []
+    },
+    {
+      "set": "offtopic",
+      "id": "off-10",
+      "question": "What is the current exchange rate from euro to dollar?",
+      "answerable": false,
+      "status": 503,
+      "seconds": 0.24,
+      "detail": "{\"detail\":\"replay-only mode: no recorded answer for this question and context\"}"
+    },
+    {
+      "set": "offtopic",
+      "id": "off-11",
+      "question": "What does a pain.001 customer credit transfer initiation contain?",
+      "answerable": false,
+      "status": 200,
+      "seconds": 0.17,
+      "request_id": "a2c02998-e378-4846-ba65-450d3ce59d14",
+      "answer": null,
+      "escalated": true,
+      "reason": "low_retrieval_confidence",
+      "sources": [],
+      "retrieval": [],
+      "retrieved": 0,
+      "quarantined": []
+    },
+    {
+      "set": "offtopic",
+      "id": "off-12",
+      "question": "How do I reset my online banking password?",
+      "answerable": false,
+      "status": 200,
+      "seconds": 0.25,
+      "request_id": "9923e29a-ee8f-4896-b725-d3018d76b890",
+      "answer": null,
+      "escalated": true,
+      "reason": "low_retrieval_confidence",
+      "sources": [
+        {
+          "id": "pacs.008.001.14#rule:PreviousInstructingAgent2AccountRule",
+          "kind": "rule",
+          "score": 0.5225354148468632,
+          "snippet": "ISO 20022 pacs.008.001.14 (FIToFICustomerCreditTransferV14) Business rule PreviousInstructingAgent2AccountRule (Previous Instructing Agent2 Account Rule): If Previous Instructing Agent2 Account is present, then Previous Instructing Agent2 must be present. Applies at: FIToFICstmrCdtTrf/CdtTrfTxInf"
+        },
+        {
+          "id": "pacs.008.001.14#rule:PreviousInstructingAgent3AccountRule",
+          "kind": "rule",
+          "score": 0.5199045562630363,
+          "snippet": "ISO 20022 pacs.008.001.14 (FIToFICustomerCreditTransferV14) Business rule PreviousInstructingAgent3AccountRule (Previous Instructing Agent3 Account Rule): If Previous Instructing Agent3 Account is present, then Previous Instructing Agent3 must be present. Applies at: FIToFICstmrCdtTrf/CdtTrfTxInf"
+        },
+        {
+          "id": "pacs.008.001.14#rule:InstructedAmountAndExchangeRate3Rule",
+          "kind": "rule",
+          "score": 0.5174639091608445,
+          "snippet": "ISO 20022 pacs.008.001.14 (FIToFICustomerCreditTransferV14) Business rule InstructedAmountAndExchangeRate3Rule (Instructed Amount And Exchange Rate3 Rule): If Instructed Amount is not present, then Exchange Rate is not allowed. Applies at: FIToFICstmrCdtTrf/CdtTrfTxInf"
+        },
+        {
+          "id": "pacs.008.001.14#rule:InstructedAmountAndExchangeRate2Rule",
+          "kind": "rule",
+          "score": 0.5157132763520809,
+          "snippet": "ISO 20022 pacs.008.001.14 (FIToFICustomerCreditTransferV14) Business rule InstructedAmountAndExchangeRate2Rule (Instructed Amount And Exchange Rate2 Rule): If Instructed Amount is present and the currency is the same as the currency in Interbank Settlement Amount, then Exchange Rate is not allowed. Applies at: FIToFICstmrCdtTrf/CdtTrfTxInf"
+        },
+        {
+          "id": "pacs.008.001.14#rule:PreviousInstructingAgent1AccountRule",
+          "kind": "rule",
+          "score": 0.5112586326157241,
+          "snippet": "ISO 20022 pacs.008.001.14 (FIToFICustomerCreditTransferV14) Business rule PreviousInstructingAgent1AccountRule (Previous Instructing Agent1 Account Rule): If Previous Instructing Agent1 Account is present, then Previous Instructing Agent1 must be present. Applies at: FIToFICstmrCdtTrf/CdtTrfTxInf"
+        }
+      ],
+      "retrieval": [
+        {
+          "id": "pacs.008.001.14#rule:PreviousInstructingAgent2AccountRule",
+          "score": 0.5225354148468632
+        },
+        {
+          "id": "pacs.008.001.14#rule:PreviousInstructingAgent3AccountRule",
+          "score": 0.5199045562630363
+        },
+        {
+          "id": "pacs.008.001.14#rule:InstructedAmountAndExchangeRate3Rule",
+          "score": 0.5174639091608445
+        },
+        {
+          "id": "pacs.008.001.14#rule:InstructedAmountAndExchangeRate2Rule",
+          "score": 0.5157132763520809
+        },
+        {
+          "id": "pacs.008.001.14#rule:PreviousInstructingAgent1AccountRule",
+          "score": 0.5112586326157241
+        }
+      ],
+      "retrieved": 5,
+      "quarantined": []
+    }
+  ]
+}

@@ -10,3 +10,9 @@ data/processed/chunks.jsonl
 data/processed/validation_report.json
 .cache/
 evals/results/
+infra/cdk.out/
+infra/.venv/
+infra/cdk.context.json
+infra/cdk-outputs.json
+infra/.stack_created.txt
+infra/.destroy_started.txt
