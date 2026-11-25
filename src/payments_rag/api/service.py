@@ -72,12 +72,21 @@ def build_provenance() -> Any:
     return ProvenanceCheck.from_extract(path) if path.exists() else None
 
 
+def build_audit() -> Any:
+    """DynamoDB when AUDIT_TABLE and AUDIT_HEAD_TABLE are set (serverless), else the Postgres audit log."""
+    if os.environ.get("AUDIT_TABLE") and os.environ.get("AUDIT_HEAD_TABLE"):
+        from payments_rag.audit.dynamo import DynamoAuditLog
+
+        return DynamoAuditLog(os.environ["AUDIT_TABLE"], os.environ["AUDIT_HEAD_TABLE"])
+    return AuditLog(database_url())
+
+
 def build_service() -> Service:
     return Service(
         retriever=build_retriever(int(os.environ.get("RETRIEVAL_K", DEFAULT_K))),
         generator=Generator.from_env(cache=ResponseCache()),
         min_score=float(os.environ.get("ESCALATION_MIN_SCORE", DEFAULT_MIN_SCORE)),
-        audit=AuditLog(database_url()),
+        audit=build_audit(),
         # Fail closed by default: no answer leaves the system unless it was recorded.
         audit_fail_closed=os.environ.get("AUDIT_FAIL_OPEN", "0") != "1",
         provenance=build_provenance(),

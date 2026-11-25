@@ -174,7 +174,16 @@ def main(argv: list[str] | None = None) -> int:
     tail.add_argument("--n", type=int, default=20)
     args = parser.parse_args(argv)
 
-    log = AuditLog(database_url())
+    import os
+
+    if os.environ.get("AUDIT_TABLE") and os.environ.get("AUDIT_HEAD_TABLE"):  # the serverless deployment
+        from payments_rag.audit.dynamo import DynamoAuditLog
+
+        log: Any = DynamoAuditLog(os.environ["AUDIT_TABLE"], os.environ["AUDIT_HEAD_TABLE"])
+        if args.command == "tail":
+            raise SystemExit("tail is not implemented for the DynamoDB audit log; use verify")
+    else:
+        log = AuditLog(database_url())
     if args.command == "verify":
         report = log.verify()
         print(f"{'OK' if report['ok'] else 'TAMPERED'}: {report['rows']} rows, head {report['head_hash']}")
