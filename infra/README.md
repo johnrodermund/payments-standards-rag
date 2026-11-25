@@ -11,7 +11,7 @@ browser ── HTTPS ──► CloudFront ──(Origin Access Control, SigV4)�
                                                                       ├─ DynamoDB: AuditEntries (add-only), AuditHead, Spend, RateLimits
                                                                       └─ SSM Parameter Store: model API key (SecureString)
 EventBridge, daily ──► AuditVerify function ──► re-walks the audit hash chain
-CloudWatch alarms (API errors, throttles, audit verify failed, spend ≥ 80% of cap) ──► SNS topic ──► email
+CloudWatch alarms (API crashes, Lambda errors, throttles, audit verify failed, spend ≥ 80% of cap) ──► SNS topic ──► email
 ```
 
 - **CloudFront is the only way in.** The Function URL rejects unsigned calls. For POST, CloudFront has to sign the body, so the caller must send its SHA-256 in `x-amz-content-sha256`. The web page does this.

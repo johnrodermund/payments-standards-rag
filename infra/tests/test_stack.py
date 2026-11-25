@@ -126,7 +126,7 @@ def test_daily_audit_verify_runs_the_verify_handler(default):
 def test_alarms_go_to_an_sns_topic(default):
     default.resource_count_is("AWS::SNS::Topic", 1)
     names = {a["Properties"].get("MetricName") for a in default.find_resources("AWS::CloudWatch::Alarm").values()}
-    assert {"Errors", "Throttles", "MonthlySpendUSD"} <= names
+    assert {"Errors", "Throttles", "MonthlySpendUSD", "ApiTracebacks"} <= names
     default.has_resource_properties("AWS::CloudWatch::Alarm", {"MetricName": "MonthlySpendUSD", "Threshold": 4.0})
 
 
@@ -149,3 +149,7 @@ def test_https_url_is_an_output(default):
     outputs = default.to_json()["Outputs"]
     assert "Url" in outputs and "https://" in json.dumps(outputs["Url"]["Value"])
     default.has_output("ApiKeyParameter", Match.object_like({"Value": "/payments-rag/anthropic-api-key"}))
+
+
+def test_http_500s_are_caught_from_tracebacks_in_the_api_log(default):
+    default.has_resource_properties("AWS::Logs::MetricFilter", {"FilterPattern": '"Traceback"'})

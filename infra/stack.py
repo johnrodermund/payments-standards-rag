@@ -186,9 +186,20 @@ class PaymentsRagStack(Stack):
             topic.add_subscription(subscriptions.EmailSubscription(cfg["alarm_email"]))
         action = cw_actions.SnsAction(topic)
         budget = float(cfg["llm_budget_usd"])
+        # Mangum turns an unhandled exception into an HTTP 500, which Lambda does not count as an error,
+        # so the API's own crashes are caught from the tracebacks in its log.
+        crashes = logs.MetricFilter(
+            self, "ApiTracebacks", log_group=api_logs, metric_namespace="PaymentsRag", metric_name="ApiTracebacks",
+            filter_pattern=logs.FilterPattern.literal('"Traceback"'), metric_value="1", default_value=0,
+        ).metric(statistic="Sum", period=Duration.minutes(5))
         alarms = [
+            crashes.create_alarm(
+                self, "ApiCrashed", threshold=1, evaluation_periods=1,
+                comparison_operator=cloudwatch.ComparisonOperator.GREATER_THAN_OR_EQUAL_TO_THRESHOLD,
+                treat_missing_data=cloudwatch.TreatMissingData.NOT_BREACHING,
+                alarm_description="API raised an unhandled exception (HTTP 500)"),
             api.metric_errors(period=Duration.minutes(5)).create_alarm(
-                self, "ApiErrors", threshold=1, evaluation_periods=1, alarm_description="API function crashed (unhandled errors)"),
+                self, "ApiErrors", threshold=1, evaluation_periods=1, alarm_description="API function failed outside the web app (init, timeout, out of memory)"),
             api.metric_throttles(period=Duration.minutes(5)).create_alarm(
                 self, "ApiThrottles", threshold=1, evaluation_periods=1, alarm_description="API function throttled"),
             verify.metric_errors(period=Duration.days(1)).create_alarm(
