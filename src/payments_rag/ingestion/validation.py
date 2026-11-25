@@ -25,7 +25,7 @@ from typing import Any
 from payments_rag.guardrails.injection import scan_passage
 from payments_rag.ingestion.chunking import MAX_CHARS
 
-VALID_KINDS = {"message", "element", "children", "rule"}
+VALID_KINDS = {"message", "element", "children", "rule", "flow"}
 MIN_CHARS = 40
 COMMON_METADATA = ("message_id", "message_name", "source")
 KIND_METADATA = {
@@ -33,6 +33,7 @@ KIND_METADATA = {
     "children": ("xml_path",),
     "rule": ("name",),
     "message": (),
+    "flow": ("messages", "cites"),
 }
 CONTROL_CHARS = re.compile(r"[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]")
 MOJIBAKE = re.compile("Ã.|â€|Â ")

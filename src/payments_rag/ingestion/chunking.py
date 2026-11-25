@@ -347,7 +347,7 @@ def _rule_chunks(msg: dict[str, Any], header: str):
     return chunks
 
 
-def chunk_payload(payload: dict[str, Any]) -> list[dict[str, Any]]:
+def chunk_payload(payload: dict[str, Any], flows: dict[str, Any] | None = None) -> list[dict[str, Any]]:
     messages = payload.get("messages") or []
     if not messages:
         raise ValueError("payload has no messages to chunk")
@@ -362,6 +362,10 @@ def chunk_payload(payload: dict[str, Any]) -> list[dict[str, Any]]:
         chunks += _element_chunks(msg, header, by_path, plan)
         chunks += _children_chunks(msg, header, root_tag, plan[0])
         chunks += _rule_chunks(msg, header)
+    if flows is not None:
+        from payments_rag.ingestion.flows import flow_chunks
+
+        chunks += flow_chunks(flows, payload)
     return chunks
 
 
@@ -369,10 +373,19 @@ def main(argv: list[str] | None = None) -> None:
     parser = argparse.ArgumentParser(description="Chunk extracted ISO 20022 definitions into JSONL.")
     parser.add_argument("in_path")
     parser.add_argument("out_path")
+    parser.add_argument("--flows", help="flows file to check and chunk, e.g. data/flows/interbank_flows.json")
     args = parser.parse_args(argv)
 
     payload = json.loads(Path(args.in_path).read_text(encoding="utf-8"))
-    chunks = chunk_payload(payload)
+    flows = None
+    if args.flows:
+        from payments_rag.ingestion.flows import check_flows, load_flows
+
+        flows = load_flows(args.flows)
+        errors = check_flows(flows, payload)
+        if errors:
+            raise SystemExit("flows file failed checks:\n" + "\n".join(errors))
+    chunks = chunk_payload(payload, flows)
     with Path(args.out_path).open("w", encoding="utf-8") as fh:
         fh.writelines(json.dumps(chunk, ensure_ascii=False) + "\n" for chunk in chunks)
 
