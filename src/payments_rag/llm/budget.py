@@ -26,7 +26,12 @@ DEFAULT_LIMIT_USD = 0.50
 DEFAULT_LEDGER = Path(".cache/llm/spend.json")
 
 # (input, output) USD per million tokens.
-PRICES: dict[str, tuple[float, float]] = {"claude-haiku-5-5": (0.10, 0.50)}
+# Standard-tier list prices, prompts up to 100K (Claude) / 272K (OpenAI) tokens; checked 2026-11-25.
+PRICES: dict[str, tuple[float, float]] = {
+    "claude-haiku-5-5": (0.10, 0.50),
+    "gpt-6-luna": (0.10, 0.50),
+    "gpt-6.1-terra": (1.0, 5.0),
+}
 FALLBACK_PRICE = (5.0, 25.0)
 CHARS_PER_TOKEN = 3  # pessimistic for English/technical text, so input is over- rather than under-estimated
 
