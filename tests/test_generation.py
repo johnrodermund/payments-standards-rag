@@ -109,3 +109,13 @@ def test_replay_only_serves_recorded_answers(tmp_path):
 def test_refusal_stop_reason_is_surfaced_not_hidden():
     result = Generator(client=FakeClient(text="", stop_reason="refusal"), cache=None).generate("q?", HITS)
     assert result.stop_reason == "refusal" and result.text == ""
+
+
+def test_system_prompt_names_the_six_messages_and_flow_summaries():
+    from payments_rag.llm.generation import SYSTEM_PROMPT
+
+    first = SYSTEM_PROMPT.split("\n", 1)[0]
+    for m in ("pain.001", "pacs.008", "pacs.009", "pacs.002", "pain.002", "pacs.004"):
+        assert m in first
+    assert "flow summaries" in first
+    assert SYSTEM_PROMPT.count("\n") == 7  # same line count as before: no new rule
