@@ -7,9 +7,9 @@ from typing import Annotated, Any
 from fastapi import Depends, FastAPI, HTTPException, Request
 from pydantic import BaseModel, Field, field_validator
 
+from payments_rag.api import ratelimit
 from payments_rag.api.flows import router as flows_router
 from payments_rag.api.ingest import router as ingest_router
-from payments_rag.api import ratelimit
 from payments_rag.api.rag import answer_question
 from payments_rag.api.service import Service, build_service
 from payments_rag.audit.log import build_entry
