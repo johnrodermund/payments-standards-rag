@@ -150,3 +150,40 @@ def test_cli_refuses_a_flows_file_that_fails_checks(tmp_path):
     with pytest.raises(SystemExit, match="nope#x"):
         main([str(extract), str(out), "--flows", str(bad)])
     assert not out.exists()
+
+
+# --- the committed flows file -------------------------------------------------------------
+
+def committed():
+    import json
+    from pathlib import Path
+
+    from payments_rag.ingestion.flows import load_flows
+
+    extract = json.loads(Path("data/processed/iso20022_messages.json").read_text(encoding="utf-8"))
+    return load_flows(), extract
+
+
+def test_committed_flows_pass_checks():
+    flows_file, extract = committed()
+    assert check_flows(flows_file, extract) == []
+
+
+def test_committed_flows_cover_the_four_flows():
+    flows_file, _ = committed()
+    assert {f["id"] for f in flows_file["flows"]} == {"serial-credit-transfer", "cover-method", "fi-credit-transfer", "return"}
+
+
+def test_every_indexed_message_appears_in_some_flow():
+    flows_file, _ = committed()
+    used = {s["message"] for f in flows_file["flows"] for s in f["steps"]}
+    assert {"pain.001", "pacs.008", "pacs.009", "pacs.002", "pain.002", "pacs.004"} <= used
+
+
+def test_committed_flow_chunks_fit_and_pass_validation():
+    flows_file, extract = committed()
+    chunks = chunk_payload(extract, flows_file)
+    flow = [c for c in chunks if c["kind"] == "flow"]
+    assert len(flow) >= 5
+    assert all(len(c["text"]) <= MAX_CHARS for c in flow)
+    assert validate_chunks(chunks)["passed"]
