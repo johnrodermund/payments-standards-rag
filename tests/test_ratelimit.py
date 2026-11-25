@@ -32,10 +32,11 @@ def test_key_comes_from_the_cloudfront_viewer_address_without_the_port():
     assert a == b and "203.0.113.7" not in a  # hashed, raw IP not stored
 
 
-def test_ipv6_viewer_address_keeps_the_whole_address():
-    a = client_key(req({"CloudFront-Viewer-Address": "2001:db8::1:443"}))
-    b = client_key(req({"CloudFront-Viewer-Address": "2001:db8::2:443"}))
-    assert a != b
+def test_ipv6_clients_are_counted_per_64_so_rotating_addresses_does_not_help():
+    a = client_key(req({"CloudFront-Viewer-Address": "2001:db8:0:1::1:443"}))
+    b = client_key(req({"CloudFront-Viewer-Address": "2001:db8:0:1:ffff:1234:5678:9abc:443"}))
+    other = client_key(req({"CloudFront-Viewer-Address": "2001:db8:0:2::1:443"}))
+    assert a == b and a != other
 
 
 def test_forged_x_forwarded_for_changes_nothing():

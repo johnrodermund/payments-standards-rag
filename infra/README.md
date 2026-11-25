@@ -8,9 +8,9 @@ One stack, `PaymentsRag`, in `us-east-2`. No VPC, no servers, no database to run
 browser ── HTTPS ──► CloudFront ──(Origin Access Control, SigV4)──► Lambda Function URL (AWS_IAM auth)
                                                                       │  container image (Dockerfile.lambda), x86_64, 3 GB
                                                                       │  search index baked into the image
-                                                                      ├─ DynamoDB: AuditEntries (add-only), AuditHead, Spend, RateLimits
+                                                                      ├─ DynamoDB: AuditEntries, AuditHead, AuditAnchor, Spend, RateLimits
                                                                       └─ SSM Parameter Store: model API key (SecureString)
-EventBridge, daily ──► AuditVerify function ──► re-walks the audit hash chain
+EventBridge, daily ──► AuditVerify function ──► re-walks the audit hash chain, moves the anchor
 CloudWatch alarms (API crashes, Lambda errors, throttles, audit verify failed, spend ≥ 80% of cap) ──► SNS topic ──► email
 ```
 
@@ -22,10 +22,13 @@ CloudWatch alarms (API crashes, Lambda errors, throttles, audit verify failed, s
   ```
 - **Content updates rebuild the image.** `POST /ingest` is disabled here. Change the extract or flows file, then deploy again.
 - **Audit log:**
-  - The API role may only `PutItem` on `AuditEntries` and `GetItem`/`UpdateItem` on `AuditHead`, so it cannot change or delete an entry.
-  - Both audit tables, and `Spend`, have deletion protection and point-in-time recovery, and are kept if the stack is deleted.
+  - Every question is a hash-chained entry in `AuditEntries`; `AuditHead` holds the chain's length and last hash, so deleted entries are caught too.
+  - The daily verify writes an anchor (seq and hash) to `AuditAnchor`, which only the verify function can write, and checks that yesterday's anchor is still in the chain.
+  - What this does not stop: IAM cannot force a write to be conditional, so anyone holding the API function's role could rewrite entries added since the last verify. That window is at most a day.
+  - The three audit tables, and `Spend`, have deletion protection and point-in-time recovery, and are kept if the stack is deleted.
 - **Spend cap:** `LLM_BUDGET_USD`, $5 per calendar month by default, enforced atomically in the `Spend` table. At 80% the `SpendNearCap` alarm emails you; at 100% visitors see "monthly question budget reached".
-- **Rate limit:** 10 questions a minute and 100 a day per visitor, keyed on CloudFront's viewer address (hashed).
+- **Rate limit:** 10 questions a minute and 100 a day per visitor, keyed on CloudFront's viewer address (hashed). IPv6 visitors are counted per /64, because one client usually holds a whole /64.
+- **Model call timeout:** 12 s per attempt and one retry, so a slow provider fails inside Lambda's 29 s limit and the question is still logged and its budget reservation returned.
 
 ## Settings (`-c key=value`)
 
@@ -68,9 +71,11 @@ Confirm the SNS subscription email. Then check that the `Url` output serves the 
 To check the audit log from your machine:
 
 ```powershell
-$env:AUDIT_TABLE = "<AuditEntriesTable output>"; $env:AUDIT_HEAD_TABLE = "<AuditHeadTable output>"; $env:AWS_PROFILE = "payments-rag"; $env:AWS_REGION = "us-east-2"
+$env:AUDIT_TABLE = "<AuditEntriesTable output>"; $env:AUDIT_HEAD_TABLE = "<AuditHeadTable output>"; $env:AUDIT_ANCHOR_TABLE = "<AuditAnchorTable output>"; $env:AWS_PROFILE = "payments-rag"; $env:AWS_REGION = "us-east-2"
 uv run python -m payments_rag.audit.log verify
 ```
+
+This checks the chain and the anchor but never moves the anchor; only the daily function does.
 
 ## Cost (estimate, list prices)
 

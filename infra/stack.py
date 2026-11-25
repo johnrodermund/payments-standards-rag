@@ -6,7 +6,8 @@ Choices that matter (all overridable with `-c key=value`; see infra/README.md):
   Origin Access Control, so the URL cannot be called directly. For POST, CloudFront needs the body's SHA-256
   in `x-amz-content-sha256`; the web page sends it, and API callers must too.
 * The search index ships inside the image (built at `docker build`), so there is no database to run.
-* DynamoDB (on demand) holds the audit log (entries the API may only add to, plus a head record), the
+* DynamoDB (on demand) holds the audit log (entries, a head record, and an anchor only the daily verify
+  can write), the
   monthly spend cap and the rate-limit counters. The audit tables have deletion protection and
   point-in-time recovery, and are kept if the stack is deleted.
 * The model API key is a SecureString in SSM Parameter Store, created by hand in the console (free tier),
@@ -86,6 +87,7 @@ class PaymentsRagStack(Stack):
 
         audit_entries = table("AuditEntries", sort_key="seq", protect=True)
         audit_head = table("AuditHead", protect=True)
+        audit_anchor = table("AuditAnchor", protect=True)  # written only by the daily verify
         spend = table("Spend", protect=True)
         rate_limits = table("RateLimits", ttl="expires_at")
 
@@ -104,6 +106,10 @@ class PaymentsRagStack(Stack):
             "ASK_RATE_PER_DAY": cfg["rate_per_day"],
             "API_KEY_PARAMETER": cfg["api_key_parameter"],
             "API_KEY_ENV": provider["key_env"],
+            # One model call must fail (releasing its budget reservation and writing its audit entry) well
+            # before Lambda's 29 s timeout kills the invocation: 12 s per attempt, one retry.
+            "LLM_TIMEOUT_SECONDS": "12",
+            "LLM_MAX_RETRIES": "1",
         }
         image_args = {"directory": "..", "file": "Dockerfile.lambda"}  # the repository root; honours .dockerignore
         reserved = int(cfg["reserved_concurrency"]) if cfg["reserved_concurrency"] else None
@@ -126,7 +132,8 @@ class PaymentsRagStack(Stack):
             architecture=lambda_.Architecture.X86_64,
             memory_size=1024,
             timeout=Duration.minutes(5),
-            environment={"AUDIT_TABLE": audit_entries.table_name, "AUDIT_HEAD_TABLE": audit_head.table_name},
+            environment={"AUDIT_TABLE": audit_entries.table_name, "AUDIT_HEAD_TABLE": audit_head.table_name,
+                         "AUDIT_ANCHOR_TABLE": audit_anchor.table_name},
             log_group=verify_logs,
         )
 
@@ -144,6 +151,7 @@ class PaymentsRagStack(Stack):
         ))
         verify.add_to_role_policy(iam.PolicyStatement(actions=["dynamodb:Query"], resources=[audit_entries.table_arn]))
         verify.add_to_role_policy(iam.PolicyStatement(actions=["dynamodb:GetItem"], resources=[audit_head.table_arn]))
+        verify.add_to_role_policy(iam.PolicyStatement(actions=["dynamodb:GetItem", "dynamodb:PutItem"], resources=[audit_anchor.table_arn]))
 
         url = api.add_function_url(auth_type=lambda_.FunctionUrlAuthType.AWS_IAM)
         forward = cloudfront.OriginRequestPolicy(
@@ -218,4 +226,5 @@ class PaymentsRagStack(Stack):
         CfnOutput(self, "ApiKeyParameter", value=cfg["api_key_parameter"])
         CfnOutput(self, "AuditEntriesTable", value=audit_entries.table_name)
         CfnOutput(self, "AuditHeadTable", value=audit_head.table_name)
+        CfnOutput(self, "AuditAnchorTable", value=audit_anchor.table_name)
         CfnOutput(self, "LlmProvider", value=cfg["llm_provider"])

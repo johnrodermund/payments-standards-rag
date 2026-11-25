@@ -14,6 +14,7 @@ bounds the cost, so availability wins here.
 from __future__ import annotations
 
 import hashlib
+import ipaddress
 import logging
 import os
 from collections.abc import Callable
@@ -39,6 +40,11 @@ def create_table(client: Any, name: str) -> None:
 def client_key(request: Any) -> str:
     viewer = request.headers.get("cloudfront-viewer-address")
     ip = viewer.rsplit(":", 1)[0] if viewer else getattr(request.client, "host", "unknown")
+    if ":" in ip:  # IPv6: one client usually holds a whole /64, so count the /64, not the address
+        try:
+            ip = f"{ipaddress.ip_network(f'{ip}/64', strict=False).network_address}/64"
+        except ValueError:
+            pass
     salt = os.environ.get("RATE_LIMIT_SALT", "payments-rag")
     return hashlib.sha256(f"{salt}:{ip}".encode()).hexdigest()[:32]
 

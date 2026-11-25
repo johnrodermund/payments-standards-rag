@@ -157,3 +157,34 @@ def test_budget_refusal_is_generic_to_the_caller():
     assert r.status_code == 503
     assert "$" not in r.json()["detail"] and "spend.json" not in r.json()["detail"]
     assert "budget" in r.json()["detail"]
+
+
+def test_a_call_spanning_month_end_settles_into_the_month_it_was_reserved_in(ddb):
+    now = [datetime(2026, 11, 30, 23, 59, 59, tzinfo=UTC)]
+    c = DynamoSpendCap("spend", 0.01, client=ddb, clock=lambda: now[0])
+    reserved = c.check(MODEL, REQUEST, max_tokens=700)
+    now[0] = datetime(2026, 12, 1, 0, 0, 1, tzinfo=UTC)
+    cost = c.record(MODEL, 500, 50, reserved=reserved)
+    assert committed(ddb, "2026-11")[0] == pytest.approx(cost)
+    assert committed(ddb, "2026-12") == (0, 0)
+
+
+def test_release_after_month_end_goes_back_to_the_reserving_month(ddb):
+    now = [datetime(2026, 11, 30, 23, 59, 59, tzinfo=UTC)]
+    c = DynamoSpendCap("spend", 0.01, client=ddb, clock=lambda: now[0])
+    reserved = c.check(MODEL, REQUEST, max_tokens=700)
+    now[0] = datetime(2026, 12, 1, 0, 0, 1, tzinfo=UTC)
+    c.release(reserved)
+    assert committed(ddb, "2026-11")[0] == pytest.approx(0)
+    assert committed(ddb, "2026-12") == (0, 0)
+
+
+def test_a_failed_release_does_not_hide_the_provider_error(ddb, monkeypatch):
+    c = cap(ddb)
+
+    def broken_release(reserved):
+        raise RuntimeError("dynamodb throttled")
+
+    monkeypatch.setattr(c, "release", broken_release)
+    with pytest.raises(LLMUnavailableError):
+        Generator(backend=FailingBackend(), budget=c).generate("q", HITS)

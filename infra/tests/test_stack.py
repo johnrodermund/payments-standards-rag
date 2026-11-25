@@ -97,9 +97,9 @@ def test_audit_entries_are_append_only_for_the_api(default):
 
 def test_tables_are_on_demand_and_the_audit_tables_are_protected(default):
     tables = default.find_resources("AWS::DynamoDB::GlobalTable")
-    assert len(tables) == 4
-    protected = [t for k, t in tables.items() if k.startswith(("AuditEntries", "AuditHead"))]
-    assert len(protected) == 2
+    assert len(tables) == 5
+    protected = [t for k, t in tables.items() if k.startswith(("AuditEntries", "AuditHead", "AuditAnchor"))]
+    assert len(protected) == 3
     for t in protected:
         assert t["DeletionPolicy"] == "Retain"
         replica = t["Properties"]["Replicas"][0]
@@ -153,3 +153,14 @@ def test_https_url_is_an_output(default):
 
 def test_http_500s_are_caught_from_tracebacks_in_the_api_log(default):
     default.has_resource_properties("AWS::Logs::MetricFilter", {"FilterPattern": '"Traceback"'})
+
+
+def test_only_the_verify_function_can_write_the_audit_anchor(default):
+    assert actions_on(default, "AuditAnchor") == {"dynamodb:GetItem", "dynamodb:PutItem"}
+    api_policies = [p for k, p in default.find_resources("AWS::IAM::Policy").items() if k.startswith("ApiServiceRole")]
+    assert api_policies and "AuditAnchor" not in json.dumps(api_policies)
+
+
+def test_model_calls_time_out_before_the_function_does(default):
+    env = api_function(default)["Properties"]["Environment"]["Variables"]
+    assert int(env["LLM_TIMEOUT_SECONDS"]) * (int(env["LLM_MAX_RETRIES"]) + 1) < 29

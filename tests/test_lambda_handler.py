@@ -80,3 +80,17 @@ def test_verify_handler_raises_when_the_chain_is_broken(aws, monkeypatch):
     client.delete_item(TableName="entries", Key={"pk": {"S": "chain"}, "seq": {"N": "1"}})
     with pytest.raises(RuntimeError, match="audit chain"):
         verify_handler({}, None)
+
+
+def test_verify_handler_moves_the_anchor(aws, monkeypatch):
+    from payments_rag.api.lambda_handler import verify_handler
+    from payments_rag.audit.dynamo import DynamoAuditLog, create_anchor_table, create_tables
+
+    client = boto3.client("dynamodb", region_name=REGION)
+    create_tables(client, "entries", "head")
+    create_anchor_table(client, "anchor")
+    for k, v in {"AUDIT_TABLE": "entries", "AUDIT_HEAD_TABLE": "head", "AUDIT_ANCHOR_TABLE": "anchor"}.items():
+        monkeypatch.setenv(k, v)
+    DynamoAuditLog("entries", "head", client=client).record({"request_id": "r1", "outcome": "answered", "question": "q"})
+    assert verify_handler({}, None)["ok"] is True
+    assert client.get_item(TableName="anchor", Key={"pk": {"S": "anchor"}})["Item"]["seq"]["N"] == "1"

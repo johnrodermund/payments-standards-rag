@@ -24,7 +24,7 @@ import os
 import time
 from collections.abc import Callable
 from datetime import UTC, datetime
-from typing import Any
+from typing import Any, Self
 
 from payments_rag.llm.budget import CHARS_PER_TOKEN, Budget, BudgetExceededError, cost_usd
 
@@ -40,6 +40,18 @@ def create_table(client: Any, name: str) -> None:
         AttributeDefinitions=[{"AttributeName": "pk", "AttributeType": "S"}],
         BillingMode="PAY_PER_REQUEST",
     )
+
+
+class Reservation(float):
+    """The amount reserved, remembering its month, so a call that runs past midnight at the end of a
+    month settles into the month it was counted in."""
+
+    month: str
+
+    def __new__(cls, amount: float, month: str) -> Self:
+        obj = super().__new__(cls, amount)
+        obj.month = month
+        return obj
 
 
 def _n(value: float) -> dict[str, str]:
@@ -61,8 +73,8 @@ class DynamoSpendCap:
             self._client = boto3.client("dynamodb", region_name=os.environ.get("AWS_REGION"))
         return self._client
 
-    def _month(self) -> str:
-        return self._clock().strftime("%Y-%m")
+    def _month(self, reserved: float = 0.0) -> str:
+        return getattr(reserved, "month", None) or self._clock().strftime("%Y-%m")
 
     def check(self, model: str, request: dict[str, Any], max_tokens: int | None = None) -> float:
         """Reserve the worst-case cost of this call; return the amount reserved. Raises BudgetExceededError."""
@@ -70,24 +82,25 @@ class DynamoSpendCap:
         worst = cost_usd(model, est_input, int(max_tokens if max_tokens is not None else request.get("max_tokens", 0)))
         if worst > self.limit_usd:
             raise BudgetExceededError(GENERIC_REFUSAL)
+        month = self._month()
         try:
             self.client.update_item(
                 TableName=self.table,
-                Key={"pk": {"S": self._month()}},
+                Key={"pk": {"S": month}},
                 UpdateExpression="ADD committed :w",
                 ConditionExpression="attribute_not_exists(committed) OR committed <= :max",
                 ExpressionAttributeValues={":w": _n(worst), ":max": _n(self.limit_usd - worst)},
             )
         except self.client.exceptions.ConditionalCheckFailedException as exc:
             raise BudgetExceededError(GENERIC_REFUSAL) from exc
-        return worst
+        return Reservation(worst, month)
 
     def record(self, model: str, input_tokens: int, output_tokens: int, reserved: float = 0.0) -> float:
         """Settle a reservation to the actual cost (reserved=0 records spend that was never reserved)."""
         cost = cost_usd(model, input_tokens, output_tokens)
         response = self.client.update_item(
             TableName=self.table,
-            Key={"pk": {"S": self._month()}},
+            Key={"pk": {"S": self._month(reserved)}},
             UpdateExpression="ADD committed :delta, spent :cost, calls :one, input_tokens :in, output_tokens :out",
             ExpressionAttributeValues={
                 ":delta": _n(cost - reserved), ":cost": _n(cost), ":one": {"N": "1"},
@@ -108,7 +121,7 @@ class DynamoSpendCap:
         if reserved:
             self.client.update_item(
                 TableName=self.table,
-                Key={"pk": {"S": self._month()}},
+                Key={"pk": {"S": self._month(reserved)}},
                 UpdateExpression="ADD committed :minus",
                 ExpressionAttributeValues={":minus": _n(-reserved)},
             )

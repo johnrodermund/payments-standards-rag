@@ -107,7 +107,10 @@ class Generator:
             response = self.backend.send(request)
         except BaseException:
             if self.budget:
-                self.budget.release(reserved or 0.0)  # a failed call must not eat the budget
+                try:
+                    self.budget.release(reserved or 0.0)  # a failed call must not eat the budget
+                except Exception as release_error:  # noqa: BLE001 -- never let this hide the model's error
+                    print(f"budget release failed: {type(release_error).__name__}")
             raise
         if self.budget:
             self.budget.record(self.model, response.usage["input_tokens"], response.usage["output_tokens"], reserved=reserved or 0.0)

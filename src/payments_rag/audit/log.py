@@ -179,7 +179,8 @@ def main(argv: list[str] | None = None) -> int:
     if os.environ.get("AUDIT_TABLE") and os.environ.get("AUDIT_HEAD_TABLE"):  # the serverless deployment
         from payments_rag.audit.dynamo import DynamoAuditLog
 
-        log: Any = DynamoAuditLog(os.environ["AUDIT_TABLE"], os.environ["AUDIT_HEAD_TABLE"])
+        log: Any = DynamoAuditLog(os.environ["AUDIT_TABLE"], os.environ["AUDIT_HEAD_TABLE"],
+                                  anchor_table=os.environ.get("AUDIT_ANCHOR_TABLE"))  # read only from here
         if args.command == "tail":
             raise SystemExit("tail is not implemented for the DynamoDB audit log; use verify")
     else:
