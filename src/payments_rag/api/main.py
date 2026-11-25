@@ -10,6 +10,7 @@ from pydantic import BaseModel, Field, field_validator
 from payments_rag.api import ratelimit
 from payments_rag.api.flows import router as flows_router
 from payments_rag.api.ingest import router as ingest_router
+from payments_rag.api.page import router as page_router
 from payments_rag.api.rag import answer_question
 from payments_rag.api.service import Service, build_service
 from payments_rag.audit.log import build_entry
@@ -21,6 +22,7 @@ from payments_rag.observability.tracing import current_trace_id, setup_tracing, 
 app = FastAPI(title="Payments standards assistant")
 app.include_router(ingest_router)
 app.include_router(flows_router)
+app.include_router(page_router)
 log = logging.getLogger("payments_rag")
 setup_tracing()  # no-op unless PHOENIX_COLLECTOR_ENDPOINT (or OTEL_EXPORTER_OTLP_ENDPOINT) is set
 

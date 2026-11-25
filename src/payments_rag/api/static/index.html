@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Payments standards assistant</title>
+  <link rel="stylesheet" href="/app.css">
+</head>
+<body>
+  <header>
+    <h1>Payments standards assistant</h1>
+    <p class="scope">Answers questions about six ISO&nbsp;20022 interbank credit-transfer messages
+      (pain.001, pacs.008, pacs.009, pacs.002, pain.002, pacs.004) and the flows between them,
+      citing the definitions it used.</p>
+  </header>
+
+  <main>
+    <p class="notice" role="note"><strong>Questions are logged verbatim</strong>, together with the answer
+      and its sources, so answers can be reviewed. Please don't include personal or confidential information.</p>
+
+    <form id="ask-form">
+      <label for="question">Your question</label>
+      <textarea id="question" name="question" maxlength="1000" rows="3" required
+        placeholder="e.g. What is the maximum length of Instruction Identification in pacs.008?"></textarea>
+      <div class="actions">
+        <button type="submit" id="ask-button">Ask</button>
+        <span class="examples">Try:
+          <button type="button" class="example">What comes after a pacs.008 in a serial transfer?</button>
+          <button type="button" class="example">What is the cover method?</button>
+          <button type="button" class="example">Does pacs.002 require Debtor Agent Account?</button>
+        </span>
+      </div>
+    </form>
+
+    <section id="result" aria-live="polite" hidden>
+      <div id="status"></div>
+      <p id="answer"></p>
+      <div id="escalation" class="escalation" hidden>
+        <h2>Escalated to a human</h2>
+        <p>The assistant could not answer this confidently from its sources, so it did not guess.
+          The question was recorded for the operator's review.</p>
+        <p class="reason">Reason: <span id="reason"></span></p>
+      </div>
+      <div id="sources-block" hidden>
+        <h2>Sources</h2>
+        <ol id="sources"></ol>
+      </div>
+    </section>
+
+    <section id="flows-section">
+      <h2>Flows this assistant knows</h2>
+      <p class="muted" id="flows-note"></p>
+      <div id="flows"></div>
+    </section>
+  </main>
+
+  <footer>
+    <p>A non-commercial portfolio project. <strong>Not the official ISO 20022 site</strong>: message definitions
+      come from the ISO 20022 e-Repository, see <a href="https://www.iso20022.org/">iso20022.org</a>.
+      Flow summaries are written for this project and labelled as such. Answers can be wrong; check the cited
+      definitions.</p>
+  </footer>
+  <script src="/app.js" defer></script>
+</body>
+</html>

@@ -14,3 +14,4 @@ infra
 tests
 .cache/llm/spend.json
 .cache/llm/*.tmp
+data/index
