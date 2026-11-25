@@ -13,7 +13,7 @@
 {"question": "What is the debtor account element?", "expected": ["pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/DbtrAcct"]}
 {"question": "What is the remittance information used for?", "expected": ["pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/RmtInf"]}
 {"question": "What is the purpose of the pacs.008 message?", "expected": ["pacs.008.001.14#message:scope"]}
-{"question": "When is the cover method used for a customer credit transfer?", "expected": ["pacs.008.001.14#message:usage", "pacs.008.001.14#message:usage:2"]}
+{"question": "When is the cover method used for a customer credit transfer?", "expected": ["pacs.008.001.14#message:usage", "pacs.008.001.14#message:usage:2", "flow:cover-method"]}
 {"question": "What does the pacs.002 payment status report do?", "expected": ["pacs.002.001.16#message:scope"]}
 {"question": "What is the transaction status in a payment status report?", "expected": ["pacs.002.001.16#FIToFIPmtStsRpt/TxInfAndSts/TxSts"]}
 {"question": "What is the status reason information in pacs.002?", "expected": ["pacs.002.001.16#FIToFIPmtStsRpt/TxInfAndSts/StsRsnInf", "pacs.002.001.16#FIToFIPmtStsRpt/OrgnlGrpInfAndSts/StsRsnInf"]}
