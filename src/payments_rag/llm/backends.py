@@ -52,6 +52,15 @@ TRANSIENT_CODES = {"ThrottlingException", "ServiceUnavailableException", "ModelT
 CONFIG_CODES = {"AccessDeniedException", "ResourceNotFoundException", "ValidationException", "ModelErrorException"}
 
 
+def _client_limits() -> dict[str, Any]:
+    """SDK timeout (seconds per attempt) and retries. Defaults suit a long-running server; on Lambda the stack
+    sets them so a slow call fails before the function's own timeout kills the invocation."""
+    return {
+        "timeout": float(os.environ.get("LLM_TIMEOUT_SECONDS", "60")),
+        "max_retries": int(os.environ.get("LLM_MAX_RETRIES", "2")),
+    }
+
+
 class LLMUnavailableError(RuntimeError):
     """The model provider could not serve the request. `str()` is for logs and the audit log; the API
     returns only a generic message to callers (the detail can contain account or resource names)."""
@@ -88,7 +97,7 @@ class AnthropicBackend:
             import anthropic
 
             # Reads ANTHROPIC_API_KEY from the environment; the SDK retries 429/5xx itself.
-            self._client = anthropic.Anthropic(timeout=60.0, max_retries=2)
+            self._client = anthropic.Anthropic(**_client_limits())
         return self._client
 
     def build_request(self, system: str, messages: list[dict[str, Any]], max_tokens: int) -> dict[str, Any]:
@@ -189,7 +198,7 @@ class OpenAIBackend:
             import openai
 
             # Reads OPENAI_API_KEY from the environment; the SDK retries 429/5xx and connection errors itself.
-            self._client = openai.OpenAI(timeout=60.0, max_retries=2)
+            self._client = openai.OpenAI(**_client_limits())
         return self._client
 
     def build_request(self, system: str, messages: list[dict[str, Any]], max_tokens: int) -> dict[str, Any]:

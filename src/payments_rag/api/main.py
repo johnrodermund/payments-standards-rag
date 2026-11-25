@@ -4,11 +4,13 @@ import time
 import uuid
 from typing import Annotated, Any
 
-from fastapi import Depends, FastAPI, HTTPException
+from fastapi import Depends, FastAPI, HTTPException, Request
 from pydantic import BaseModel, Field, field_validator
 
+from payments_rag.api import ratelimit
 from payments_rag.api.flows import router as flows_router
 from payments_rag.api.ingest import router as ingest_router
+from payments_rag.api.page import router as page_router
 from payments_rag.api.rag import answer_question
 from payments_rag.api.service import Service, build_service
 from payments_rag.audit.log import build_entry
@@ -20,11 +22,14 @@ from payments_rag.observability.tracing import current_trace_id, setup_tracing, 
 app = FastAPI(title="Payments standards assistant")
 app.include_router(ingest_router)
 app.include_router(flows_router)
+app.include_router(page_router)
 log = logging.getLogger("payments_rag")
 setup_tracing()  # no-op unless PHOENIX_COLLECTOR_ENDPOINT (or OTEL_EXPORTER_OTLP_ENDPOINT) is set
 
 _service: Service | None = None
 _lock = threading.Lock()
+_UNSET = object()
+_limiter: Any = _UNSET  # built from RATE_LIMIT_TABLE on first use; None means no limit
 
 
 def get_service() -> Service:
@@ -62,7 +67,17 @@ def _record(service: Service, entry: dict[str, Any]) -> None:
             raise HTTPException(status_code=503, detail="audit log unavailable; answer withheld") from exc
 
 
-@app.post("/ask")
+def rate_limit(http_request: Request) -> None:
+    global _limiter
+    if _limiter is _UNSET:
+        _limiter = ratelimit.limiter_from_env()
+    retry_after = ratelimit.check(_limiter, http_request)
+    if retry_after is not None:
+        raise HTTPException(status_code=429, detail="too many questions; please wait and try again",
+                            headers={"Retry-After": str(retry_after)})
+
+
+@app.post("/ask", dependencies=[Depends(rate_limit)])
 def ask(request: AskRequest, service: Annotated[Service, Depends(get_service)]) -> dict[str, Any]:
     request_id = str(uuid.uuid4())
     with span("POST /ask", "CHAIN", rag__request_id=request_id) as root:
@@ -89,7 +104,12 @@ def _ask(request: AskRequest, service: Service, request_id: str, root: Any) -> d
         root.update(rag__outcome="error", rag__error=type(exc).__name__)
         _record(service, entry_for(None, f"{type(exc).__name__}: {exc}"))
         # Provider errors can name accounts or resources: the caller gets a generic message, the audit log the detail.
-        detail = "the language model is temporarily unavailable" if isinstance(exc, LLMUnavailableError) else str(exc)
+        if isinstance(exc, LLMUnavailableError):
+            detail = "the language model is temporarily unavailable"
+        elif isinstance(exc, BudgetExceededError):
+            detail = "monthly question budget reached; please try again next month"  # no figures or paths
+        else:
+            detail = str(exc)
         raise HTTPException(status_code=503, detail=detail) from exc
     except Exception as exc:
         root.update(rag__outcome="error", rag__error=type(exc).__name__)

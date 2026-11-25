@@ -35,11 +35,25 @@ class Service:
     provenance: Any = None
 
 
-def build_retriever(k: int = DEFAULT_K) -> Callable[[str], list[dict[str, Any]]]:
-    from payments_rag.ingestion.embedding import FastEmbedEmbedder
+def build_retriever(k: int = DEFAULT_K, embedder: Any = None) -> Callable[[str], list[dict[str, Any]]]:
+    """RETRIEVAL_BACKEND=postgres (default: pgvector) or memory (the index file at INDEX_PATH, for Lambda)."""
+    if embedder is None:
+        from payments_rag.ingestion.embedding import FastEmbedEmbedder
+
+        embedder = FastEmbedEmbedder()
+
+    if os.environ.get("RETRIEVAL_BACKEND", "postgres") == "memory":
+        from payments_rag.retrieval.memory_store import DEFAULT_INDEX, MemoryIndex
+
+        index = MemoryIndex.load(os.environ.get("INDEX_PATH", DEFAULT_INDEX), expect_model=embedder.name, expect_dim=embedder.dim)
+
+        def retrieve_memory(question: str) -> list[dict[str, Any]]:
+            return index.hybrid_search(question, embedder.embed_query(question), k=k)
+
+        return retrieve_memory
+
     from payments_rag.retrieval import store
 
-    embedder = FastEmbedEmbedder()
     conn = store.connect()
 
     def retrieve(question: str) -> list[dict[str, Any]]:
@@ -58,12 +72,21 @@ def build_provenance() -> Any:
     return ProvenanceCheck.from_extract(path) if path.exists() else None
 
 
+def build_audit() -> Any:
+    """DynamoDB when AUDIT_TABLE and AUDIT_HEAD_TABLE are set (serverless), else the Postgres audit log."""
+    if os.environ.get("AUDIT_TABLE") and os.environ.get("AUDIT_HEAD_TABLE"):
+        from payments_rag.audit.dynamo import DynamoAuditLog
+
+        return DynamoAuditLog(os.environ["AUDIT_TABLE"], os.environ["AUDIT_HEAD_TABLE"])
+    return AuditLog(database_url())
+
+
 def build_service() -> Service:
     return Service(
         retriever=build_retriever(int(os.environ.get("RETRIEVAL_K", DEFAULT_K))),
         generator=Generator.from_env(cache=ResponseCache()),
         min_score=float(os.environ.get("ESCALATION_MIN_SCORE", DEFAULT_MIN_SCORE)),
-        audit=AuditLog(database_url()),
+        audit=build_audit(),
         # Fail closed by default: no answer leaves the system unless it was recorded.
         audit_fail_closed=os.environ.get("AUDIT_FAIL_OPEN", "0") != "1",
         provenance=build_provenance(),

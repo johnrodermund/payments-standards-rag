@@ -1,7 +1,7 @@
 [project]
 name = "payments-rag-infra"
 version = "0.1.0"
-description = "AWS CDK stack for the payments standards assistant (ECS Fargate, ALB, RDS PostgreSQL)"
+description = "AWS CDK stack for the payments standards assistant (serverless: CloudFront, Lambda, DynamoDB)"
 requires-python = ">=3.11"
 dependencies = [
     "aws-cdk-lib>=2.170,<3",

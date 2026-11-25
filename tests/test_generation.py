@@ -119,3 +119,12 @@ def test_system_prompt_names_the_six_messages_and_flow_summaries():
         assert m in first
     assert "flow summaries" in first
     assert SYSTEM_PROMPT.count("\n") == 7  # same line count as before: no new rule
+
+
+def test_sdk_timeout_and_retries_come_from_the_environment(monkeypatch):
+    from payments_rag.llm.backends import _client_limits
+
+    assert _client_limits() == {"timeout": 60.0, "max_retries": 2}
+    monkeypatch.setenv("LLM_TIMEOUT_SECONDS", "12")
+    monkeypatch.setenv("LLM_MAX_RETRIES", "1")
+    assert _client_limits() == {"timeout": 12.0, "max_retries": 1}

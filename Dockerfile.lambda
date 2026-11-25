@@ -1,0 +1,37 @@
+# Payments standards assistant: AWS Lambda container image (x86_64).
+#
+# The search index is built here, from the committed extract and flows file, so nothing binary is
+# committed and the image is reproducible. Lambda's filesystem is read-only apart from /tmp, so the
+# embedding model and the index are baked in and the response cache goes to /tmp.
+#
+#   docker build -f Dockerfile.lambda -t payments-rag-lambda .
+FROM public.ecr.aws/lambda/python:3.12
+
+COPY --from=ghcr.io/astral-sh/uv:0.13 /uv /usr/local/bin/uv
+ENV UV_COMPILE_BYTECODE=1 UV_LINK_MODE=copy \
+    FASTEMBED_CACHE_PATH=/opt/fastembed \
+    HF_HUB_OFFLINE=0
+
+# Dependencies first (cached layer): exactly what uv.lock pins, no dev tools.
+COPY pyproject.toml uv.lock ./
+RUN uv export --frozen --no-dev --no-hashes --no-emit-project -o /tmp/requirements.txt \
+    && uv pip install --system --no-cache -r /tmp/requirements.txt
+
+COPY src ./src
+RUN uv pip install --system --no-cache --no-deps .
+
+# Bake the embedding model in, then build the index with it.
+RUN python -c "from payments_rag.ingestion.embedding import FastEmbedEmbedder; FastEmbedEmbedder()"
+COPY data/processed/iso20022_messages.json ${LAMBDA_TASK_ROOT}/data/processed/iso20022_messages.json
+COPY data/flows/interbank_flows.json ${LAMBDA_TASK_ROOT}/data/flows/interbank_flows.json
+RUN cd ${LAMBDA_TASK_ROOT} && python -m payments_rag.retrieval.memory_store \
+      data/processed/iso20022_messages.json --flows data/flows/interbank_flows.json --out data/index/index.npz
+
+# Run-time settings (the stack adds tables, model, limits and the key parameter).
+ENV RETRIEVAL_BACKEND=memory \
+    INDEX_PATH=/var/task/data/index/index.npz \
+    LLM_CACHE_DIR=/tmp/llm \
+    HF_HUB_OFFLINE=1 \
+    PYTHONUNBUFFERED=1
+WORKDIR ${LAMBDA_TASK_ROOT}
+CMD ["payments_rag.api.lambda_handler.handler"]

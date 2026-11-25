@@ -1,60 +1,95 @@
-# AWS deployment (CDK, Python)
+# AWS deployment (CDK, Python): serverless
 
-One stack, `PaymentsRag`, in `us-east-2`: a VPC without a NAT gateway, an RDS PostgreSQL 16 instance (pgvector),
-and an ECS Fargate service behind an Application Load Balancer. **Status: checked offline (`uv run pytest`, `cdk synth --strict`) and deployed once
-on 2026-11-21 in replay mode, then destroyed (measurements in the main README).** It is a demonstration stack: HTTP only (no domain or
-certificate), one task, one single-AZ database, deletion protection off, and `cdk destroy` removes the data too.
+One stack, `PaymentsRag`, in `us-east-2`. No VPC, no servers, no database to run.
 
 ## What runs where
 
-| Piece | Choice | Why |
+```
+browser ── HTTPS ──► CloudFront ──(Origin Access Control, SigV4)──► Lambda Function URL (AWS_IAM auth)
+                                                                      │  container image (Dockerfile.lambda), x86_64, 3 GB
+                                                                      │  search index baked into the image
+                                                                      ├─ DynamoDB: AuditEntries, AuditHead, AuditAnchor, Spend, RateLimits
+                                                                      └─ SSM Parameter Store: model API key (SecureString)
+EventBridge, daily ──► AuditVerify function ──► re-walks the audit hash chain, moves the anchor
+CloudWatch alarms (API crashes, Lambda errors, throttles, audit verify failed, spend ≥ 80% of cap) ──► SNS topic ──► email
+```
+
+- **CloudFront is the only way in.** The Function URL rejects unsigned calls. For POST, CloudFront has to sign the body, so the caller must send its SHA-256 in `x-amz-content-sha256`. The web page does this.
+  ```
+  body='{"question":"What is the creditor agent in pacs.008?"}'
+  curl -s https://<cloudfront-domain>/ask -H 'content-type: application/json' \
+       -H "x-amz-content-sha256: $(printf %s "$body" | sha256sum | cut -d' ' -f1)" -d "$body"
+  ```
+- **Content updates rebuild the image.** `POST /ingest` is disabled here. Change the extract or flows file, then deploy again.
+- **Audit log:**
+  - Every question is a hash-chained entry in `AuditEntries`; `AuditHead` holds the chain's length and last hash, so deleted entries are caught too.
+  - The daily verify writes an anchor (seq and hash) to `AuditAnchor`, which only the verify function can write, and checks that yesterday's anchor is still in the chain.
+  - What this does not stop: IAM cannot force a write to be conditional, so anyone holding the API function's role could rewrite entries added since the last verify. That window is at most a day.
+  - The three audit tables, and `Spend`, have deletion protection and point-in-time recovery, and are kept if the stack is deleted.
+- **Spend cap:** `LLM_BUDGET_USD`, $5 per calendar month by default, enforced atomically in the `Spend` table. At 80% the `SpendNearCap` alarm emails you; at 100% visitors see "monthly question budget reached".
+- **Rate limit:** 10 questions a minute and 100 a day per visitor, keyed on CloudFront's viewer address (hashed). IPv6 visitors are counted per /64, because one client usually holds a whole /64.
+- **Model call timeout:** 12 s per attempt and one retry, so a slow provider fails inside Lambda's 29 s limit and the question is still logged and its budget reservation returned.
+
+## Settings (`-c key=value`)
+
+| Key | Default | Notes |
 |---|---|---|
-| Compute | Fargate, 1 vCPU / 2 GB, one task, public subnet with a public IP | no NAT gateway (about $33/month saved); only the load balancer can reach the task |
-| Database | RDS PostgreSQL 16, `db.t4g.micro`, 20 GB gp3, encrypted, isolated subnets | the hash-chained audit log needs durable storage; no route to the internet |
-| Credentials | RDS secret and ingest token in Secrets Manager, injected as `PG*` variables | the connection string holds no password; the task role holds no model keys |
-| Image | built from the repository `Dockerfile` as a CDK asset | embedding model baked in, recorded answers included, non-root user |
+| `llm_provider` | `anthropic` | or `openai` (see the comparison in `docs/model-comparison-2026-11-25.md`) |
+| `model` | `claude-haiku-5-5` / `gpt-6-luna` | per provider |
+| `api_key_parameter` | `/payments-rag/anthropic-api-key` / `/payments-rag/openai-api-key` | SSM SecureString name |
+| `llm_budget_usd` | `5` | monthly cap; the alarm fires at 80% |
+| `rate_per_minute`, `rate_per_day` | `10`, `100` | per visitor |
+| `memory` | `3008` | MB; more memory also means more CPU for the embedding model |
+| `reserved_concurrency` | unset | optional hard ceiling on parallel invocations. New accounts often have a total of only 10, and AWS refuses a reservation that leaves fewer than 10 unreserved, so leave it unset unless your quota is higher |
+| `alarm_email` | unset | pass at deploy time; never write it into `cdk.json` |
 
-## Generation mode (`-c llm_mode=...`)
+## Before the first deploy (John, in the consoles)
 
-| Mode | Needs | Behaviour |
-|---|---|---|
-| `replay` (default) | nothing | recorded answers only; any other question returns 503. No model call, no key, no cost |
-| `anthropic` | an existing secret `payments-rag/anthropic-api-key` (`-c anthropic_secret_name=` to rename) | live Claude calls through the spend cap. The ledger is on the container's disk, so it **resets on every deploy or task restart**; set a spend limit in the Anthropic Console as well |
-| `bedrock` | `-c bedrock_model_id=<inference profile id>` and working Bedrock quotas; `-c llm_prices='{"<id>":[in,out]}'` | task role limited to `bedrock:InvokeModel` on Anthropic models; no keys |
-
-Other settings: `-c allowed_cidr=1.2.3.4/32` (close the load balancer to everyone else; recommended for any
-live-model mode), `-c cpu=`, `-c memory=`, `-c llm_budget_usd=`, `-c region=`.
+1. **AWS Billing:**
+   - Check the plan. On the Free plan, the account closes after 6 months or when the credits run out, and its data is erased 90 days after that. Upgrade before then to keep it.
+   - Create a **Budget** of about $20/month with email alerts.
+2. **Anthropic Console:**
+   - Create a workspace for this service, an API key in it, and a monthly spend limit (for example $10, above the app's $5 cap, so the app's own message shows first).
+3. **AWS Systems Manager → Parameter Store** (us-east-2):
+   - Create `/payments-rag/anthropic-api-key`, type **SecureString**, key **aws/ssm**, value: that API key.
+   - Paste it in the console, not in a shell command, so it never lands in shell history.
+   - For OpenAI, create `/payments-rag/openai-api-key` instead.
+4. **Sign in:** `aws login` with the `payments-rag` profile, and keep Docker Desktop running: the deploy builds the image.
 
 ## Commands
 
-Sign in first (`aws login`, profile `payments-rag`), then from this directory:
-
-```
-npx aws-cdk@2 bootstrap            # once per account and region
-npx aws-cdk@2 diff
-npx aws-cdk@2 deploy -c allowed_cidr=<your-ip>/32
-```
-
-The outputs give the URL and the ARN of the ingest-token secret. The index starts empty; fill it once with the
-`/ingest` endpoint (same call that was run against the local container):
-
-```
-POST <url>/ingest   Authorization: Bearer <token from Secrets Manager>
-{"messages": ["pacs.008", "pacs.002"], "source": "extract"}
+```powershell
+cd infra
+uv run pytest -q
+npx -y aws-cdk@2 bootstrap --profile payments-rag
+npx -y aws-cdk@2 diff --profile payments-rag -c alarm_email=you@example.com
+npx -y aws-cdk@2 deploy --profile payments-rag -c alarm_email=you@example.com
 ```
 
-It re-chunks the committed extract and embeds 1,245 chunks on the task's CPU: 4 min 41 s measured on Fargate
-(1 vCPU, 2 GB), about 2.5 minutes in a desktop container. Poll `GET /ingest/{id}`.
+Confirm the SNS subscription email. Then check that the `Url` output serves the page and answers a question.
 
-Tear down when finished: `npx aws-cdk@2 destroy`.
+To check the audit log from your machine:
 
-## Cost (estimate, list prices, us-east-2, running 24/7)
+```powershell
+$env:AUDIT_TABLE = "<AuditEntriesTable output>"; $env:AUDIT_HEAD_TABLE = "<AuditHeadTable output>"; $env:AUDIT_ANCHOR_TABLE = "<AuditAnchorTable output>"; $env:AWS_PROFILE = "payments-rag"; $env:AWS_REGION = "us-east-2"
+uv run python -m payments_rag.audit.log verify
+```
 
-Fargate 1 vCPU / 2 GB about $42/month, Application Load Balancer about $17, RDS `db.t4g.micro` plus storage about
-$14: roughly **$73/month, $2.40/day**. Nothing is billed until a deploy; destroy the stack when done. These are
-estimates, not measured bills. The one real deployment ran about 25 minutes (estimated under $0.10).
+This checks the chain and the anchor but never moves the anchor; only the daily function does.
+
+## Cost (estimate, list prices)
+
+| Item | $/month at low traffic |
+|---|---|
+| Lambda, DynamoDB on demand, CloudFront, CloudWatch (4 alarms), SNS, EventBridge | about $0–1 |
+| ECR image storage (about 1–1.5 GB) | about $0.10–0.15 |
+| SSM Parameter Store (standard parameter) | $0 |
+| Model (Claude Haiku 5.5 or GPT-6 Luna) | at most `llm_budget_usd` ($5) |
+
+These are estimates, not bills, and how much the Free plan's credits cover was not checked service by service. Read the first month's Cost Explorer figure.
 
 ## Not covered
 
-HTTPS and a domain, WAF or rate limiting, multi-AZ or autoscaling, Phoenix in the cloud (traces are off), CI
-deployment, cdk-nag compliance rules.
+- CI deploy (GitHub Actions with OIDC), a custom domain, a WAF, and a scheduled drift check.
+- CloudFront 5xx alarms: CloudFront metrics live in us-east-1, so they would need a second stack.
+- Cold starts: the first question after a quiet spell loads the embedding model and the index, which takes a few seconds.

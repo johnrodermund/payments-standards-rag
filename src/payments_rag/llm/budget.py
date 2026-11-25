@@ -81,8 +81,8 @@ class Budget:
     def spent(self) -> float:
         return float(self._read()["spent_usd"])
 
-    def check(self, model: str, request: dict[str, Any], max_tokens: int | None = None) -> None:
-        """Refuse the call if the worst case for it would take the total past the limit."""
+    def check(self, model: str, request: dict[str, Any], max_tokens: int | None = None) -> float:
+        """Refuse the call if the worst case for it would take the total past the limit; return that worst case."""
         est_input = len(json.dumps(request, default=str)) // CHARS_PER_TOKEN + 1
         worst = cost_usd(model, est_input, int(max_tokens if max_tokens is not None else request.get("max_tokens", 0)))
         with self._lock:
@@ -92,8 +92,12 @@ class Budget:
                 f"API budget ${self.limit_usd:.2f} would be exceeded: spent ${spent:.4f}, this call could cost up to ${worst:.4f}. "
                 f"Raise LLM_BUDGET_USD or delete {self.ledger} to continue."
             )
+        return worst
 
-    def record(self, model: str, input_tokens: int, output_tokens: int) -> float:
+    def release(self, reserved: float) -> None:
+        """Nothing is reserved in the file ledger (single local process)."""
+
+    def record(self, model: str, input_tokens: int, output_tokens: int, reserved: float = 0.0) -> float:
         cost = cost_usd(model, input_tokens, output_tokens)
         with self._lock:
             data = self._read()
