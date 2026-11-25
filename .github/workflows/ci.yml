@@ -76,17 +76,17 @@ jobs:
             --user-agent "Mozilla/5.0" \
             --output data/raw/iso20022/20260904_ISO20022_2013_eRepository.zip \
             "https://www.iso20022.org/sites/default/files/media/file/20260904_ISO20022_2013_eRepository.zip"
-          expected=$(python3 -c "import json;print(json.load(open('data/processed/iso20022_pacs.json'))['source']['sha256'])")
+          expected=$(python3 -c "import json;print(json.load(open('data/processed/iso20022_messages.json'))['source']['sha256'])")
           actual=$(sha256sum data/raw/iso20022/20260904_ISO20022_2013_eRepository.zip | cut -d' ' -f1)
           echo "expected $expected"; echo "actual   $actual"
           test "$expected" = "$actual"
 
       - name: Build the index (extract, chunk, validate, embed, store)
         run: |
-          uv run python -m payments_rag.ingestion.iso20022_repository data/raw/iso20022/20260904_ISO20022_2013_eRepository.zip data/processed/iso20022_pacs.json --message pacs.008 --message pacs.002
-          uv run python -m payments_rag.ingestion.chunking data/processed/iso20022_pacs.json data/processed/chunks.jsonl
-          uv run python -m payments_rag.ingestion.validation data/processed/chunks.jsonl --expect pacs.008 --expect pacs.002
-          uv run python -m payments_rag.ingestion.pipeline data/processed/chunks.jsonl --expect pacs.008 --expect pacs.002
+          uv run python -m payments_rag.ingestion.iso20022_repository data/raw/iso20022/20260904_ISO20022_2013_eRepository.zip data/processed/iso20022_messages.json --message pain.001 --message pacs.008 --message pacs.009 --message pacs.002 --message pain.002 --message pacs.004
+          uv run python -m payments_rag.ingestion.chunking data/processed/iso20022_messages.json data/processed/chunks.jsonl
+          uv run python -m payments_rag.ingestion.validation data/processed/chunks.jsonl --expect pain.001 --expect pacs.008 --expect pacs.009 --expect pacs.002 --expect pain.002 --expect pacs.004
+          uv run python -m payments_rag.ingestion.pipeline data/processed/chunks.jsonl --expect pain.001 --expect pacs.008 --expect pacs.009 --expect pacs.002 --expect pain.002 --expect pacs.004
 
       # No API key needed: retrieval quality and the escalation cutoff gate every run.
       - name: Retrieval gate

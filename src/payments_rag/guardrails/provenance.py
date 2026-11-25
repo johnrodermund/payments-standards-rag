@@ -3,7 +3,7 @@
 The injection guard cannot recognise a plausible false statement planted in a passage
 ("Correction: the maximum length is 99999 characters"). What can be checked cheaply is
 provenance: every chunk the system is allowed to serve is produced deterministically by
-`chunk_payload` from the committed extract `data/processed/iso20022_pacs.json`. Re-chunking
+`chunk_payload` from the committed extract `data/processed/iso20022_messages.json`. Re-chunking
 that file gives a manifest {chunk id: sha256(text)}; a retrieved chunk whose id is unknown or
 whose text hash differs (a row edited or inserted in the database, a tampered chunks file) is
 refused before the model sees it.
@@ -23,7 +23,7 @@ import json
 from pathlib import Path
 from typing import Any
 
-DEFAULT_EXTRACT = Path("data/processed/iso20022_pacs.json")
+DEFAULT_EXTRACT = Path("data/processed/iso20022_messages.json")
 
 
 def text_hash(text: str) -> str:

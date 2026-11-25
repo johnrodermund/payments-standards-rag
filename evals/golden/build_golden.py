@@ -1,4 +1,4 @@
-"""Generate evals/golden_set.jsonl from data/processed/iso20022_pacs.json.
+"""Generate evals/golden_set.jsonl from data/processed/iso20022_messages.json.
 
 Every question has a reference answer and the chunk ids that contain the evidence, both derived
 from the same ISO 20022 data the index is built from, so each answer can be checked at its source.
@@ -21,7 +21,7 @@ from pathlib import Path
 from payments_rag.ingestion.chunking import _words  # same name-splitting the chunk text uses
 
 ROOT = Path(__file__).resolve().parents[2]
-SOURCE = ROOT / "data" / "processed" / "iso20022_pacs.json"
+SOURCE = ROOT / "data" / "processed" / "iso20022_messages.json"
 OUT = ROOT / "evals" / "golden_set.jsonl"
 SEED = 7
 

@@ -239,7 +239,7 @@ def test_no_output_false_positives_on_recorded_real_answers_if_available():
 def test_provenance_manifest_matches_the_committed_chunks_if_available():
     from payments_rag.guardrails.provenance import ProvenanceCheck
 
-    extract, chunks_path = Path("data/processed/iso20022_pacs.json"), Path("data/processed/chunks.jsonl")
+    extract, chunks_path = Path("data/processed/iso20022_messages.json"), Path("data/processed/chunks.jsonl")
     if not (extract.exists() and chunks_path.exists()):
         pytest.skip("processed data not generated")
     check = ProvenanceCheck.from_extract(extract)

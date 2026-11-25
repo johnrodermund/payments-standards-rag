@@ -16,7 +16,7 @@ from payments_rag.evals.rag_eval import (
 from payments_rag.llm.generation import Generation
 
 GOLDEN = Path("evals/golden_set.jsonl")
-SOURCE = Path("data/processed/iso20022_pacs.json")
+SOURCE = Path("data/processed/iso20022_messages.json")
 CHUNKS = Path("data/processed/chunks.jsonl")
 
 

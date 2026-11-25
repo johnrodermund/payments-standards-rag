@@ -14,7 +14,7 @@ from payments_rag.ingestion.pipeline import IngestError
 from payments_rag.retrieval import store
 
 BASE_URL = os.environ.get("TEST_DATABASE_URL", "postgresql://payments:payments@localhost:5432/postgres")
-EXTRACT = Path("data/processed/iso20022_pacs.json")
+EXTRACT = Path("data/processed/iso20022_messages.json")
 PARAMS = {"source": "extract", "messages": ["pacs.002", "pacs.008"]}
 
 
