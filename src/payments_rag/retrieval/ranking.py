@@ -58,13 +58,16 @@ STRUCTURE_INTENT = re.compile(
     r"elements (?:are )?in|elements of|parts)\b",
     re.IGNORECASE,
 )
-# Questions about how a payment moves between parties. Deliberately has no bare "return" or
-# "reject": "what is the return reason in pacs.004?" is a field question.
+# Questions about how a payment moves between parties. Deliberately has no bare "return", "reject",
+# "next", "before", "after" or "sequence": those words are in element names (Return Reason, Instruction
+# For Next Agent, Sequence Type), so they only count next to a verb of movement.
 FLOW_INTENT = re.compile(
-    r"\b(flows?|sequence|after|before|next|then what|who sends|to whom|send(?:s|ing)? (?:the )?funds back|"
+    r"\b(flows?|(?:sent|send|comes?|happens?|goes|follows?) (?:next|after|before)|what(?:'s| is| comes) next|"
+    r"next step|then what|who sends|to whom|send(?:s|ing)? (?:the )?funds back|"
     r"repl(?:y|ies)|respond|response to|walk (?:me )?through|payment chain|"
     r"(?:cover|serial) method|which message (?:do|does|should|is)|"
-    r"difference between an? (?:reject\w*|return\w*) and an? (?:reject\w*|return\w*))\b",
+    r"difference between an? (?:reject\w*|return\w*) and an? (?:reject\w*|return\w*)|"
+    r"difference between (?:an? |the )?[a-z]{4}\.\d{3}\w* and (?:an? |the )?[a-z]{4}\.\d{3})\b",
     re.IGNORECASE,
 )
 RULE_INTENT = re.compile(r"\b(rules?|guidelines?|constraints?|must|allowed|permitted)\b", re.IGNORECASE)

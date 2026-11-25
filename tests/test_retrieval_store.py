@@ -25,3 +25,12 @@ def test_where_lets_flow_chunks_through_the_message_filter():
     sql, params = _where(None, "pacs.008")
     assert "kind = 'flow'" in sql and "metadata->'messages' ?" in sql
     assert params == ["pacs.008.%", "pacs.008"]
+
+
+def test_core_message_prior_only_when_no_message_is_named():
+    from payments_rag.retrieval.store import use_core_prior
+
+    assert use_core_prior("What is the UETR in a credit transfer?", None)
+    assert not use_core_prior("What is the UETR in pacs.009?", None)
+    assert not use_core_prior("What is the difference between pacs.002 and pacs.004?", None)
+    assert not use_core_prior("What is the UETR?", "pacs.009")

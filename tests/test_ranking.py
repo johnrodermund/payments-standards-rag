@@ -148,3 +148,20 @@ def test_fuse_applies_a_prior_to_break_ties_between_identical_elements():
 def test_flow_questions_keep_message_scope_and_usage_chunks():
     assert kind_factor("message", "flow") == 1.0
     assert kind_factor("children", "flow") < 1.0
+
+
+@pytest.mark.parametrize(
+    "question",
+    [
+        "What is the instruction for next agent in pacs.008?",
+        "What is the sequence type in pain.001?",
+        "What is the sequence number in pain.001?",
+        "Which element holds the settlement date before conversion?",
+    ],
+)
+def test_element_names_with_common_words_are_not_flow_questions(question):
+    assert intent(question) != "flow"
+
+
+def test_comparing_two_messages_is_a_flow_question():
+    assert intent("What is the difference between pacs.002 and pacs.004?") == "flow"

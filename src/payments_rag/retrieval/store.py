@@ -108,6 +108,12 @@ def _where(kinds: list[str] | None, message_prefix: str | None) -> tuple[str, li
     return ("WHERE " + " AND ".join(clauses)) if clauses else "", params
 
 
+def use_core_prior(query: str, message_prefix: str | None) -> bool:
+    """The pacs.008/pacs.002 tie-break applies only when the question names no message at all
+    (a question naming two messages is a comparison, not a vague question)."""
+    return not message_prefix and not ranking.MESSAGE_MENTION.search(query)
+
+
 def doc_allowed(doc: dict[str, Any], kinds: list[str] | None, prefix: str | None) -> bool:
     """Kind filter plus message filter; a flow chunk passes the message filter when it uses that message."""
     if kinds and doc["kind"] not in kinds:
@@ -184,7 +190,7 @@ def hybrid_search(
     by_vector = search(conn, vector, k=ranking.POOL, kinds=kinds, message_prefix=prefix)
     scores = {h["id"]: h["score"] for h in by_vector}
     vector_order = [corpus.position[h["id"]] for h in by_vector if h["id"] in corpus.position]
-    prior = None if prefix else [ranking.message_prior(d) for d in corpus.docs]
+    prior = [ranking.message_prior(d) for d in corpus.docs] if use_core_prior(query, message_prefix) else None
     fused = ranking.fuse(query, corpus.docs, vector_order, corpus.lexical, allowed, prior)[:k]
 
     missing = [corpus.docs[i]["id"] for i, _ in fused if corpus.docs[i]["id"] not in scores]
