@@ -1,6 +1,6 @@
-"""Provider backends for answer generation: the Claude API and Amazon Bedrock (Converse API).
+"""Provider backends for answer generation: the Claude API, Amazon Bedrock (Converse API) and OpenAI (Responses API).
 
-`LLM_PROVIDER` picks one ("anthropic", the default, or "bedrock"). Both sit behind the same small interface so
+`LLM_PROVIDER` picks one ("anthropic", the default, "bedrock" or "openai"). Both sit behind the same small interface so
 everything around them (response cache, replay-only mode, spend cap, citation checks, audit, tracing) is shared:
 
     build_request(system, messages, max_tokens) -> dict    exactly what is sent; also the cache key
@@ -17,6 +17,9 @@ Differences to be aware of (not hidden):
 * The model id is not defaulted: set BEDROCK_GENERATION_MODEL_ID to an inference-profile id that
   `aws bedrock list-inference-profiles` shows for your account and region. Prices are not guessed either:
   see llm/budget.py (LLM_PRICES).
+* OpenAI is called through the Responses API with `reasoning.effort` "low" (matching the Claude path's effort)
+  and `store` false (no server-side copy of the conversation). `OPENAI_MODEL` picks the model (default
+  gpt-6-luna, priced like claude-haiku-5-5). Its reasoning tokens count against the same output cap.
 """
 
 from __future__ import annotations
@@ -29,7 +32,10 @@ from typing import Any, Protocol
 log = logging.getLogger("payments_rag.llm")
 
 ANTHROPIC_DEFAULT_MODEL = "claude-haiku-5-5"
-PROVIDERS = ("anthropic", "bedrock")
+PROVIDERS = ("anthropic", "bedrock", "openai")
+OPENAI_DEFAULT_MODEL = "gpt-6-luna"
+# Responses API incomplete reasons -> the Claude API stop-reason vocabulary.
+OPENAI_INCOMPLETE = {"max_output_tokens": "max_tokens", "content_filter": "refusal"}
 
 # Bedrock stop reasons -> the vocabulary the rest of the app uses (the Claude API's).
 STOP_REASONS = {
@@ -170,6 +176,56 @@ class BedrockBackend:
         )
 
 
+class OpenAIBackend:
+    name = "openai"
+
+    def __init__(self, client: Any | None = None, model: str | None = None):
+        self._client = client
+        self.model = model or os.environ.get("OPENAI_MODEL", OPENAI_DEFAULT_MODEL)
+
+    @property
+    def client(self) -> Any:
+        if self._client is None:
+            import openai
+
+            # Reads OPENAI_API_KEY from the environment; the SDK retries 429/5xx and connection errors itself.
+            self._client = openai.OpenAI(timeout=60.0, max_retries=2)
+        return self._client
+
+    def build_request(self, system: str, messages: list[dict[str, Any]], max_tokens: int) -> dict[str, Any]:
+        return {
+            "model": self.model,
+            "instructions": system,
+            "input": messages,
+            "max_output_tokens": max_tokens,
+            "reasoning": {"effort": "low"},
+            "store": False,
+        }
+
+    def send(self, request: dict[str, Any]) -> BackendResponse:
+        import openai
+
+        try:
+            response = self.client.responses.create(**request)
+        except (openai.RateLimitError, openai.InternalServerError, openai.APITimeoutError, openai.APIConnectionError) as exc:
+            raise LLMUnavailableError(f"OpenAI {type(exc).__name__} (after retries)") from exc
+        except openai.APIStatusError as exc:  # 400/401/403/404: key, model access, model id or request shape
+            raise LLMUnavailableError(f"OpenAI {type(exc).__name__} ({exc.status_code}): {str(exc.message)[:300]}") from exc
+
+        stop = "end_turn"
+        if response.status == "incomplete":
+            reason = getattr(response.incomplete_details, "reason", None)
+            stop = OPENAI_INCOMPLETE.get(reason, reason or "incomplete")
+        usage = response.usage
+        return BackendResponse(
+            text=(response.output_text or "").strip(),
+            model=response.model or self.model,
+            usage={"input_tokens": usage.input_tokens if usage else 0, "output_tokens": usage.output_tokens if usage else 0},
+            stop_reason=stop,
+            request_id=getattr(response, "_request_id", None),
+        )
+
+
 def make_backend(provider: str | None = None, **kwargs: Any) -> LLMBackend:
     """Backend for `provider` (default: LLM_PROVIDER, else "anthropic")."""
     provider = (provider or os.environ.get("LLM_PROVIDER") or "anthropic").lower()
@@ -177,4 +233,6 @@ def make_backend(provider: str | None = None, **kwargs: Any) -> LLMBackend:
         return AnthropicBackend(**kwargs)
     if provider == "bedrock":
         return BedrockBackend(**kwargs)
+    if provider == "openai":
+        return OpenAIBackend(**kwargs)
     raise ValueError(f"unknown LLM_PROVIDER {provider!r}; use one of {PROVIDERS}")
