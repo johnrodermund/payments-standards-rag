@@ -35,11 +35,25 @@ class Service:
     provenance: Any = None
 
 
-def build_retriever(k: int = DEFAULT_K) -> Callable[[str], list[dict[str, Any]]]:
-    from payments_rag.ingestion.embedding import FastEmbedEmbedder
+def build_retriever(k: int = DEFAULT_K, embedder: Any = None) -> Callable[[str], list[dict[str, Any]]]:
+    """RETRIEVAL_BACKEND=postgres (default: pgvector) or memory (the index file at INDEX_PATH, for Lambda)."""
+    if embedder is None:
+        from payments_rag.ingestion.embedding import FastEmbedEmbedder
+
+        embedder = FastEmbedEmbedder()
+
+    if os.environ.get("RETRIEVAL_BACKEND", "postgres") == "memory":
+        from payments_rag.retrieval.memory_store import DEFAULT_INDEX, MemoryIndex
+
+        index = MemoryIndex.load(os.environ.get("INDEX_PATH", DEFAULT_INDEX), expect_model=embedder.name, expect_dim=embedder.dim)
+
+        def retrieve_memory(question: str) -> list[dict[str, Any]]:
+            return index.hybrid_search(question, embedder.embed_query(question), k=k)
+
+        return retrieve_memory
+
     from payments_rag.retrieval import store
 
-    embedder = FastEmbedEmbedder()
     conn = store.connect()
 
     def retrieve(question: str) -> list[dict[str, Any]]:
