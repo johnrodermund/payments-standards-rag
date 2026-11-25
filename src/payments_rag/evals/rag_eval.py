@@ -51,6 +51,7 @@ def run_golden(
                 "category": item["category"],
                 "question": item["question"],
                 "answerable": item["answerable"],
+                "cohort": item.get("cohort", "original"),
                 "reference_ids": item["reference_ids"],
                 "reference_answer": item["reference_answer"],
                 "retrieved_ids": [r["id"] for r in result["retrieval"]],
@@ -79,6 +80,7 @@ def run_retrieval_only(
                 "category": item["category"],
                 "question": item["question"],
                 "answerable": item["answerable"],
+                "cohort": item.get("cohort", "original"),
                 "reference_ids": item["reference_ids"],
                 "retrieved_ids": [h["id"] for h in hits],
                 "top_score": hits[0].get("score") if hits else None,
@@ -161,8 +163,14 @@ def judge_rows(rows: list[dict[str, Any]], metrics: dict[str, Any]) -> dict[str,
     return out
 
 
+def cohort_summary(rows: list[dict[str, Any]]) -> dict[str, Any]:
+    """Retrieval metrics for the original pacs.008/pacs.002 questions alone, so a drop there cannot hide
+    behind gains on the questions added with the flows (cohort "flows-v1")."""
+    return {"retrieval_original": retrieval_metrics([r for r in rows if r.get("cohort", "original") == "original"])}
+
+
 def summarize(rows: list[dict[str, Any]], judged: dict[str, Any] | None) -> dict[str, Any]:
-    return {"retrieval": retrieval_metrics(rows), "behaviour": behaviour_metrics(rows), "judged": judged}
+    return {"retrieval": retrieval_metrics(rows), **cohort_summary(rows), "behaviour": behaviour_metrics(rows), "judged": judged}
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -186,7 +194,11 @@ def main(argv: list[str] | None = None) -> int:
             "generated_at": datetime.now(UTC).isoformat(),
             "mode": "retrieval_only",
             "questions": len(golden),
-            "summary": {"retrieval": retrieval_metrics(rows), "confidence": confidence_metrics(rows, DEFAULT_MIN_SCORE)},
+            "summary": {
+                "retrieval": retrieval_metrics(rows),
+                **cohort_summary(rows),
+                "confidence": confidence_metrics(rows, DEFAULT_MIN_SCORE),
+            },
             "cases": rows,
         }
         if args.out:

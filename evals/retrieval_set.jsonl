@@ -1,26 +1,49 @@
-{"question": "What is the creditor agent in pacs.008?", "expected": ["pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/CdtrAgt"]}
-{"question": "Which element holds the message identification in the pacs.008 group header?", "expected": ["pacs.008.001.14#FIToFICstmrCdtTrf/GrpHdr/MsgId"]}
-{"question": "What is the maximum length of the message identification in pacs.008?", "expected": ["pacs.008.001.14#FIToFICstmrCdtTrf/GrpHdr/MsgId"]}
-{"question": "How many credit transfer transactions can one pacs.008 message contain?", "expected": ["pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf", "pacs.008.001.14#FIToFICstmrCdtTrf#children"]}
-{"question": "What is the interbank settlement amount in pacs.008?", "expected": ["pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/IntrBkSttlmAmt"]}
-{"question": "What is the interbank settlement date?", "expected": ["pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/IntrBkSttlmDt"]}
-{"question": "What is the instruction identification used for?", "expected": ["pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/PmtId/InstrId"]}
-{"question": "What is the end to end identification?", "expected": ["pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/PmtId/EndToEndId"]}
-{"question": "What is the UETR in a credit transfer?", "expected": ["pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/PmtId/UETR"]}
-{"question": "What does the charge bearer element specify?", "expected": ["pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/ChrgBr"]}
-{"question": "Which element identifies the debtor agent?", "expected": ["pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/DbtrAgt"]}
-{"question": "What fields does the debtor party contain?", "expected": ["pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/Dbtr#children"]}
-{"question": "What is the debtor account element?", "expected": ["pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/DbtrAcct"]}
-{"question": "What is the remittance information used for?", "expected": ["pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/RmtInf"]}
-{"question": "What is the purpose of the pacs.008 message?", "expected": ["pacs.008.001.14#message:scope"]}
-{"question": "When is the cover method used for a customer credit transfer?", "expected": ["pacs.008.001.14#message:usage", "pacs.008.001.14#message:usage:2"]}
-{"question": "What does the pacs.002 payment status report do?", "expected": ["pacs.002.001.16#message:scope"]}
-{"question": "What is the transaction status in a payment status report?", "expected": ["pacs.002.001.16#FIToFIPmtStsRpt/TxInfAndSts/TxSts"]}
-{"question": "What is the status reason information in pacs.002?", "expected": ["pacs.002.001.16#FIToFIPmtStsRpt/TxInfAndSts/StsRsnInf", "pacs.002.001.16#FIToFIPmtStsRpt/OrgnlGrpInfAndSts/StsRsnInf"]}
-{"question": "What is the original message identification in a status report group?", "expected": ["pacs.002.001.16#FIToFIPmtStsRpt/OrgnlGrpInfAndSts/OrgnlMsgId"]}
-{"question": "Which pacs.002 element holds the original end to end identification?", "expected": ["pacs.002.001.16#FIToFIPmtStsRpt/TxInfAndSts/OrgnlEndToEndId"]}
-{"question": "What is the group status in pacs.002?", "expected": ["pacs.002.001.16#FIToFIPmtStsRpt/OrgnlGrpInfAndSts/GrpSts"]}
-{"question": "What is the instructing agent in the pacs.008 group header?", "expected": ["pacs.008.001.14#FIToFICstmrCdtTrf/GrpHdr/InstgAgt"]}
-{"question": "What is the number of transactions element in pacs.008?", "expected": ["pacs.008.001.14#FIToFICstmrCdtTrf/GrpHdr/NbOfTxs"]}
-{"question": "What is the rule on the total interbank settlement amount?", "expected": ["pacs.008.001.14#rule:TotalInterbankSettlementAmountRule", "pacs.008.001.14#rule:TotalInterbankSettlementAmountAndSumRule"]}
-{"question": "Is the creditor name mandatory in pacs.008?", "expected": ["pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/Cdtr/Nm"]}
+{"question": "What is the creditor agent in pacs.008?", "expected": ["pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/CdtrAgt"], "cohort": "original"}
+{"question": "Which element holds the message identification in the pacs.008 group header?", "expected": ["pacs.008.001.14#FIToFICstmrCdtTrf/GrpHdr/MsgId"], "cohort": "original"}
+{"question": "What is the maximum length of the message identification in pacs.008?", "expected": ["pacs.008.001.14#FIToFICstmrCdtTrf/GrpHdr/MsgId"], "cohort": "original"}
+{"question": "How many credit transfer transactions can one pacs.008 message contain?", "expected": ["pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf", "pacs.008.001.14#FIToFICstmrCdtTrf#children"], "cohort": "original"}
+{"question": "What is the interbank settlement amount in pacs.008?", "expected": ["pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/IntrBkSttlmAmt"], "cohort": "original"}
+{"question": "What is the interbank settlement date?", "expected": ["pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/IntrBkSttlmDt"], "cohort": "original"}
+{"question": "What is the instruction identification used for?", "expected": ["pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/PmtId/InstrId"], "cohort": "original"}
+{"question": "What is the end to end identification?", "expected": ["pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/PmtId/EndToEndId"], "cohort": "original"}
+{"question": "What is the UETR in a credit transfer?", "expected": ["pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/PmtId/UETR"], "cohort": "original"}
+{"question": "What does the charge bearer element specify?", "expected": ["pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/ChrgBr"], "cohort": "original"}
+{"question": "Which element identifies the debtor agent?", "expected": ["pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/DbtrAgt"], "cohort": "original"}
+{"question": "What fields does the debtor party contain?", "expected": ["pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/Dbtr#children"], "cohort": "original"}
+{"question": "What is the debtor account element?", "expected": ["pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/DbtrAcct"], "cohort": "original"}
+{"question": "What is the remittance information used for?", "expected": ["pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/RmtInf"], "cohort": "original"}
+{"question": "What is the purpose of the pacs.008 message?", "expected": ["pacs.008.001.14#message:scope"], "cohort": "original"}
+{"question": "When is the cover method used for a customer credit transfer?", "expected": ["pacs.008.001.14#message:usage", "pacs.008.001.14#message:usage:2", "flow:cover-method"], "cohort": "original"}
+{"question": "What does the pacs.002 payment status report do?", "expected": ["pacs.002.001.16#message:scope"], "cohort": "original"}
+{"question": "What is the transaction status in a payment status report?", "expected": ["pacs.002.001.16#FIToFIPmtStsRpt/TxInfAndSts/TxSts"], "cohort": "original"}
+{"question": "What is the status reason information in pacs.002?", "expected": ["pacs.002.001.16#FIToFIPmtStsRpt/TxInfAndSts/StsRsnInf", "pacs.002.001.16#FIToFIPmtStsRpt/OrgnlGrpInfAndSts/StsRsnInf"], "cohort": "original"}
+{"question": "What is the original message identification in a status report group?", "expected": ["pacs.002.001.16#FIToFIPmtStsRpt/OrgnlGrpInfAndSts/OrgnlMsgId"], "cohort": "original"}
+{"question": "Which pacs.002 element holds the original end to end identification?", "expected": ["pacs.002.001.16#FIToFIPmtStsRpt/TxInfAndSts/OrgnlEndToEndId"], "cohort": "original"}
+{"question": "What is the group status in pacs.002?", "expected": ["pacs.002.001.16#FIToFIPmtStsRpt/OrgnlGrpInfAndSts/GrpSts"], "cohort": "original"}
+{"question": "What is the instructing agent in the pacs.008 group header?", "expected": ["pacs.008.001.14#FIToFICstmrCdtTrf/GrpHdr/InstgAgt"], "cohort": "original"}
+{"question": "What is the number of transactions element in pacs.008?", "expected": ["pacs.008.001.14#FIToFICstmrCdtTrf/GrpHdr/NbOfTxs"], "cohort": "original"}
+{"question": "What is the rule on the total interbank settlement amount?", "expected": ["pacs.008.001.14#rule:TotalInterbankSettlementAmountRule", "pacs.008.001.14#rule:TotalInterbankSettlementAmountAndSumRule"], "cohort": "original"}
+{"question": "Is the creditor name mandatory in pacs.008?", "expected": ["pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/Cdtr/Nm"], "cohort": "original"}
+{"question": "What is the maximum length of the payment information identification in pain.001?", "expected": ["pain.001.001.13#CstmrCdtTrfInitn/PmtInf/PmtInfId"], "cohort": "flows-v1"}
+{"question": "What is the debtor account in a pain.001 message?", "expected": ["pain.001.001.13#CstmrCdtTrfInitn/PmtInf/DbtrAcct"], "cohort": "flows-v1"}
+{"question": "What does a pain.001 customer credit transfer initiation contain?", "expected": ["pain.001.001.13#CstmrCdtTrfInitn#children"], "cohort": "flows-v1"}
+{"question": "What is the underlying customer credit transfer in pacs.009?", "expected": ["pacs.009.001.13#FICdtTrf/CdtTrfTxInf/UndrlygCstmrCdtTrf"], "cohort": "flows-v1"}
+{"question": "What is the BICFI in pacs.009?", "expected": ["pacs.009.001.13#FICdtTrf/GrpHdr/SttlmInf/InstgRmbrsmntAgt/FinInstnId/BICFI"], "cohort": "flows-v1"}
+{"question": "What does the pacs.009 group header contain?", "expected": ["pacs.009.001.13#FICdtTrf/GrpHdr#children"], "cohort": "flows-v1"}
+{"question": "What is the transaction status in pain.002?", "expected": ["pain.002.001.15#CstmrPmtStsRpt/OrgnlPmtInfAndSts/TxInfAndSts/TxSts"], "cohort": "flows-v1"}
+{"question": "Which pain.002 element holds the original message identification?", "expected": ["pain.002.001.15#CstmrPmtStsRpt/OrgnlGrpInfAndSts/OrgnlMsgId"], "cohort": "flows-v1"}
+{"question": "What is the purpose of the customer payment status report pain.002?", "expected": ["pain.002.001.15#message:scope", "pain.002.001.15#message:usage"], "cohort": "flows-v1"}
+{"question": "What is the return reason information in pacs.004?", "expected": ["pacs.004.001.15#PmtRtr/TxInf/RtrRsnInf", "pacs.004.001.15#PmtRtr/OrgnlGrpInf/RtrRsnInf"], "cohort": "flows-v1"}
+{"question": "What is the returned interbank settlement amount in pacs.004?", "expected": ["pacs.004.001.15#PmtRtr/TxInf/RtrdIntrBkSttlmAmt"], "cohort": "flows-v1"}
+{"question": "What is a pacs.004 payment return used for?", "expected": ["pacs.004.001.15#message:scope", "pacs.004.001.15#message:usage", "flow:return"], "cohort": "flows-v1"}
+{"question": "What is sent after a pacs.008 when the creditor agent reports a rejection?", "expected": ["flow:serial-credit-transfer", "flow:serial-credit-transfer:2", "pacs.002.001.16#message:scope"], "cohort": "flows-v1"}
+{"question": "Which message does the creditor agent use to send funds back after settlement?", "expected": ["flow:return", "pacs.004.001.15#message:scope", "pacs.004.001.15#message:usage"], "cohort": "flows-v1"}
+{"question": "Walk me through a serial customer credit transfer", "expected": ["flow:serial-credit-transfer", "flow:serial-credit-transfer:2"], "cohort": "flows-v1"}
+{"question": "What is the difference between a reject and a return?", "expected": ["flow:return"], "cohort": "flows-v1"}
+{"question": "Who sends the pacs.009 in the cover method and to whom?", "expected": ["flow:cover-method", "pacs.008.001.14#message:usage:2"], "cohort": "flows-v1"}
+{"question": "What flows do you know?", "expected": ["flow:index"], "cohort": "flows-v1"}
+{"question": "What comes next after the debtor agent receives a pain.001?", "expected": ["flow:serial-credit-transfer", "flow:serial-credit-transfer:2", "pacs.008.001.14#message:scope"], "cohort": "flows-v1"}
+{"question": "Which message does a bank use for a bank-to-bank transfer where both parties are financial institutions?", "expected": ["flow:fi-credit-transfer", "pacs.009.001.13#message:scope", "pacs.009.001.13#message:usage"], "cohort": "flows-v1"}
+{"question": "What is the debtor agent in pacs.009?", "expected": ["pacs.009.001.13#FICdtTrf/CdtTrfTxInf/DbtrAgt"], "cohort": "flows-v1"}
+{"question": "What is the charge bearer in pacs.004?", "expected": ["pacs.004.001.15#PmtRtr/TxInf/ChrgBr"], "cohort": "flows-v1"}
+{"question": "What is the interbank settlement date in pacs.009?", "expected": ["pacs.009.001.13#FICdtTrf/GrpHdr/IntrBkSttlmDt", "pacs.009.001.13#FICdtTrf/CdtTrfTxInf/IntrBkSttlmDt"], "cohort": "flows-v1"}

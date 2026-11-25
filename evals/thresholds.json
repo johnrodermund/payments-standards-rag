@@ -1,12 +1,15 @@
 {
-  "_comment": "All thresholds are measured value minus a margin of about 0.09, from one live run on 2026-11-20 (index of 1,245 chunks, hybrid retrieval, claude-haiku-5-5 generation, JEV judge, 44 answerable and 8 unanswerable questions). Measured: hit@1 = hit@5 = mrr 0.886; answerable_pass_rate 1.0; off_topic_escalation 1.0; answerable_coverage 0.932; unanswerable_escalation 1.0; faithfulness_mean 0.891; answer_relevancy_mean 0.895. One run is a small sample (a single question moves a retrieval metric by 0.023); re-measure after any retrieval, chunking or prompt change. Known retrieval misses (5/44): 'codes allowed' questions route to rule chunks, 'make up' does not trigger the children intent, one ambiguous 'Agent' question.",
-  "retrieval.hit@1": { "min": 0.8 },
+  "_comment": "Overall thresholds are measured value minus a margin of about 0.09, never raised above the previous value (off_topic_escalation stays at a deliberately strict 0.99), from one live run on 2026-11-25 (index of 4,661 chunks: six messages plus 6 flow chunks; hybrid retrieval, POOL 100, core-message prior 0.6; claude-haiku-5-5 generation, JEV judge; 65 golden questions: 44 original answerable, 10 flows-v1 answerable, 11 unanswerable). Measured: hit@1 0.852, hit@5 0.907, mrr 0.880; answerable_pass_rate 1.0; off_topic_escalation 1.0; answerable_coverage 0.944; unanswerable_escalation 1.0; faithfulness_mean 0.882; answer_relevancy_mean 0.876. retrieval_original.* gates the 44 original pacs.008/pacs.002 questions alone at the previous 0.8 (measured 0.886, unchanged from the 2026-11-20 run), so a drop there cannot hide behind the new questions. One run is a small sample; re-measure after any retrieval, chunking or prompt change. Known misses: 'codes allowed' questions route to rule chunks, 'make up' does not trigger the children intent, one ambiguous 'Agent' question; flow questions without flow wording ('what happens when a settled transfer is undone') are read as field questions (retrieval holdout flows-v1 hit@5 0.714).",
+  "retrieval.hit@1": { "min": 0.76 },
   "retrieval.hit@5": { "min": 0.8 },
-  "retrieval.mrr": { "min": 0.8 },
+  "retrieval.mrr": { "min": 0.79 },
+  "retrieval_original.hit@1": { "min": 0.8 },
+  "retrieval_original.hit@5": { "min": 0.8 },
+  "retrieval_original.mrr": { "min": 0.8 },
   "confidence.answerable_pass_rate": { "min": 0.9 },
   "confidence.off_topic_escalation_rate": { "min": 0.99 },
   "behaviour.answerable_coverage": { "min": 0.85 },
   "behaviour.unanswerable_escalation_rate": { "min": 0.85 },
-  "judged.faithfulness_mean": { "min": 0.8 },
-  "judged.answer_relevancy_mean": { "min": 0.8 }
+  "judged.faithfulness_mean": { "min": 0.79 },
+  "judged.answer_relevancy_mean": { "min": 0.78 }
 }

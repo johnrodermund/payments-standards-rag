@@ -1,0 +1,92 @@
+{
+  "source_note": "Written for this project from the ISO 20022 message definitions it cites (ISO 20022 e-Repository, 2026-09-04). Not an ISO publication; check the cited ISO text for the authoritative wording. Market practice (for example CBPR+) may add rules not described here.",
+  "flows": [
+    {
+      "id": "serial-credit-transfer",
+      "title": "Serial customer credit transfer",
+      "summary": "A customer asks its bank to pay a creditor; the payment instruction then travels from bank to bank along the payment chain, carrying both the funds and the payment details, and status reports can flow back.",
+      "parties": ["Debtor (or initiating party)", "Debtor agent", "Intermediary agent", "Creditor agent", "Creditor"],
+      "steps": [
+        {"n": 1, "from": "Debtor (or initiating party)", "to": "Debtor agent", "message": "pain.001",
+         "purpose": "Requests movement of funds from the debtor account to a creditor.",
+         "cites": ["pain.001.001.13#message:scope", "pain.001.001.13#message:usage"]},
+        {"n": 2, "from": "Debtor agent", "to": "Intermediary agent", "message": "pacs.008",
+         "purpose": "Moves the funds and the payment details to the next financial institution in the payment chain.",
+         "cites": ["pacs.008.001.14#message:scope", "pacs.008.001.14#message:usage:2"]},
+        {"n": 3, "from": "Intermediary agent", "to": "Creditor agent", "message": "pacs.008",
+         "purpose": "Forwards the instruction to the next institution; sending it from one institution to the next like this is the Serial method.",
+         "cites": ["pacs.008.001.14#message:usage:2"]},
+        {"n": 4, "from": "Creditor agent", "to": "Intermediary agent (previous party in the chain)", "message": "pacs.002",
+         "purpose": "Reports the positive, negative or pending status of the instruction to the previous party; use may be governed by agreement between the agents.",
+         "cites": ["pacs.002.001.16#message:scope", "pacs.002.001.16#message:usage", "pacs.002.001.16#FIToFIPmtStsRpt/TxInfAndSts/TxSts"]},
+        {"n": 5, "from": "Debtor agent", "to": "Debtor (or initiating party)", "message": "pain.002",
+         "purpose": "Reports the status (for example acceptance or rejection) of the initiation the customer sent; use may be governed by agreement with the customer.",
+         "cites": ["pain.002.001.15#message:scope", "pain.002.001.15#message:usage", "pain.002.001.15#CstmrPmtStsRpt/OrgnlPmtInfAndSts/TxInfAndSts/TxSts"]}
+      ],
+      "notes": [
+        "In a relay scenario the pain.001 goes first to a forwarding agent, which forwards it to the debtor agent.",
+        "The debtor agent must not use pain.001 to execute the transfer; between agents the FI To FI Customer Credit Transfer (pacs.008) is used instead.",
+        "With only two agents and a direct account relationship, the debtor agent sends the pacs.008 straight to the creditor agent."
+      ],
+      "cites": ["pain.001.001.13#message:usage:2", "pacs.008.001.14#message:usage"]
+    },
+    {
+      "id": "cover-method",
+      "title": "Cover method",
+      "summary": "When the instructing and instructed agents have no direct account relationship in the currency (or do not want to use it), the pacs.008 carries only the payment details and the funds are covered separately through reimbursement agents with a pacs.009.",
+      "parties": ["Debtor agent", "Reimbursement agent(s)", "Creditor agent"],
+      "steps": [
+        {"n": 1, "from": "Debtor agent", "to": "Creditor agent", "message": "pacs.008",
+         "purpose": "Sends the payment details only, with Settlement Method set to Cover Method.",
+         "cites": ["pacs.008.001.14#message:usage:2", "pacs.008.001.14#FIToFICstmrCdtTrf/GrpHdr/SttlmInf/SttlmMtd"]},
+        {"n": 2, "from": "Debtor agent", "to": "Reimbursement agent", "message": "pacs.009",
+         "purpose": "Covers the customer transfer; the Underlying Customer Credit Transfer block describes the customer payment being covered.",
+         "cites": ["pacs.008.001.14#message:usage:2", "pacs.009.001.13#FICdtTrf/CdtTrfTxInf/UndrlygCstmrCdtTrf"]},
+        {"n": 3, "from": "Reimbursement agent", "to": "Creditor agent", "message": "pacs.009",
+         "purpose": "Moves the cover funds on to the creditor agent, directly or through other agents or a clearing and settlement system.",
+         "cites": ["pacs.009.001.13#message:scope"]}
+      ],
+      "notes": [
+        "Compare the serial method, where the pacs.008 itself carries the funds from one institution to the next."
+      ],
+      "cites": ["pacs.008.001.14#message:usage", "pacs.009.001.13#message:usage"]
+    },
+    {
+      "id": "fi-credit-transfer",
+      "title": "Bank-to-bank (financial institution) credit transfer",
+      "summary": "A transfer where both debtor and creditor are financial institutions, sent with a pacs.009 rather than a pacs.008.",
+      "parties": ["Debtor financial institution", "Intermediary agent or clearing system", "Creditor financial institution"],
+      "steps": [
+        {"n": 1, "from": "Debtor financial institution", "to": "Creditor financial institution", "message": "pacs.009",
+         "purpose": "Moves funds where both debtor and creditor are financial institutions, directly or through other agents or a payment clearing and settlement system.",
+         "cites": ["pacs.009.001.13#message:scope", "pacs.009.001.13#message:usage"]},
+        {"n": 2, "from": "Instructed agent", "to": "Previous party in the chain", "message": "pacs.002",
+         "purpose": "Reports the positive, negative or pending status of the instruction, where the agents have agreed to use status reports.",
+         "cites": ["pacs.002.001.16#message:scope", "pacs.002.001.16#message:usage"]}
+      ],
+      "notes": [
+        "pacs.009 does not allow grouping: each credit transfer needs its own Credit Transfer Transaction Information block."
+      ],
+      "cites": ["pacs.009.001.13#message:usage"]
+    },
+    {
+      "id": "return",
+      "title": "Payment return",
+      "summary": "After a credit transfer has been settled, an agent can undo it by sending the funds back to the previous agent in the payment chain with a pacs.004, giving a return reason.",
+      "parties": ["Creditor agent", "Intermediary agent", "Debtor agent"],
+      "steps": [
+        {"n": 1, "from": "Creditor agent", "to": "Intermediary agent (previous agent in the chain)", "message": "pacs.004",
+         "purpose": "Returns the funds of a settled pacs.008 or pacs.009, stating the returned amount and the return reason.",
+         "cites": ["pacs.004.001.15#message:scope", "pacs.004.001.15#message:usage", "pacs.004.001.15#PmtRtr/TxInf/RtrRsnInf", "pacs.004.001.15#PmtRtr/TxInf/RtrdIntrBkSttlmAmt"]},
+        {"n": 2, "from": "Intermediary agent", "to": "Debtor agent", "message": "pacs.004",
+         "purpose": "Passes the return on to its own previous agent, until it reaches the agent that originated the payment.",
+         "cites": ["pacs.004.001.15#message:scope"]}
+      ],
+      "notes": [
+        "Reject or return: a pacs.002 reports the status of an instruction, such as a rejection; a pacs.004 is used to return funds after settlement. The ISO definitions do not state the timing of a rejection beyond that.",
+        "pacs.004 is not sent to non-financial customers; they learn of the debit or credit through a debit/credit notification or a statement, which this assistant does not cover."
+      ],
+      "cites": ["pacs.002.001.16#message:usage", "pacs.004.001.15#message:usage"]
+    }
+  ]
+}

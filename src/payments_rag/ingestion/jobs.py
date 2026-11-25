@@ -8,7 +8,7 @@ Design:
   left `running`; after `STALE_SECONDS` without progress the next request marks it failed ("interrupted")
   and a new job may start. A job is never silently resumed.
 * The caller chooses WHAT to ingest only from a fixed allowlist; the source file is never taken from the
-  request. `source="extract"` re-chunks the committed extract (data/processed/iso20022_pacs.json); `source=
+  request. `source="extract"` re-chunks the committed extract (data/processed/iso20022_messages.json); `source=
   "repository"` re-parses the ISO e-Repository zip configured by the operator (INGEST_SOURCE_ZIP) and refuses
   it unless its sha256 equals the one pinned in the committed extract.
 * Re-ingesting is cheap and safe: unchanged chunks are not re-embedded, removed chunks are deleted, and a
@@ -36,9 +36,9 @@ from psycopg.types.json import Jsonb
 
 log = logging.getLogger("payments_rag.ingest")
 
-ALLOWED_MESSAGES = ("pacs.008", "pacs.002")
+ALLOWED_MESSAGES = ("pain.001", "pacs.008", "pacs.009", "pacs.002", "pain.002", "pacs.004")
 SOURCES = ("extract", "repository")
-DEFAULT_EXTRACT = Path("data/processed/iso20022_pacs.json")
+DEFAULT_EXTRACT = Path("data/processed/iso20022_messages.json")
 DEFAULT_ZIP = Path("data/raw/iso20022/20260904_ISO20022_2013_eRepository.zip")
 STALE_SECONDS = 1800
 LOCK_KEY = 7261950002  # arbitrary constant for pg_advisory_xact_lock (the audit log uses ...001)
@@ -152,6 +152,7 @@ def default_runner(
     embedder_factory: Callable[[], Any] | None = None,
     extract_path: Path | None = None,
     zip_path: Path | None = None,
+    flows_path: Path | None = None,
 ) -> Runner:
     """The real pipeline: load -> chunk -> validate, embed what changed, store."""
 
@@ -183,8 +184,15 @@ def default_runner(
                 raise ValueError(f"message(s) not in the committed extract: {', '.join(missing)}")
             payload = {"source": extract["source"], "messages": selected}
 
+        from payments_rag.ingestion.flows import DEFAULT_FLOWS, check_flows, load_flows
+
+        flows = load_flows(Path(flows_path or os.environ.get("INGEST_FLOWS", DEFAULT_FLOWS)))
+        errors = check_flows(flows, extract)  # against the whole extract, not only the requested messages
+        if errors:
+            raise ValueError("flows file failed checks: " + "; ".join(errors))
+
         progress("chunking")
-        chunks = chunk_payload(payload)
+        chunks = chunk_payload(payload, flows)  # includes only flows whose messages are all requested
 
         progress("storing")  # validates, embeds only what changed, upserts, deletes what disappeared
         embedder = (embedder_factory or _fastembed)()

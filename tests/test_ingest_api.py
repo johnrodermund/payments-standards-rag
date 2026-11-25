@@ -3,7 +3,7 @@ from fastapi.testclient import TestClient
 
 from payments_rag.api.ingest import get_ingest_service
 from payments_rag.api.main import app
-from payments_rag.ingestion.jobs import ActiveJobError
+from payments_rag.ingestion.jobs import ALLOWED_MESSAGES, ActiveJobError
 
 TOKEN = "a-sufficiently-long-test-token"
 JOB = {"id": "11111111-1111-1111-1111-111111111111", "status": "queued", "stage": "queued", "params": {}}
@@ -75,7 +75,7 @@ def test_accepted_request_returns_202_with_a_status_url(client, service):
     assert r.status_code == 202
     assert r.json() == {"job_id": JOB["id"], "status": "queued", "status_url": f"/ingest/{JOB['id']}"}
     assert r.headers["location"] == f"/ingest/{JOB['id']}"
-    assert service.submitted == [{"source": "extract", "messages": ["pacs.002", "pacs.008"]}]
+    assert service.submitted == [{"source": "extract", "messages": sorted(ALLOWED_MESSAGES)}]
 
 
 def test_messages_are_deduplicated_and_sorted(client, service):
@@ -86,7 +86,7 @@ def test_messages_are_deduplicated_and_sorted(client, service):
 @pytest.mark.parametrize(
     "body",
     [
-        {"messages": ["pain.001"]},
+        {"messages": ["camt.056"]},
         {"messages": []},
         {"source": "https://example.com/evil.zip"},
         {"path": "/etc/passwd"},
@@ -120,3 +120,21 @@ def test_status_and_listing(client):
 def test_the_token_is_never_echoed_back(client):
     r = client.post("/ingest", json={"messages": ["pain.001"]}, headers=auth())
     assert TOKEN not in r.text
+
+
+def test_default_request_asks_for_all_six_messages(client, service):
+    from typing import get_args
+
+    from payments_rag.api.ingest import IngestRequest
+    from payments_rag.ingestion.jobs import ALLOWED_MESSAGES
+
+    assert client.post("/ingest", json={}, headers=auth()).status_code == 202
+    assert service.submitted[-1]["messages"] == sorted(ALLOWED_MESSAGES)
+    assert len(ALLOWED_MESSAGES) == 6
+    literal = get_args(IngestRequest.model_fields["messages"].annotation)[0]
+    assert set(get_args(literal)) == set(ALLOWED_MESSAGES)
+
+
+def test_unknown_message_is_rejected(client, service):
+    assert client.post("/ingest", json={"messages": ["camt.056"]}, headers=auth()).status_code == 422
+    assert service.submitted == []

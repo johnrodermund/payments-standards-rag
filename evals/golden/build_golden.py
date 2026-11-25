@@ -1,4 +1,4 @@
-"""Generate evals/golden_set.jsonl from data/processed/iso20022_pacs.json.
+"""Generate evals/golden_set.jsonl from data/processed/iso20022_messages.json.
 
 Every question has a reference answer and the chunk ids that contain the evidence, both derived
 from the same ISO 20022 data the index is built from, so each answer can be checked at its source.
@@ -21,9 +21,12 @@ from pathlib import Path
 from payments_rag.ingestion.chunking import _words  # same name-splitting the chunk text uses
 
 ROOT = Path(__file__).resolve().parents[2]
-SOURCE = ROOT / "data" / "processed" / "iso20022_pacs.json"
+SOURCE = ROOT / "data" / "processed" / "iso20022_messages.json"
 OUT = ROOT / "evals" / "golden_set.jsonl"
 SEED = 7
+# The generated questions are the "original" cohort and stay on the two messages they were built for;
+# questions for the other messages and the flows are hand-written rows (any other cohort) kept as-is.
+ORIGINAL_MESSAGES = ("pacs.008.", "pacs.002.")
 
 MAXLEN = [
     "What is the maximum length of {n} in {m}?",
@@ -53,7 +56,7 @@ UNANSWERABLE = [
     ("What is the capital of France?", "off_topic"),
     ("How do I bake sourdough bread?", "off_topic"),
     ("Who won the football world cup in 2018?", "off_topic"),
-    ("What is the maximum length of the BIC in a pacs.009 message?", "not_in_corpus"),
+    ("What is the maximum length of the BIC in a camt.056 message?", "not_in_corpus"),
     ("What fees does FedNow charge per transaction?", "not_in_corpus"),
     ("How does a camt.053 statement report intraday balances?", "not_in_corpus"),
     ("What is the settlement cut-off time for SEPA Instant payments?", "not_in_corpus"),
@@ -95,6 +98,7 @@ def build() -> list[dict]:
                 "reference_ids": ids,
                 "answerable": True,
                 "message": message,
+                "cohort": "original",
             }
         )
 
@@ -103,7 +107,7 @@ def build() -> list[dict]:
         rng.shuffle(candidates)
         return candidates[:n]
 
-    for msg in payload["messages"]:
+    for msg in [m for m in payload["messages"] if m["id"].startswith(ORIGINAL_MESSAGES)]:
         mid, short = msg["id"], short_message(msg["id"])
         names = Counter(e["name"] for e in msg["elements"])
         unique = [e for e in msg["elements"] if names[e["name"]] == 1]
@@ -149,6 +153,7 @@ def build() -> list[dict]:
                 "reference_ids": [],
                 "answerable": False,
                 "message": None,
+                "cohort": "original",
             }
         )
     return cases
@@ -156,6 +161,8 @@ def build() -> list[dict]:
 
 def main() -> None:
     cases = build()
+    existing = [json.loads(line) for line in OUT.read_text(encoding="utf-8").splitlines() if line.strip()] if OUT.exists() else []
+    cases += [c for c in existing if c.get("cohort", "original") != "original"]  # hand-written rows survive
     OUT.write_text("\n".join(json.dumps(c, ensure_ascii=False) for c in cases) + "\n", encoding="utf-8")
     counts = Counter(c["category"] for c in cases)
     print(f"wrote {len(cases)} questions to {OUT}")

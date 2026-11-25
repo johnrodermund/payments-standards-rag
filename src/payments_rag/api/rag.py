@@ -35,6 +35,7 @@ def _source(hit: dict[str, Any]) -> dict[str, Any]:
         "id": hit["id"],
         "kind": hit.get("kind"),
         "score": hit.get("score"),
+        "source": (hit.get("metadata") or {}).get("source"),
         "snippet": text if len(text) <= SNIPPET_CHARS else text[: SNIPPET_CHARS - 3] + "...",
     }
 

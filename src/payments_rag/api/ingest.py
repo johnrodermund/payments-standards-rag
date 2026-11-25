@@ -58,7 +58,7 @@ class IngestRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")  # a "path" or "url" field is an error, not silently ignored
 
     source: Literal["extract", "repository"] = "extract"
-    messages: list[Literal["pacs.008", "pacs.002"]] = Field(default_factory=lambda: sorted(ALLOWED_MESSAGES), min_length=1)
+    messages: list[Literal["pain.001", "pacs.008", "pacs.009", "pacs.002", "pain.002", "pacs.004"]] = Field(default_factory=lambda: sorted(ALLOWED_MESSAGES), min_length=1)
 
     @field_validator("messages")
     @classmethod

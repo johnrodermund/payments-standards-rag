@@ -42,7 +42,9 @@ def ingest(
         raise IngestError(f"data-quality validation failed ({report['errors']} errors): {first}")
 
     store.init_schema(conn, embedder.dim, embedder.name)
-    message_ids = sorted({c["metadata"]["message_id"] for c in chunks})
+    # "flow" is always a group: flows whose messages were not all ingested this time are deleted,
+    # so the index never holds a flow that points at messages it lacks.
+    message_ids = sorted({c["metadata"]["message_id"] for c in chunks} | {"flow"})
     known = store.existing_hashes(conn, message_ids)
 
     todo = [c for c in chunks if known.get(c["id"]) != _hash(c["text"])]

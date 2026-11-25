@@ -1,4 +1,13 @@
-from payments_rag.retrieval.ranking import LexicalIndex, fuse, intent, name_match, tokenize
+import pytest
+
+from payments_rag.retrieval.ranking import (
+    LexicalIndex,
+    fuse,
+    intent,
+    kind_factor,
+    name_match,
+    tokenize,
+)
 
 
 def doc(xml_path, path, kind="element", text=None, message_id="pacs.008.001.14"):
@@ -69,3 +78,90 @@ def test_disallowed_docs_never_come_back():
     out = fuse("what is the amount", docs, [0], lexical, allowed=[True, False])
     assert [i for i, _ in out] == [0]
 
+
+
+@pytest.mark.parametrize(
+    "question",
+    [
+        "What is sent after a pacs.008?",
+        "Which message does the creditor agent use to send funds back?",
+        "Walk me through the cover method",
+        "Who sends a pain.002 and to whom?",
+        "What is the difference between a reject and a return?",
+        "What flows do you know?",
+        "What comes next after the debtor agent receives a pain.001?",
+    ],
+)
+def test_flow_questions_get_flow_intent(question):
+    assert intent(question) == "flow"
+
+
+@pytest.mark.parametrize(
+    "question, expected",
+    [
+        ("What is the return reason in pacs.004?", "definition"),
+        ("What is the maximum length of the returned interbank settlement amount in pacs.004?", "definition"),
+        ("What does the group header contain in pacs.009?", "children"),
+        ("What is the rule on settlement method?", "rule"),
+        ("What is the creditor agent in pacs.008?", "definition"),
+    ],
+)
+def test_field_questions_keep_their_intent(question, expected):
+    assert intent(question) == expected
+
+
+def test_flow_intent_prefers_flow_chunks():
+    assert kind_factor("flow", "flow") == 1.0
+    assert kind_factor("element", "flow") < 1.0
+    assert kind_factor("flow", "definition") < 1.0
+
+
+def test_element_named_end_to_end_is_not_a_flow_question():
+    assert intent("Which pacs.002 element holds the original end to end identification?") == "definition"
+
+
+def test_message_prior_prefers_the_interbank_core_messages():
+    from payments_rag.retrieval.ranking import message_prior
+
+    core = {"kind": "element", "message_id": "pacs.008.001.14"}
+    status = {"kind": "element", "message_id": "pacs.002.001.16"}
+    flow = {"kind": "flow", "message_id": "flow"}
+    other = {"kind": "element", "message_id": "pacs.009.001.13"}
+    assert message_prior(core) == message_prior(status) == message_prior(flow) == 1.0
+    assert 0.5 < message_prior(other) < 1.0
+
+
+def test_fuse_applies_a_prior_to_break_ties_between_identical_elements():
+    docs = [
+        {"id": "pacs.009.001.13#R/UETR", "kind": "element", "text": "UETR: unique end to end reference.",
+         "metadata": {"xml_path": "R/UETR", "path": "R > UETR", "name": "UETR"}},
+        {"id": "pacs.008.001.14#R/UETR", "kind": "element", "text": "UETR: unique end to end reference.",
+         "metadata": {"xml_path": "R/UETR", "path": "R > UETR", "name": "UETR"}},
+    ]
+    lexical = LexicalIndex(d["text"] for d in docs)
+    plain = fuse("What is the UETR?", docs, [0, 1], lexical)
+    weighted = fuse("What is the UETR?", docs, [0, 1], lexical, prior=[0.8, 1.0])
+    assert plain[0][0] == 0
+    assert weighted[0][0] == 1
+
+
+def test_flow_questions_keep_message_scope_and_usage_chunks():
+    assert kind_factor("message", "flow") == 1.0
+    assert kind_factor("children", "flow") < 1.0
+
+
+@pytest.mark.parametrize(
+    "question",
+    [
+        "What is the instruction for next agent in pacs.008?",
+        "What is the sequence type in pain.001?",
+        "What is the sequence number in pain.001?",
+        "Which element holds the settlement date before conversion?",
+    ],
+)
+def test_element_names_with_common_words_are_not_flow_questions(question):
+    assert intent(question) != "flow"
+
+
+def test_comparing_two_messages_is_a_flow_question():
+    assert intent("What is the difference between pacs.002 and pacs.004?") == "flow"

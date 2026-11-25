@@ -102,9 +102,25 @@ def _where(kinds: list[str] | None, message_prefix: str | None) -> tuple[str, li
         clauses.append("kind = ANY(%s)")
         params.append(kinds)
     if message_prefix:
-        clauses.append("message_id LIKE %s")
-        params.append(message_prefix + ".%")
+        # Flow chunks span several messages; keep the ones that use the named message.
+        clauses.append("(message_id LIKE %s OR (kind = 'flow' AND metadata->'messages' ? %s))")
+        params += [message_prefix + ".%", message_prefix]
     return ("WHERE " + " AND ".join(clauses)) if clauses else "", params
+
+
+def use_core_prior(query: str, message_prefix: str | None) -> bool:
+    """The pacs.008/pacs.002 tie-break applies only when the question names no message at all
+    (a question naming two messages is a comparison, not a vague question)."""
+    return not message_prefix and not ranking.MESSAGE_MENTION.search(query)
+
+
+def doc_allowed(doc: dict[str, Any], kinds: list[str] | None, prefix: str | None) -> bool:
+    """Kind filter plus message filter; a flow chunk passes the message filter when it uses that message."""
+    if kinds and doc["kind"] not in kinds:
+        return False
+    if not prefix or doc["message_id"].startswith(prefix + "."):
+        return True
+    return doc["kind"] == "flow" and prefix in (doc.get("metadata") or {}).get("messages", [])
 
 
 def _row(r: tuple[Any, ...], score: float) -> dict[str, Any]:
@@ -170,14 +186,12 @@ def hybrid_search(
     """
     prefix = message_prefix or message_prefix_from_query(query)
     corpus = _corpus(conn)
-    allowed = [
-        (not kinds or d["kind"] in kinds) and (not prefix or d["message_id"].startswith(prefix + "."))
-        for d in corpus.docs
-    ]
+    allowed = [doc_allowed(d, kinds, prefix) for d in corpus.docs]
     by_vector = search(conn, vector, k=ranking.POOL, kinds=kinds, message_prefix=prefix)
     scores = {h["id"]: h["score"] for h in by_vector}
     vector_order = [corpus.position[h["id"]] for h in by_vector if h["id"] in corpus.position]
-    fused = ranking.fuse(query, corpus.docs, vector_order, corpus.lexical, allowed)[:k]
+    prior = [ranking.message_prior(d) for d in corpus.docs] if use_core_prior(query, message_prefix) else None
+    fused = ranking.fuse(query, corpus.docs, vector_order, corpus.lexical, allowed, prior)[:k]
 
     missing = [corpus.docs[i]["id"] for i, _ in fused if corpus.docs[i]["id"] not in scores]
     if missing:

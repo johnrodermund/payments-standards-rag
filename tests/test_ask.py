@@ -303,3 +303,11 @@ def test_replay_miss_is_a_clear_503_not_a_crash():
 
     r = ask_with(make_service(generator=Boom()), "anything")
     assert r.status_code == 503 and "recorded" in r.json()["detail"]
+
+
+def test_ask_sources_carry_source_label():
+    from payments_rag.api.rag import _source
+
+    hit = {**HITS[0], "metadata": {"message_id": "flow", "source": "Project flow summary based on ISO 20022 e-Repository definitions"}}
+    assert _source(hit)["source"].startswith("Project flow summary")
+    assert _source({"id": "x", "text": "t"})["source"] is None

@@ -1,6 +1,6 @@
 # Payments standards assistant: API image (FastAPI on uvicorn).
 #
-# Build context must contain data/processed/iso20022_pacs.json (committed) and, for a replay-only demo,
+# Build context must contain data/processed/iso20022_messages.json and data/flows/interbank_flows.json (committed) and, for a replay-only demo,
 # .cache/llm (recorded answers; gitignored, so build from a checkout that has them).
 FROM python:3.12-slim
 
@@ -21,9 +21,11 @@ RUN uv sync --frozen --no-dev
 # Bake the embedding model in so the container never downloads anything at start-up.
 RUN python -c "from payments_rag.ingestion.embedding import FastEmbedEmbedder; FastEmbedEmbedder()"
 
-# Data the service reads at run time: the pinned extract (ingest source and provenance check) and the
+# Data the service reads at run time: the pinned extract and the flows file (ingest source, provenance
+# check and GET /flows) and the
 # recorded model answers (used with LLM_REPLAY_ONLY=1).
-COPY data/processed/iso20022_pacs.json ./data/processed/iso20022_pacs.json
+COPY data/processed/iso20022_messages.json ./data/processed/iso20022_messages.json
+COPY data/flows/interbank_flows.json ./data/flows/interbank_flows.json
 COPY .cache/llm ./.cache/llm
 
 # Run as an unprivileged user; it needs to write only the spend ledger / response cache.

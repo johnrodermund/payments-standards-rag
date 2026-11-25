@@ -1,6 +1,6 @@
 # Payments standards Q&A assistant
 
-A small retrieval-augmented (RAG) service that answers questions about ISO 20022 payment message definitions (**pacs.008.001.14** and **pacs.002.001.16**), cites the passages it used, and hands off to a human when it is not confident. It is a personal portfolio project built on **public documents only**.
+A small retrieval-augmented (RAG) service that answers questions about six ISO 20022 interbank credit transfer messages (**pain.001.001.13**, **pacs.008.001.14**, **pacs.009.001.13**, **pacs.002.001.16**, **pain.002.001.15**, **pacs.004.001.15**) and four interbank flows built from them (serial credit transfer, cover method, bank-to-bank transfer, return), cites the passages it used, and hands off to a human when it is not confident. It is a personal portfolio project built on **public documents only**.
 
 This README states only what has been built and run. What is missing is listed plainly in [Not built yet](#not-built-yet).
 
@@ -10,6 +10,7 @@ This README states only what has been built and run. What is missing is listed p
 |---|---|
 | Ingestion: parse, chunk, validate, embed, store | Built and run |
 | Hybrid retrieval (vector + BM25 + name/intent ranking) | Built and measured |
+| Interbank flows (4, hand-written, cited) and `GET /flows` | Built and tested; the flows file awaits a fact review by its owner (see [Flows](#design-decisions)) |
 | `POST /ask` with cited answers and human escalation | Built and run live against Claude |
 | Audit log (every question, answer and source) | Built and tested; verified on a real database |
 | Prompt-injection defence and a test set | Built and run live, results below |
@@ -31,10 +32,10 @@ This README states only what has been built and run. What is missing is listed p
 ISO 20022 e-Repository (zip, pinned by sha256)
         │  stream-parse (ET.iterparse)
         ▼
-  iso20022_pacs.json ──► chunking ──► validation ──► local embeddings ──► Postgres + pgvector
-                                         │ fails the run on bad data          (chunks table)
-                                         │ or suspected injection
-                                         ▼
+  iso20022_messages.json ─┬► chunking ──► validation ──► local embeddings ──► Postgres + pgvector
+  interbank_flows.json ───┘                  │ fails the run on bad data      (chunks table)
+                                             │ or suspected injection
+                                             ▼
 question ─► FastAPI /ask ─► hybrid retrieval ─► passage screening ─► Claude (cited answer)
                 │              (top 5)            (neutralise)            │
                 │                  │                                      ▼
@@ -58,15 +59,18 @@ question ─► FastAPI /ask ─► hybrid retrieval ─► passage screening �
 
 ## Design decisions
 
-**Chunking.** The unit of retrieval is one XML element definition, because that is the unit users ask about ("what is the maximum length of X"). Chunk kinds, with the counts in the current index (1,245 chunks):
+**Chunking.** The unit of retrieval is one XML element definition, because that is the unit users ask about ("what is the maximum length of X"). Chunk kinds, with the counts in the current index (4,661 chunks):
 
-- `element`: 879. One element: its own name and definition first, then requirement, length or code set, parent and message. Boilerplate goes last so it does not dominate the embedding.
-- `children`: 291. A short list of an element's direct children, for "what does X contain" questions.
-- `message` and `rule`: 75. Message scope and usage sections, split into parts of similar size, and the message's business rules.
+- `element`: 3,244. One element: its own name and definition first, then requirement, length or code set, parent and message. Boilerplate goes last so it does not dominate the embedding.
+- `children`: 1,177. A short list of an element's direct children, for "what does X contain" questions.
+- `message` and `rule`: 234. Message scope and usage sections, split into parts of similar size, and the message's business rules.
+- `flow`: 6. One chunk per flow (the serial flow is split in two) plus a `flow:index` overview, built from `data/flows/interbank_flows.json`. See Flows below.
 - Ids are stable and readable (for example `pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/CdtrAgt`) and chunks are capped at 1,500 characters. CamelCase names are split into words ("Total Interbank Settlement Amount") because the embedding model does not understand `TtlIntrBkSttlmAmt`.
-- Shared components that repeat under several parents are indexed once; each chunk lists the other places it applies. This cut the index from 3,211 to 1,245 chunks and a third off the embedding time, with no measurable accuracy change.
+- Shared components that repeat under several parents are indexed once; each chunk lists the other places it applies. For the original two messages this cut the index from 3,211 to 1,245 chunks and a third off the embedding time, with no measurable accuracy change.
 
-**Retrieval.** Exact vector search (an HNSW index silently lost true nearest neighbours here, so it was removed; a scan of about 1,200 chunks takes milliseconds) fused with BM25 and three ranking signals: whole-phrase match of an element's path or tag in the question, question intent (a "what fields does X contain" question prefers a children list, a "rule" question prefers rule chunks), and a depth prior for shallower elements. When the question names one message (for example "pacs.008") results are filtered to it. Retrieval is about 85 to 90 ms per question including query embedding. Rebuilding the whole index takes about 65 to 90 seconds on a CPU.
+**Retrieval.** Exact vector search (an HNSW index silently lost true nearest neighbours here, so it was removed; a scan of about 4,700 chunks still takes milliseconds) fused with BM25 and three ranking signals: whole-phrase match of an element's path or tag in the question, question intent (a "what fields does X contain" question prefers a children list, a "rule" question prefers rule chunks), and a depth prior for shallower elements. When the question names one message (for example "pacs.008") results are filtered to it, plus the flows that use it. A fourth intent, "flow" ("what is sent after", "who sends", "cover method", "walk me through"), prefers flow chunks and ISO scope/usage text. When the question names no message, pacs.008, pacs.002 and the flows win ties against identical elements in the other four messages (factor 0.6; the dev score is flat from 0.4 to 0.7), and each signal's candidate pool is 100 (it was 50, which lost the pacs.008 copy of shared elements once six messages were indexed). Retrieval p50 is 85.5 ms per question including query embedding, against 77.5 ms for the two-message index on the same machine (2026-11-25). Rebuilding the whole index takes about 9 minutes on a CPU (532 s to embed 3,416 new chunks).
+
+**Flows.** `data/flows/interbank_flows.json` is written for this project, not published by ISO (the e-Repository has no flow data). Each step names who sends which message to whom and cites the chunk ids of the ISO scope, usage or element text that backs it. Where the ISO text does not say something (for example, that a reject happens before settlement), the flow says less and a note records why. The build fails if a cited chunk or message does not exist; whether the text is right is a human review. Flow chunks are labelled "project summary; not ISO text" in their text and their `source`, which `/ask` returns with every cited passage. An ingest includes a flow only when all of its messages are ingested. `GET /flows` and `GET /flows/{id}` list them for a UI, from the committed files, with no database or model call.
 
 **Escalation.** The answer is shown only if it carries a valid `[n]` citation that matches a retrieved passage. Otherwise the system escalates, with one of these reasons: `low_retrieval_confidence`, `all_passages_quarantined`, `insufficient_context`, `no_valid_citation`, `model_declined`, `truncated`, `output_policy_violation`. The retrieval cutoff is the cosine similarity of the top result, `ESCALATION_MIN_SCORE`, default 0.6. On the current question sets, on-topic questions score 0.69 or higher at the top result (median about 0.78) and clearly off-topic ones score 0.41 to 0.54. A question that names something the corpus does define (for example "euro to dollar exchange rate", where an Exchange Rate element exists) scores 0.68 and passes. That is correct behaviour, not a bug, but it means the score cutoff alone cannot catch in-domain questions the corpus does not answer; the model's `INSUFFICIENT_CONTEXT` reply does (see results).
 
@@ -75,7 +79,7 @@ question ─► FastAPI /ask ─► hybrid retrieval ─► passage screening �
 **Async ingest.** `POST /ingest` starts a background re-index and returns `202` with a job id; `GET /ingest/{id}` reports `queued`, `running`, `succeeded` or `failed`, the current stage (`loading`, `chunking`, `storing`) and the result (chunks total, embedded, skipped, deleted). `GET /ingest` lists recent jobs. It reuses the same pipeline as the command line, so unchanged chunks are not re-embedded and a validation failure (including suspected injection in the source text) writes nothing. The endpoint is closed by default:
 
 - It is disabled (503) unless `INGEST_API_TOKEN` is set to at least 16 characters, and every call needs `Authorization: Bearer <token>` (constant-time comparison).
-- The caller chooses only from an allowlist: which messages (`pacs.008`, `pacs.002`) and whether to re-chunk the committed extract (default) or re-parse the ISO e-Repository zip configured on the server. The request can never name a path or URL, and unknown fields are rejected with 422. The zip is refused unless its sha256 matches the one pinned in the committed extract.
+- The caller chooses only from an allowlist: which messages (`pain.001`, `pacs.008`, `pacs.009`, `pacs.002`, `pain.002`, `pacs.004`) and whether to re-chunk the committed extract (default) or re-parse the ISO e-Repository zip configured on the server. The request can never name a path or URL, and unknown fields are rejected with 422. The zip is refused unless its sha256 matches the one pinned in the committed extract.
 - One job at a time, enforced with a Postgres advisory lock so it holds across several app replicas; a second request gets 409 with the active job id.
 - Job state is in the `ingest_jobs` table. The work runs in a thread of the process that accepted the request; if that process dies the job is left `running` and, after 30 minutes without progress (`INGEST_STALE_SECONDS`), the next request marks it `interrupted` so a new job can start. It is never resumed automatically.
 
@@ -99,7 +103,34 @@ Verified: the real API against the real database ingested the unchanged corpus i
 
 All LLM runs below used `claude-haiku-5-5` for generation on 2026-11-20. **They were run locally**; CI runs the retrieval gate on every push but skips the LLM-scored steps unless the API keys are configured as repository secrets, and they are not configured. So the CI badge does not vouch for the numbers in this section.
 
-### Golden set (52 questions)
+### Six messages and flows (2026-11-25)
+
+Same method, `claude-haiku-5-5` generation and the JEV judge, run locally on the six-message index. The golden set now has 65 questions: the 52 above (`original` cohort; one not-in-corpus question changed from pacs.009, now indexed, to camt.056) and 13 new (`flows-v1`: 10 answerable flow and new-message questions, 3 about direct debits, recalls and status requests, which are not indexed).
+
+| Metric | Measured | CI minimum |
+|---|---|---|
+| Retrieval hit@1 / hit@5 / MRR, all answerable | 0.852 / 0.907 / 0.880 | 0.76 / 0.80 / 0.79 |
+| Retrieval hit@1 = hit@5 = MRR, original 44 only | 0.886 (unchanged) | 0.80 |
+| Answerable questions actually answered | 0.944 | 0.85 |
+| Unanswerable questions escalated (all 11) | 1.00 | 0.85 |
+| Faithfulness (JEV, 51 answers) | 0.882 | 0.79 |
+| Answer relevancy (JEV, 51 answers) | 0.876 | 0.78 |
+
+- The original questions have their own CI gate (`retrieval_original.*` at 0.80), so a drop there cannot hide behind the new questions.
+- All 10 new answerable questions were answered; the 3 unanswered are original questions, as before.
+- Retrieval sets, against the two-message index rebuilt on the same machine:
+
+| Set | Cohort | n | hit@1 | hit@5 | MRR | two-message index hit@1 / hit@5 / MRR |
+|---|---|---|---|---|---|---|
+| Dev | original | 26 | 0.885 | 0.962 | 0.917 | 0.846 / 0.962 / 0.897 |
+| Dev | flows-v1 | 23 | 0.826 | 1.000 | 0.913 | n/a |
+| Holdout | original | 15 | 0.800 | 1.000 | 0.863 | 0.800 / 1.000 / 0.867 |
+| Holdout | flows-v1 | 7 | 0.429 | 0.714 | 0.529 | n/a |
+
+- **Weak spot:** flow questions without flow wording ("what happens when a settled transfer has to be undone?") are read as field questions and miss the flows. This shows on the new holdout and was not tuned against.
+- Prompt size per question is unchanged: the top-5 passages for the original golden questions average 2,667 characters, against 2,755 before; the system prompt grew by 8 words.
+
+### Golden set (52 questions, 2026-11-20, two messages)
 
 44 answerable questions (max length, requirement, definition, code set, children, message scope, business rule) and 8 unanswerable (3 off-topic, 5 about things outside the corpus, such as FedNow fees). Reference answers and reference chunk ids are derived from the parsed ISO data.
 
@@ -183,10 +214,10 @@ curl --fail --location --user-agent "Mozilla/5.0" --output data/raw/iso20022/202
 Build the index (extract, chunk, validate, embed, store):
 
 ```
-uv run python -m payments_rag.ingestion.iso20022_repository data/raw/iso20022/20260904_ISO20022_2013_eRepository.zip data/processed/iso20022_pacs.json --message pacs.008 --message pacs.002
-uv run python -m payments_rag.ingestion.chunking data/processed/iso20022_pacs.json data/processed/chunks.jsonl
-uv run python -m payments_rag.ingestion.validation data/processed/chunks.jsonl --expect pacs.008 --expect pacs.002
-uv run python -m payments_rag.ingestion.pipeline data/processed/chunks.jsonl --expect pacs.008 --expect pacs.002
+uv run python -m payments_rag.ingestion.iso20022_repository data/raw/iso20022/20260904_ISO20022_2013_eRepository.zip data/processed/iso20022_messages.json --message pain.001 --message pacs.008 --message pacs.009 --message pacs.002 --message pain.002 --message pacs.004
+uv run python -m payments_rag.ingestion.chunking data/processed/iso20022_messages.json data/processed/chunks.jsonl --flows data/flows/interbank_flows.json
+uv run python -m payments_rag.ingestion.validation data/processed/chunks.jsonl --expect pain.001 --expect pacs.008 --expect pacs.009 --expect pacs.002 --expect pain.002 --expect pacs.004
+uv run python -m payments_rag.ingestion.pipeline data/processed/chunks.jsonl --expect pain.001 --expect pacs.008 --expect pacs.009 --expect pacs.002 --expect pain.002 --expect pacs.004
 ```
 
 Run the checks that need no API key (tests, lint, retrieval gate):
@@ -260,11 +291,13 @@ The full responses are in `evals/demo/deployed_run.json`, produced by `evals/dem
 - **A standing cloud deployment.** The stack was deployed and verified once, then destroyed (see above); there is no public URL. Untested on AWS: Claude API mode, Bedrock mode, HTTPS, task restarts.
 - **Live Bedrock verification and results.** The backend is built but unproven against the real service until the account quotas are fixed; `python -m payments_rag.llm.bedrock_check` makes one tiny billed call to confirm it. A golden-set run on both providers is the planned comparison and does not exist yet. Also not built: Azure OpenAI and Bedrock embeddings.
 - **Other sources.** A BIS report on harmonised ISO 20022 data requirements was approved but not ingested; FedNow and CBPR+ material is out of scope for licensing reasons (see `data/SOURCES.md`).
-- **Known quality gaps:** the 5 retrieval misses above, and the guard's paraphrase evasion.
+- **Known quality gaps:** the 5 retrieval misses above, flow questions without flow wording, and the guard's paraphrase evasion.
+- **Re-recorded replay answers.** The system prompt changed with the six messages, so answers recorded before 2026-11-25 (`.cache/llm`, used by replay-only mode and the recorded demo) no longer match and need re-recording.
+- **More flows and messages:** recalls (camt.056/camt.029), statements and notifications (camt.053/camt.054), direct debits and status requests are not indexed.
 - **Not independent:** the golden set and the injection sets were written by the same author as the system.
 
 ## Sources and notices
 
 This is a non-commercial personal project and is **not the official ISO 20022 website**. The sole source of up-to-date ISO 20022 message standards and the repository is https://www.iso20022.org/.
 
-`data/processed/iso20022_pacs.json` is derived from the ISO 20022 e-Repository (pacs.008.001.14 and pacs.002.001.16 definitions), reproduced under the [ISO 20022 terms of use](https://www.iso20022.org/terms-use). The source file's SHA-256 is recorded in the JSON. Answers quote short extracts and cite the source. Other sources and their licence notes are listed in [data/SOURCES.md](data/SOURCES.md).
+`data/processed/iso20022_messages.json` is derived from the ISO 20022 e-Repository (pain.001.001.13, pacs.008.001.14, pacs.009.001.13, pacs.002.001.16, pain.002.001.15 and pacs.004.001.15 definitions), reproduced under the [ISO 20022 terms of use](https://www.iso20022.org/terms-use). The source file's SHA-256 is recorded in the JSON. Answers quote short extracts and cite the source. `data/flows/interbank_flows.json` is written for this project from the ISO definitions it cites; it is not an ISO publication. Other sources and their licence notes are listed in [data/SOURCES.md](data/SOURCES.md).

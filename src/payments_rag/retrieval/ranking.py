@@ -32,13 +32,18 @@ import re
 from collections import Counter, defaultdict
 from collections.abc import Iterable, Sequence
 from dataclasses import dataclass
+from functools import lru_cache
 from typing import Any
 
 RRF_K = 60
-POOL = 50
+POOL = 100  # was 50 at 1,245 chunks; 50 lost the pacs.008 copy of shared elements once six messages were indexed
 NAME_WEIGHT = 1.0
 OFF_INTENT_FACTOR = 0.3
 DEPTH_PENALTY = 0.05
+# Applied only when a question names no message: the interbank core (pacs.008, pacs.002) and the
+# flow summaries win ties against identical elements in the other messages (pacs.009, pain.001, ...).
+CORE_MESSAGES = ("pacs.008.", "pacs.002.")
+NON_CORE_FACTOR = 0.6
 
 STOPWORDS = frozenset({
     "a", "an", "the", "is", "are", "was", "were", "what", "which", "who", "whom", "how",
@@ -51,6 +56,18 @@ MESSAGE_MENTION = re.compile(r"\b([a-z]{4}\.\d{3})(?:\.\d{3}\.\d{2})?\b", re.IGN
 STRUCTURE_INTENT = re.compile(
     r"\b(contains?|consists?|fields|children|structure|made up|sub-?elements|composed|"
     r"elements (?:are )?in|elements of|parts)\b",
+    re.IGNORECASE,
+)
+# Questions about how a payment moves between parties. Deliberately has no bare "return", "reject",
+# "next", "before", "after" or "sequence": those words are in element names (Return Reason, Instruction
+# For Next Agent, Sequence Type), so they only count next to a verb of movement.
+FLOW_INTENT = re.compile(
+    r"\b(flows?|(?:sent|send|comes?|happens?|goes|follows?) (?:next|after|before)|what(?:'s| is| comes) next|"
+    r"next step|then what|who sends|to whom|send(?:s|ing)? (?:the )?funds back|"
+    r"repl(?:y|ies)|respond|response to|walk (?:me )?through|payment chain|"
+    r"(?:cover|serial) method|which message (?:do|does|should|is)|"
+    r"difference between an? (?:reject\w*|return\w*) and an? (?:reject\w*|return\w*)|"
+    r"difference between (?:an? |the )?[a-z]{4}\.\d{3}\w* and (?:an? |the )?[a-z]{4}\.\d{3})\b",
     re.IGNORECASE,
 )
 RULE_INTENT = re.compile(r"\b(rules?|guidelines?|constraints?|must|allowed|permitted)\b", re.IGNORECASE)
@@ -80,7 +97,9 @@ def content_words(query: str) -> list[str]:
 
 
 def intent(query: str) -> str:
-    """'children' for structure questions, 'rule' for rule questions, else 'definition'."""
+    """'flow' for how-a-payment-moves questions, 'children' for structure, 'rule' for rules, else 'definition'."""
+    if FLOW_INTENT.search(query):
+        return "flow"
     if STRUCTURE_INTENT.search(query):
         return "children"
     if RULE_INTENT.search(query):
@@ -88,9 +107,17 @@ def intent(query: str) -> str:
     return "definition"
 
 
+def message_prior(doc: dict[str, Any]) -> float:
+    if doc["kind"] == "flow" or str(doc.get("message_id") or doc["id"]).startswith(CORE_MESSAGES):
+        return 1.0
+    return NON_CORE_FACTOR
+
+
 def kind_factor(kind: str, wanted: str) -> float:
     if wanted == "definition":
-        return OFF_INTENT_FACTOR if kind == "children" else 1.0
+        return OFF_INTENT_FACTOR if kind in ("children", "flow") else 1.0
+    if wanted == "flow":  # ISO scope/usage text describes who sends a message to whom
+        return 1.0 if kind in ("flow", "message") else OFF_INTENT_FACTOR
     return 1.0 if kind == wanted else OFF_INTENT_FACTOR
 
 
@@ -142,14 +169,24 @@ def _contains(seq: Sequence[str], sub: Sequence[str]) -> bool:
     return n > 0 and any(list(seq[i : i + n]) == list(sub) for i in range(len(seq) - n + 1))
 
 
+@lru_cache(maxsize=65536)
+def _name_tokens(component: str) -> tuple[str, ...]:
+    """Tokens of one path component; cached because name_match sees every path on every query."""
+    return tuple(tokenize(component))
+
+
+@lru_cache(maxsize=256)
+def _query_parts(query: str) -> tuple[tuple[str, ...], frozenset[str], int]:
+    return tuple(tokenize(query)), frozenset(w.lower() for w in _WORD.findall(query)), len(content_words(query)) or 1
+
+
 def name_match(query: str, doc: dict[str, Any]) -> NameMatch | None:
     """How well the element's path names (or XML tags) appear in the question."""
     meta = doc.get("metadata") or {}
     if doc.get("kind") not in ("element", "children") or not meta.get("path") or not meta.get("xml_path"):
         return None
-    words = tokenize(query)
-    raw = {w.lower() for w in _WORD.findall(query)}
-    comps = [tokenize(c) for c in meta["path"].split(" > ")]
+    words, raw, total = _query_parts(query)
+    comps = [_name_tokens(c) for c in meta["path"].split(" > ")]
     tags = meta["xml_path"].split("/")[-len(comps) :]
     matched = matched_words = 0
     for comp, tag in zip(reversed(comps), reversed(tags), strict=False):
@@ -162,7 +199,6 @@ def name_match(query: str, doc: dict[str, Any]) -> NameMatch | None:
         matched += 1
     if not matched:
         return None
-    total = len(content_words(query)) or 1
     return NameMatch(matched, matched_words, min(1.0, matched_words / total))
 
 
@@ -172,11 +208,13 @@ def fuse(
     vector_order: Sequence[int],
     lexical: LexicalIndex,
     allowed: Sequence[bool] | None = None,
+    prior: Sequence[float] | None = None,
 ) -> list[tuple[int, float]]:
     """Weighted reciprocal rank fusion of vector, BM25 and name-match rankings.
 
     docs: the whole corpus; vector_order: doc indexes by descending cosine similarity
-    (already restricted to allowed docs); allowed: optional mask (e.g. message filter).
+    (already restricted to allowed docs); allowed: optional mask (e.g. message filter);
+    prior: optional per-doc multiplier (e.g. message_prior when no message is named).
     Returns (doc index, fused score) best first.
     """
     ok = allowed if allowed is not None else [True] * len(docs)
@@ -201,4 +239,6 @@ def fuse(
 
     for i in fused:
         fused[i] *= kind_factor(docs[i]["kind"], wanted) / (1 + DEPTH_PENALTY * max(0, depth(docs[i]) - 1))
+        if prior is not None:
+            fused[i] *= prior[i]
     return sorted(fused.items(), key=lambda kv: -kv[1])

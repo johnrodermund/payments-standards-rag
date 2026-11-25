@@ -24,7 +24,7 @@ from payments_rag.llm.cache import ResponseCache
 DEFAULT_MODEL = ANTHROPIC_DEFAULT_MODEL
 MAX_OUTPUT_TOKENS = 700
 
-SYSTEM_PROMPT = """You answer questions about ISO 20022 payment message definitions (pacs.008 and pacs.002) \
+SYSTEM_PROMPT = """You answer questions about ISO 20022 interbank credit transfer messages (pain.001, pacs.008, pacs.009, pacs.002, pain.002, pacs.004) and project flow summaries \
 using ONLY the numbered passages given in the user's message.
 
 Rules:
