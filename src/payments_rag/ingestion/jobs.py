@@ -152,6 +152,7 @@ def default_runner(
     embedder_factory: Callable[[], Any] | None = None,
     extract_path: Path | None = None,
     zip_path: Path | None = None,
+    flows_path: Path | None = None,
 ) -> Runner:
     """The real pipeline: load -> chunk -> validate, embed what changed, store."""
 
@@ -183,8 +184,15 @@ def default_runner(
                 raise ValueError(f"message(s) not in the committed extract: {', '.join(missing)}")
             payload = {"source": extract["source"], "messages": selected}
 
+        from payments_rag.ingestion.flows import DEFAULT_FLOWS, check_flows, load_flows
+
+        flows = load_flows(Path(flows_path or os.environ.get("INGEST_FLOWS", DEFAULT_FLOWS)))
+        errors = check_flows(flows, extract)  # against the whole extract, not only the requested messages
+        if errors:
+            raise ValueError("flows file failed checks: " + "; ".join(errors))
+
         progress("chunking")
-        chunks = chunk_payload(payload)
+        chunks = chunk_payload(payload, flows)  # includes only flows whose messages are all requested
 
         progress("storing")  # validates, embeds only what changed, upserts, deletes what disappeared
         embedder = (embedder_factory or _fastembed)()

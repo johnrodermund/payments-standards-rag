@@ -30,10 +30,10 @@ def text_hash(text: str) -> str:
     return hashlib.sha256(text.encode("utf-8")).hexdigest()
 
 
-def build_manifest(payload: dict[str, Any]) -> dict[str, str]:
+def build_manifest(payload: dict[str, Any], flows: dict[str, Any] | None = None) -> dict[str, str]:
     from payments_rag.ingestion.chunking import chunk_payload
 
-    return {c["id"]: text_hash(c["text"]) for c in chunk_payload(payload)}
+    return {c["id"]: text_hash(c["text"]) for c in chunk_payload(payload, flows)}
 
 
 class ProvenanceCheck:
@@ -45,8 +45,13 @@ class ProvenanceCheck:
         self.manifest = manifest
 
     @classmethod
-    def from_extract(cls, path: str | Path = DEFAULT_EXTRACT) -> ProvenanceCheck:
-        return cls(build_manifest(json.loads(Path(path).read_text(encoding="utf-8"))))
+    def from_extract(cls, path: str | Path = DEFAULT_EXTRACT, flows_path: str | Path | None = None) -> ProvenanceCheck:
+        """Manifest from the extract plus the flows file (data/flows/interbank_flows.json) when it exists."""
+        from payments_rag.ingestion.flows import DEFAULT_FLOWS, load_flows
+
+        flows_file = Path(flows_path) if flows_path is not None else DEFAULT_FLOWS
+        flows = load_flows(flows_file) if flows_file.exists() else None
+        return cls(build_manifest(json.loads(Path(path).read_text(encoding="utf-8")), flows))
 
     def __call__(self, hits: list[dict[str, Any]]) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
         ok: list[dict[str, Any]] = []

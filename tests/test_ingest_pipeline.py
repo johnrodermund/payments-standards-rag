@@ -148,3 +148,25 @@ def test_mixing_embedding_models_is_refused(conn):
     ingest(chunks_v1(), HashEmbedder(name="model-a"), conn)
     with pytest.raises(RuntimeError, match="re-ingest"):
         ingest(chunks_v1(), HashEmbedder(name="model-b"), conn)
+
+
+def flow_chunk(cid="flow:demo"):
+    return {
+        "id": cid,
+        "kind": "flow",
+        "text": "Interbank flow: Demo (project summary; not ISO text)\n1. Debtor agent → Creditor agent: pacs.008.",
+        "metadata": {"message_id": "flow", "message_name": "Demo", "source": "Project flow summary",
+                     "messages": ["pacs.008"], "cites": ["pacs.008.001.14#Root/A"]},
+    }
+
+
+def flow_rows(conn):
+    return conn.execute("SELECT count(*) FROM chunks WHERE kind = 'flow'").fetchone()[0]
+
+
+def test_partial_ingest_stores_no_flows_and_deletes_old_ones(conn):
+    ingest(chunks_v1() + [flow_chunk()], HashEmbedder(), conn)
+    assert flow_rows(conn) == 1
+    stats = ingest(chunks_v1(), HashEmbedder(), conn)
+    assert flow_rows(conn) == 0
+    assert stats["deleted"] == 1

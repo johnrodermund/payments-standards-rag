@@ -84,7 +84,7 @@ jobs:
       - name: Build the index (extract, chunk, validate, embed, store)
         run: |
           uv run python -m payments_rag.ingestion.iso20022_repository data/raw/iso20022/20260904_ISO20022_2013_eRepository.zip data/processed/iso20022_messages.json --message pain.001 --message pacs.008 --message pacs.009 --message pacs.002 --message pain.002 --message pacs.004
-          uv run python -m payments_rag.ingestion.chunking data/processed/iso20022_messages.json data/processed/chunks.jsonl
+          uv run python -m payments_rag.ingestion.chunking data/processed/iso20022_messages.json data/processed/chunks.jsonl --flows data/flows/interbank_flows.json
           uv run python -m payments_rag.ingestion.validation data/processed/chunks.jsonl --expect pain.001 --expect pacs.008 --expect pacs.009 --expect pacs.002 --expect pain.002 --expect pacs.004
           uv run python -m payments_rag.ingestion.pipeline data/processed/chunks.jsonl --expect pain.001 --expect pacs.008 --expect pacs.009 --expect pacs.002 --expect pain.002 --expect pacs.004
 

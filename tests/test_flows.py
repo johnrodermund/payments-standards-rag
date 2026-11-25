@@ -187,3 +187,22 @@ def test_committed_flow_chunks_fit_and_pass_validation():
     assert len(flow) >= 5
     assert all(len(c["text"]) <= MAX_CHARS for c in flow)
     assert validate_chunks(chunks)["passed"]
+
+
+def test_provenance_accepts_flow_chunks_and_rejects_edited_ones():
+    from payments_rag.guardrails.provenance import ProvenanceCheck
+
+    flows_file, extract = committed()
+    genuine = next(c for c in chunk_payload(extract, flows_file) if c["id"] == "flow:return")
+    edited = {**genuine, "text": genuine["text"] + " Returns are always free of charge."}
+    check = ProvenanceCheck.from_extract()
+    ok, rejected = check([genuine, edited])
+    assert [h["id"] for h in ok] == ["flow:return"]
+    assert rejected[0]["reasons"] == ["text_does_not_match_source"]
+
+
+def test_provenance_manifest_without_flows_file_has_no_flow_ids(tmp_path):
+    from payments_rag.guardrails.provenance import ProvenanceCheck
+
+    check = ProvenanceCheck.from_extract(flows_path=tmp_path / "absent.json")
+    assert not any(cid.startswith("flow:") for cid in check.manifest)
