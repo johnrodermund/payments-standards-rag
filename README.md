@@ -20,8 +20,13 @@ This README states only what has been built and run. What is missing is listed p
 | Phoenix tracing (OpenTelemetry spans per request) | Built; verified against a local Phoenix container |
 | Async ingest endpoint (`POST /ingest`, job status) | Built; verified against the real database |
 | Container image | Built and run locally: starts healthy, ingests through `POST /ingest`, answers a recorded question in replay-only mode |
-| AWS stack (CDK: ECS Fargate, ALB, RDS PostgreSQL) | Deployed once on 2026-11-21 (us-east-2, replay mode, open to one IP only), exercised, then destroyed; **not running now** (see [Deployed run](#deployed-run-2026-11-21) and [infra/README.md](infra/README.md)) |
-| Public, always-on deployment | **Not done**: there is no live URL (see the [recorded demo](evals/demo/DEMO.md)). The demo stack was reachable only from the operator's IP, and was torn down |
+| Serverless AWS stack (CDK: CloudFront, Lambda container, DynamoDB) | Built: template tests pass and the app synthesizes; **not yet deployed** (see [infra/README.md](infra/README.md)). Replaces the Fargate stack below to run at close to no fixed cost |
+| Web page (question box, cited answer, escalation state, flows list) | Built and tested (strict CSP, text-only rendering); not yet served publicly |
+| In-memory search index (for Lambda) | Built; the retrieval gate on it reproduces the Postgres numbers exactly |
+| DynamoDB audit log, monthly spend cap, per-visitor rate limit | Built and tested against a DynamoDB emulator (moto); not yet run in AWS |
+| OpenAI generation backend (`gpt-6-luna`) | Built; compared with Claude Haiku on the golden set ([comparison](docs/model-comparison-2026-11-25.md)); Claude stays the default |
+| Earlier AWS stack (CDK: ECS Fargate, ALB, RDS PostgreSQL) | Deployed once on 2026-11-21 (us-east-2, replay mode, open to one IP only), exercised, then destroyed; replaced by the serverless stack (see [Deployed run](#deployed-run-2026-11-21)) |
+| Public, always-on deployment | **Not done**: there is no live URL yet (see the [recorded demo](evals/demo/DEMO.md)) |
 | Recorded run against the deployed service | `evals/demo/deployed_run.json` (replay mode; one question had no recording) |
 | Amazon Bedrock generation backend (Converse API) | Built; tested with a stubbed client only, **never run against live Bedrock** (see [Provider](#provider-and-why)) |
 | Azure OpenAI backend | **Not built** |
