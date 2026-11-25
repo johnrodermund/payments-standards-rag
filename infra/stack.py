@@ -1,169 +1,210 @@
-"""One stack: VPC, RDS PostgreSQL (pgvector), ECS Fargate service behind an Application Load Balancer.
+"""One serverless stack: CloudFront -> Lambda Function URL (container image) + DynamoDB. No VPC, no servers.
 
 Choices that matter (all overridable with `-c key=value`; see infra/README.md):
 
-* No NAT gateway. Tasks sit in public subnets with a public IP (reachable only from the load balancer's
-  security group) so they can pull the image and call AWS APIs without a ~$33/month NAT. The database is in
-  isolated subnets with no route to the internet.
-* Generation mode (`llm_mode`): `replay` (default: recorded answers only, no model call, no key, no cost),
-  `anthropic` (key read from an existing Secrets Manager secret) or `bedrock` (task role, no keys).
-* This is a demonstration stack, not a production one: HTTP only (no certificate or domain), one task, one
-  single-AZ database, deletion protection off, everything destroyed by `cdk destroy`.
+* CloudFront is the only way in. The Function URL uses AWS_IAM auth and CloudFront signs requests to it with
+  Origin Access Control, so the URL cannot be called directly. For POST, CloudFront needs the body's SHA-256
+  in `x-amz-content-sha256`; the web page sends it, and API callers must too.
+* The search index ships inside the image (built at `docker build`), so there is no database to run.
+* DynamoDB (on demand) holds the audit log (entries the API may only add to, plus a head record), the
+  monthly spend cap and the rate-limit counters. The audit tables have deletion protection and
+  point-in-time recovery, and are kept if the stack is deleted.
+* The model API key is a SecureString in SSM Parameter Store, created by hand in the console (free tier),
+  and read by the function at cold start. It is never part of the template.
+* A daily EventBridge rule re-verifies the audit hash chain. Alarms go to one SNS topic; pass
+  `-c alarm_email=...` at deploy time to subscribe (it is never written to cdk.json).
 """
 
 from __future__ import annotations
 
 from aws_cdk import CfnOutput, Duration, RemovalPolicy, Stack
-from aws_cdk import aws_ec2 as ec2
-from aws_cdk import aws_ecs as ecs
-from aws_cdk import aws_ecs_patterns as ecs_patterns
+from aws_cdk import aws_cloudfront as cloudfront
+from aws_cdk import aws_cloudfront_origins as origins
+from aws_cdk import aws_cloudwatch as cloudwatch
+from aws_cdk import aws_cloudwatch_actions as cw_actions
+from aws_cdk import aws_dynamodb as dynamodb
+from aws_cdk import aws_events as events
+from aws_cdk import aws_events_targets as targets
 from aws_cdk import aws_iam as iam
+from aws_cdk import aws_lambda as lambda_
 from aws_cdk import aws_logs as logs
-from aws_cdk import aws_rds as rds
-from aws_cdk import aws_secretsmanager as secretsmanager
+from aws_cdk import aws_sns as sns
+from aws_cdk import aws_sns_subscriptions as subscriptions
 from constructs import Construct
 
-LLM_MODES = ("replay", "anthropic", "bedrock")
+PROVIDERS = {
+    "anthropic": {"model_env": "CLAUDE_MODEL", "model": "claude-haiku-5-5", "key_env": "ANTHROPIC_API_KEY",
+                  "parameter": "/payments-rag/anthropic-api-key"},
+    "openai": {"model_env": "OPENAI_MODEL", "model": "gpt-6-luna", "key_env": "OPENAI_API_KEY",
+               "parameter": "/payments-rag/openai-api-key"},
+}
 
 
 def settings(scope: Construct) -> dict[str, str]:
-    """Deployment settings from CDK context, with defaults. Unknown modes fail at synth time."""
+    """Deployment settings from CDK context, with defaults. Unknown providers fail at synth time."""
     get = scope.node.try_get_context
 
     def pick(key: str, default: str) -> str:
         value = get(key)
         return str(value) if value not in (None, "") else default
 
-    config = {
-        "llm_mode": pick("llm_mode", "replay"),
-        "cpu": pick("cpu", "1024"),
-        "memory": pick("memory", "2048"),
-        "allowed_cidr": pick("allowed_cidr", ""),
-        "llm_budget_usd": pick("llm_budget_usd", "0.50"),
-        "anthropic_secret_name": pick("anthropic_secret_name", "payments-rag/anthropic-api-key"),
-        "bedrock_model_id": pick("bedrock_model_id", ""),
-        "llm_prices": pick("llm_prices", ""),
+    provider = pick("llm_provider", "anthropic")
+    if provider not in PROVIDERS:
+        raise ValueError(f"llm_provider must be one of {sorted(PROVIDERS)}, got {provider!r}")
+    p = PROVIDERS[provider]
+    return {
+        "llm_provider": provider,
+        "model": pick("model", p["model"]),
+        "api_key_parameter": pick("api_key_parameter", p["parameter"]),
+        "llm_budget_usd": pick("llm_budget_usd", "5"),
+        "rate_per_minute": pick("rate_per_minute", "10"),
+        "rate_per_day": pick("rate_per_day", "100"),
+        "memory": pick("memory", "3008"),
+        "reserved_concurrency": pick("reserved_concurrency", ""),
+        "alarm_email": pick("alarm_email", ""),
     }
-    if config["llm_mode"] not in LLM_MODES:
-        raise ValueError(f"llm_mode must be one of {LLM_MODES}, got {config['llm_mode']!r}")
-    if config["llm_mode"] == "bedrock" and not config["bedrock_model_id"]:
-        raise ValueError("llm_mode=bedrock needs -c bedrock_model_id=<inference profile id>")
-    return config
 
 
 class PaymentsRagStack(Stack):
     def __init__(self, scope: Construct, construct_id: str, **kwargs) -> None:
         super().__init__(scope, construct_id, **kwargs)
         cfg = settings(self)
+        provider = PROVIDERS[cfg["llm_provider"]]
 
-        vpc = ec2.Vpc(
-            self,
-            "Vpc",
-            max_azs=2,
-            nat_gateways=0,
-            subnet_configuration=[
-                ec2.SubnetConfiguration(name="public", subnet_type=ec2.SubnetType.PUBLIC, cidr_mask=24),
-                ec2.SubnetConfiguration(name="db", subnet_type=ec2.SubnetType.PRIVATE_ISOLATED, cidr_mask=24),
-            ],
-        )
-
-        db = rds.DatabaseInstance(
-            self,
-            "Database",
-            engine=rds.DatabaseInstanceEngine.postgres(version=rds.PostgresEngineVersion.VER_16),
-            instance_type=ec2.InstanceType.of(ec2.InstanceClass.BURSTABLE4_GRAVITON, ec2.InstanceSize.MICRO),
-            vpc=vpc,
-            vpc_subnets=ec2.SubnetSelection(subnet_type=ec2.SubnetType.PRIVATE_ISOLATED),
-            credentials=rds.Credentials.from_generated_secret("payments"),
-            database_name="payments",
-            allocated_storage=20,
-            storage_type=rds.StorageType.GP3,
-            storage_encrypted=True,
-            multi_az=False,
-            publicly_accessible=False,
-            backup_retention=Duration.days(1),
-            delete_automated_backups=True,
-            deletion_protection=False,
-            removal_policy=RemovalPolicy.DESTROY,  # demo stack: `cdk destroy` removes the data too
-        )
-
-        ingest_token = secretsmanager.Secret(
-            self,
-            "IngestToken",
-            description="Bearer token for POST /ingest",
-            generate_secret_string=secretsmanager.SecretStringGenerator(password_length=40, exclude_punctuation=True),
-            removal_policy=RemovalPolicy.DESTROY,
-        )
-
-        log_group = logs.LogGroup(self, "Logs", retention=logs.RetentionDays.ONE_WEEK, removal_policy=RemovalPolicy.DESTROY)
-
-        environment = {
-            # libpq fills the host, user and password from PGHOST/PGUSER/PGPASSWORD (injected from the RDS secret below),
-            # so no credential is ever part of the connection string. RDS forces TLS; require it explicitly too.
-            "DATABASE_URL": "postgresql:///payments?sslmode=require",
-            "AWS_REGION": self.region,
-        }
-        secrets = {
-            "PGHOST": ecs.Secret.from_secrets_manager(db.secret, "host"),
-            "PGPORT": ecs.Secret.from_secrets_manager(db.secret, "port"),
-            "PGUSER": ecs.Secret.from_secrets_manager(db.secret, "username"),
-            "PGPASSWORD": ecs.Secret.from_secrets_manager(db.secret, "password"),
-            "INGEST_API_TOKEN": ecs.Secret.from_secrets_manager(ingest_token),
-        }
-        mode = cfg["llm_mode"]
-        if mode == "replay":
-            environment["LLM_REPLAY_ONLY"] = "1"
-        elif mode == "anthropic":
-            key = secretsmanager.Secret.from_secret_name_v2(self, "AnthropicKey", cfg["anthropic_secret_name"])
-            secrets["ANTHROPIC_API_KEY"] = ecs.Secret.from_secrets_manager(key)
-            environment["LLM_BUDGET_USD"] = cfg["llm_budget_usd"]
-        else:
-            environment.update({"LLM_PROVIDER": "bedrock", "BEDROCK_GENERATION_MODEL_ID": cfg["bedrock_model_id"], "LLM_BUDGET_USD": cfg["llm_budget_usd"]})
-            if cfg["llm_prices"]:
-                environment["LLM_PRICES"] = cfg["llm_prices"]
-
-        cluster = ecs.Cluster(self, "Cluster", vpc=vpc)
-        service = ecs_patterns.ApplicationLoadBalancedFargateService(
-            self,
-            "Service",
-            cluster=cluster,
-            cpu=int(cfg["cpu"]),
-            memory_limit_mib=int(cfg["memory"]),
-            desired_count=1,
-            min_healthy_percent=100,  # one task: start the new one before stopping the old
-            max_healthy_percent=200,
-            public_load_balancer=True,
-            assign_public_ip=True,
-            task_subnets=ec2.SubnetSelection(subnet_type=ec2.SubnetType.PUBLIC),
-            open_listener=not cfg["allowed_cidr"],
-            circuit_breaker=ecs.DeploymentCircuitBreaker(rollback=True),
-            health_check_grace_period=Duration.seconds(120),
-            task_image_options=ecs_patterns.ApplicationLoadBalancedTaskImageOptions(
-                image=ecs.ContainerImage.from_asset("..", file="Dockerfile"),  # the repository root; honours .dockerignore
-                container_port=8000,
-                environment=environment,
-                secrets=secrets,
-                log_driver=ecs.LogDrivers.aws_logs(stream_prefix="api", log_group=log_group),
-            ),
-        )
-        service.target_group.configure_health_check(path="/health", healthy_http_codes="200", interval=Duration.seconds(30))
-        service.target_group.set_attribute("deregistration_delay.timeout_seconds", "10")
-        db.connections.allow_default_port_from(service.service, "API tasks to PostgreSQL")
-        if cfg["allowed_cidr"]:
-            service.load_balancer.connections.allow_from(ec2.Peer.ipv4(cfg["allowed_cidr"]), ec2.Port.tcp(80), "operator access only")
-
-        if mode == "bedrock":
-            # Invocation only, and only for Anthropic models/inference profiles (no bedrock:*).
-            service.task_definition.task_role.add_to_policy(
-                iam.PolicyStatement(
-                    actions=["bedrock:InvokeModel"],  # the Converse API is authorised by this action
-                    resources=[
-                        "arn:aws:bedrock:*::foundation-model/anthropic.*",
-                        f"arn:aws:bedrock:*:{self.account}:inference-profile/*anthropic*",
-                    ],
-                )
+        def table(name: str, sort_key: str | None = None, protect: bool = False, ttl: str | None = None) -> dynamodb.TableV2:
+            return dynamodb.TableV2(
+                self,
+                name,
+                partition_key=dynamodb.Attribute(name="pk", type=dynamodb.AttributeType.STRING),
+                sort_key=dynamodb.Attribute(name=sort_key, type=dynamodb.AttributeType.NUMBER) if sort_key else None,
+                billing=dynamodb.Billing.on_demand(),
+                point_in_time_recovery_specification=dynamodb.PointInTimeRecoverySpecification(point_in_time_recovery_enabled=protect),
+                deletion_protection=protect,
+                time_to_live_attribute=ttl,
+                removal_policy=RemovalPolicy.RETAIN if protect else RemovalPolicy.DESTROY,
             )
 
-        CfnOutput(self, "Url", value=f"http://{service.load_balancer.load_balancer_dns_name}")
-        CfnOutput(self, "IngestTokenSecretArn", value=ingest_token.secret_arn)
-        CfnOutput(self, "LlmMode", value=mode)
+        audit_entries = table("AuditEntries", sort_key="seq", protect=True)
+        audit_head = table("AuditHead", protect=True)
+        spend = table("Spend", protect=True)
+        rate_limits = table("RateLimits", ttl="expires_at")
+
+        api_logs = logs.LogGroup(self, "ApiLogs", retention=logs.RetentionDays.ONE_MONTH, removal_policy=RemovalPolicy.DESTROY)
+        verify_logs = logs.LogGroup(self, "VerifyLogs", retention=logs.RetentionDays.ONE_MONTH, removal_policy=RemovalPolicy.DESTROY)
+
+        environment = {
+            "AUDIT_TABLE": audit_entries.table_name,
+            "AUDIT_HEAD_TABLE": audit_head.table_name,
+            "SPEND_TABLE": spend.table_name,
+            "RATE_LIMIT_TABLE": rate_limits.table_name,
+            "LLM_PROVIDER": cfg["llm_provider"],
+            provider["model_env"]: cfg["model"],
+            "LLM_BUDGET_USD": cfg["llm_budget_usd"],
+            "ASK_RATE_PER_MINUTE": cfg["rate_per_minute"],
+            "ASK_RATE_PER_DAY": cfg["rate_per_day"],
+            "API_KEY_PARAMETER": cfg["api_key_parameter"],
+            "API_KEY_ENV": provider["key_env"],
+        }
+        image_args = {"directory": "..", "file": "Dockerfile.lambda"}  # the repository root; honours .dockerignore
+        reserved = int(cfg["reserved_concurrency"]) if cfg["reserved_concurrency"] else None
+
+        api = lambda_.DockerImageFunction(
+            self,
+            "Api",
+            code=lambda_.DockerImageCode.from_image_asset(**image_args),
+            architecture=lambda_.Architecture.X86_64,
+            memory_size=int(cfg["memory"]),
+            timeout=Duration.seconds(29),  # CloudFront waits 30 s for the origin
+            environment=environment,
+            log_group=api_logs,
+            reserved_concurrent_executions=reserved,
+        )
+        verify = lambda_.DockerImageFunction(
+            self,
+            "AuditVerify",
+            code=lambda_.DockerImageCode.from_image_asset(**image_args, cmd=["payments_rag.api.lambda_handler.verify_handler"]),
+            architecture=lambda_.Architecture.X86_64,
+            memory_size=1024,
+            timeout=Duration.minutes(5),
+            environment={"AUDIT_TABLE": audit_entries.table_name, "AUDIT_HEAD_TABLE": audit_head.table_name},
+            log_group=verify_logs,
+        )
+
+        # Least privilege on the tables. The API may only add audit entries, never change or delete them.
+        api.add_to_role_policy(iam.PolicyStatement(actions=["dynamodb:PutItem"], resources=[audit_entries.table_arn]))
+        api.add_to_role_policy(iam.PolicyStatement(actions=["dynamodb:GetItem", "dynamodb:UpdateItem"], resources=[audit_head.table_arn]))
+        api.add_to_role_policy(iam.PolicyStatement(actions=["dynamodb:UpdateItem"], resources=[spend.table_arn, rate_limits.table_arn]))
+        api.add_to_role_policy(iam.PolicyStatement(
+            actions=["ssm:GetParameter"],
+            resources=[f"arn:aws:ssm:{self.region}:{self.account}:parameter{cfg['api_key_parameter']}"],
+        ))
+        api.add_to_role_policy(iam.PolicyStatement(  # SecureString with the AWS-managed aws/ssm key
+            actions=["kms:Decrypt"], resources=["*"],
+            conditions={"StringEquals": {"kms:ViaService": f"ssm.{self.region}.amazonaws.com"}},
+        ))
+        verify.add_to_role_policy(iam.PolicyStatement(actions=["dynamodb:Query"], resources=[audit_entries.table_arn]))
+        verify.add_to_role_policy(iam.PolicyStatement(actions=["dynamodb:GetItem"], resources=[audit_head.table_arn]))
+
+        url = api.add_function_url(auth_type=lambda_.FunctionUrlAuthType.AWS_IAM)
+        forward = cloudfront.OriginRequestPolicy(
+            self,
+            "Forward",
+            comment="Viewer address for the rate limiter, the body hash OAC needs, content type; never Host",
+            header_behavior=cloudfront.OriginRequestHeaderBehavior.allow_list(
+                "CloudFront-Viewer-Address", "x-amz-content-sha256", "Content-Type", "Accept",
+            ),
+            query_string_behavior=cloudfront.OriginRequestQueryStringBehavior.all(),
+            cookie_behavior=cloudfront.OriginRequestCookieBehavior.none(),
+        )
+        distribution = cloudfront.Distribution(
+            self,
+            "Cdn",
+            comment="Payments standards assistant",
+            default_behavior=cloudfront.BehaviorOptions(
+                origin=origins.FunctionUrlOrigin.with_origin_access_control(url),
+                viewer_protocol_policy=cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
+                allowed_methods=cloudfront.AllowedMethods.ALLOW_ALL,
+                cache_policy=cloudfront.CachePolicy.CACHING_DISABLED,
+                origin_request_policy=forward,
+            ),
+            price_class=cloudfront.PriceClass.PRICE_CLASS_100,
+            http_version=cloudfront.HttpVersion.HTTP2_AND_3,
+        )
+        # Function URLs need lambda:InvokeFunction as well as lambda:InvokeFunctionUrl for the caller.
+        api.add_permission(
+            "CloudFrontInvoke",
+            principal=iam.ServicePrincipal("cloudfront.amazonaws.com"),
+            action="lambda:InvokeFunction",
+            source_arn=f"arn:aws:cloudfront::{self.account}:distribution/{distribution.distribution_id}",
+        )
+
+        events.Rule(self, "DailyAuditVerify", schedule=events.Schedule.rate(Duration.days(1)),
+                    targets=[targets.LambdaFunction(verify, retry_attempts=1)])
+
+        topic = sns.Topic(self, "Alarms", display_name="Payments assistant alarms")
+        if cfg["alarm_email"]:
+            topic.add_subscription(subscriptions.EmailSubscription(cfg["alarm_email"]))
+        action = cw_actions.SnsAction(topic)
+        budget = float(cfg["llm_budget_usd"])
+        alarms = [
+            api.metric_errors(period=Duration.minutes(5)).create_alarm(
+                self, "ApiErrors", threshold=1, evaluation_periods=1, alarm_description="API function crashed (unhandled errors)"),
+            api.metric_throttles(period=Duration.minutes(5)).create_alarm(
+                self, "ApiThrottles", threshold=1, evaluation_periods=1, alarm_description="API function throttled"),
+            verify.metric_errors(period=Duration.days(1)).create_alarm(
+                self, "AuditVerifyFailed", threshold=1, evaluation_periods=1, alarm_description="Audit hash chain verification failed"),
+            cloudwatch.Metric(namespace="PaymentsRag", metric_name="MonthlySpendUSD", statistic="Maximum",
+                              period=Duration.hours(1)).create_alarm(
+                self, "SpendNearCap", threshold=round(budget * 0.8, 2), evaluation_periods=1,
+                comparison_operator=cloudwatch.ComparisonOperator.GREATER_THAN_OR_EQUAL_TO_THRESHOLD,
+                treat_missing_data=cloudwatch.TreatMissingData.NOT_BREACHING,
+                alarm_description="Model spend reached 80% of the monthly cap"),
+        ]
+        for alarm in alarms:
+            alarm.add_alarm_action(action)
+
+        CfnOutput(self, "Url", value=f"https://{distribution.distribution_domain_name}")
+        CfnOutput(self, "ApiKeyParameter", value=cfg["api_key_parameter"])
+        CfnOutput(self, "AuditEntriesTable", value=audit_entries.table_name)
+        CfnOutput(self, "AuditHeadTable", value=audit_head.table_name)
+        CfnOutput(self, "LlmProvider", value=cfg["llm_provider"])
