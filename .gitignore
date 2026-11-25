@@ -16,3 +16,4 @@ infra/cdk.context.json
 infra/cdk-outputs.json
 infra/.stack_created.txt
 infra/.destroy_started.txt
+.superpowers/
