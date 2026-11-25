@@ -92,7 +92,7 @@ jobs:
       - name: Retrieval gate
         run: |
           uv run python -m payments_rag.evals.rag_eval --retrieval-only --out evals/results/retrieval_only.json
-          uv run python -m payments_rag.evals.gate evals/results/retrieval_only.json evals/thresholds.json --only retrieval,confidence
+          uv run python -m payments_rag.evals.gate evals/results/retrieval_only.json evals/thresholds.json --only retrieval,retrieval_original,confidence
 
       - name: Check for LLM eval secrets
         id: secrets
@@ -127,7 +127,7 @@ jobs:
           EVAL_JUDGE: ${{ vars.EVAL_JUDGE || 'jev' }}
         run: |
           uv run python -m payments_rag.evals.rag_eval --judge "$EVAL_JUDGE" --out evals/results/latest.json
-          uv run python -m payments_rag.evals.gate evals/results/latest.json evals/thresholds.json --only retrieval,behaviour,judged
+          uv run python -m payments_rag.evals.gate evals/results/latest.json evals/thresholds.json --only retrieval,retrieval_original,behaviour,judged
 
       - name: Upload eval results
         if: always()

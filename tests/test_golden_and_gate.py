@@ -21,7 +21,9 @@ CHUNKS = Path("data/processed/chunks.jsonl")
 
 
 def test_golden_set_size_and_mix():
-    cases = load_golden(GOLDEN)
+    everything = load_golden(GOLDEN)
+    assert len(everything) <= 80
+    cases = [c for c in everything if c["cohort"] == "original"]
     assert 40 <= len(cases) <= 60
     answerable = [c for c in cases if c["answerable"]]
     assert len(answerable) >= 35 and len(cases) - len(answerable) >= 5
@@ -53,6 +55,10 @@ def test_reference_ids_exist_in_the_source_data():
         valid |= {f"{mid}#{e['xml_path']}#children" for e in m["elements"]}
         valid |= {f"{mid}#rule:{c['name']}" for c in m["constraints"]}
         valid.add(f"{mid}#message:scope")
+    from payments_rag.ingestion.chunking import chunk_payload
+    from payments_rag.ingestion.flows import load_flows
+
+    valid |= {c["id"] for c in chunk_payload(data, load_flows()) if c["kind"] in ("flow", "message")}
     for c in load_golden(GOLDEN):
         for ref in c["reference_ids"]:
             assert ref in valid, f"{c['id']}: {ref}"
@@ -190,9 +196,42 @@ def test_committed_thresholds_reference_metrics_the_runner_produces():
     thresholds = json.loads(Path("evals/thresholds.json").read_text(encoding="utf-8"))
     summary = {
         "retrieval": {"hit@1": 1, "hit@5": 1, "mrr": 1},
+        "retrieval_original": {"hit@1": 1, "hit@5": 1, "mrr": 1},
         "confidence": {"answerable_pass_rate": 1, "off_topic_escalation_rate": 1},
         "behaviour": {"answerable_coverage": 1, "unanswerable_escalation_rate": 1},
         "judged": {"faithfulness_mean": 1, "answer_relevancy_mean": 1},
     }
     out = check(summary, thresholds)
     assert out and all(o["ok"] for o in out)
+
+
+def test_summary_has_original_cohort_metrics():
+    from payments_rag.evals.rag_eval import cohort_summary
+
+    rows = [
+        {"answerable": True, "cohort": "original", "reference_ids": ["a"], "retrieved_ids": ["a"]},
+        {"answerable": True, "cohort": "original", "reference_ids": ["b"], "retrieved_ids": ["x", "y", "z", "w", "v"]},
+        {"answerable": True, "cohort": "flows-v1", "reference_ids": ["c"], "retrieved_ids": ["c"]},
+        {"answerable": True, "cohort": "flows-v1", "reference_ids": ["d"], "retrieved_ids": ["d"]},
+    ]
+    out = cohort_summary(rows)
+    assert out["retrieval_original"]["hit@5"] == 0.5
+    assert out["retrieval_original"]["questions"] == 2
+    assert retrieval_metrics(rows)["hit@5"] == 0.75
+
+
+def test_every_golden_and_retrieval_row_has_a_cohort():
+    import json
+
+    for path in ("evals/golden_set.jsonl", "evals/retrieval_set.jsonl", "evals/retrieval_holdout.jsonl"):
+        rows = [json.loads(line) for line in Path(path).read_text(encoding="utf-8").splitlines() if line.strip()]
+        assert {r.get("cohort") for r in rows} <= {"original", "flows-v1"}, path
+        assert all(r.get("cohort") for r in rows), path
+
+
+def test_thresholds_gate_the_original_cohort():
+    import json
+
+    thresholds = json.loads(Path("evals/thresholds.json").read_text(encoding="utf-8"))
+    for key in ("retrieval_original.hit@1", "retrieval_original.hit@5", "retrieval_original.mrr"):
+        assert thresholds[key] == {"min": 0.8}

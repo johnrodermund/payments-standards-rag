@@ -32,6 +32,7 @@ import re
 from collections import Counter, defaultdict
 from collections.abc import Iterable, Sequence
 from dataclasses import dataclass
+from functools import lru_cache
 from typing import Any
 
 RRF_K = 60
@@ -165,14 +166,24 @@ def _contains(seq: Sequence[str], sub: Sequence[str]) -> bool:
     return n > 0 and any(list(seq[i : i + n]) == list(sub) for i in range(len(seq) - n + 1))
 
 
+@lru_cache(maxsize=65536)
+def _name_tokens(component: str) -> tuple[str, ...]:
+    """Tokens of one path component; cached because name_match sees every path on every query."""
+    return tuple(tokenize(component))
+
+
+@lru_cache(maxsize=256)
+def _query_parts(query: str) -> tuple[tuple[str, ...], frozenset[str], int]:
+    return tuple(tokenize(query)), frozenset(w.lower() for w in _WORD.findall(query)), len(content_words(query)) or 1
+
+
 def name_match(query: str, doc: dict[str, Any]) -> NameMatch | None:
     """How well the element's path names (or XML tags) appear in the question."""
     meta = doc.get("metadata") or {}
     if doc.get("kind") not in ("element", "children") or not meta.get("path") or not meta.get("xml_path"):
         return None
-    words = tokenize(query)
-    raw = {w.lower() for w in _WORD.findall(query)}
-    comps = [tokenize(c) for c in meta["path"].split(" > ")]
+    words, raw, total = _query_parts(query)
+    comps = [_name_tokens(c) for c in meta["path"].split(" > ")]
     tags = meta["xml_path"].split("/")[-len(comps) :]
     matched = matched_words = 0
     for comp, tag in zip(reversed(comps), reversed(tags), strict=False):
@@ -185,7 +196,6 @@ def name_match(query: str, doc: dict[str, Any]) -> NameMatch | None:
         matched += 1
     if not matched:
         return None
-    total = len(content_words(query)) or 1
     return NameMatch(matched, matched_words, min(1.0, matched_words / total))
 
 

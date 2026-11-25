@@ -1,15 +1,22 @@
-{"question": "Who is the ultimate creditor in a customer credit transfer?", "expected": ["pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/UltmtCdtr"]}
-{"question": "Which settlement methods can a pacs.008 use?", "expected": ["pacs.008.001.14#FIToFICstmrCdtTrf/GrpHdr/SttlmInf/SttlmMtd"]}
-{"question": "What is the transaction identification assigned by the first instructing agent?", "expected": ["pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/PmtId/TxId"]}
-{"question": "What is the instructed amount in a credit transfer?", "expected": ["pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/InstdAmt"]}
-{"question": "What is the exchange rate element used for in pacs.008?", "expected": ["pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/XchgRate"]}
-{"question": "When was the message created?", "expected": ["pacs.008.001.14#FIToFICstmrCdtTrf/GrpHdr/CreDtTm", "pacs.002.001.16#FIToFIPmtStsRpt/GrpHdr/CreDtTm"]}
-{"question": "What elements are in the pacs.008 group header?", "expected": ["pacs.008.001.14#FIToFICstmrCdtTrf/GrpHdr#children"]}
-{"question": "Can the ultimate debtor be the same as the debtor?", "expected": ["pacs.008.001.14#rule:UltimateDebtorGuideline"]}
-{"question": "When must intermediary agent 1 be present?", "expected": ["pacs.008.001.14#rule:IntermediaryAgent2Rule", "pacs.008.001.14#rule:IntermediaryAgent1AccountRule"]}
-{"question": "What is the original UETR in a pacs.002?", "expected": ["pacs.002.001.16#FIToFIPmtStsRpt/TxInfAndSts/OrgnlUETR"]}
-{"question": "What does the acceptance date time mean in a status report?", "expected": ["pacs.002.001.16#FIToFIPmtStsRpt/TxInfAndSts/AccptncDtTm"]}
-{"question": "What information does the transaction information and status block of pacs.002 contain?", "expected": ["pacs.002.001.16#FIToFIPmtStsRpt/TxInfAndSts#children"]}
-{"question": "Can a payment status report be sent to the beneficiary in real time payments?", "expected": ["pacs.002.001.16#message:usage"]}
-{"question": "What is the purpose of the payment?", "expected": ["pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/Purp"]}
-{"question": "What is the serial method in pacs.008?", "expected": ["pacs.008.001.14#message:usage"]}
+{"question": "Who is the ultimate creditor in a customer credit transfer?", "expected": ["pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/UltmtCdtr"], "cohort": "original"}
+{"question": "Which settlement methods can a pacs.008 use?", "expected": ["pacs.008.001.14#FIToFICstmrCdtTrf/GrpHdr/SttlmInf/SttlmMtd"], "cohort": "original"}
+{"question": "What is the transaction identification assigned by the first instructing agent?", "expected": ["pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/PmtId/TxId"], "cohort": "original"}
+{"question": "What is the instructed amount in a credit transfer?", "expected": ["pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/InstdAmt"], "cohort": "original"}
+{"question": "What is the exchange rate element used for in pacs.008?", "expected": ["pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/XchgRate"], "cohort": "original"}
+{"question": "When was the message created?", "expected": ["pacs.008.001.14#FIToFICstmrCdtTrf/GrpHdr/CreDtTm", "pacs.002.001.16#FIToFIPmtStsRpt/GrpHdr/CreDtTm"], "cohort": "original"}
+{"question": "What elements are in the pacs.008 group header?", "expected": ["pacs.008.001.14#FIToFICstmrCdtTrf/GrpHdr#children"], "cohort": "original"}
+{"question": "Can the ultimate debtor be the same as the debtor?", "expected": ["pacs.008.001.14#rule:UltimateDebtorGuideline"], "cohort": "original"}
+{"question": "When must intermediary agent 1 be present?", "expected": ["pacs.008.001.14#rule:IntermediaryAgent2Rule", "pacs.008.001.14#rule:IntermediaryAgent1AccountRule"], "cohort": "original"}
+{"question": "What is the original UETR in a pacs.002?", "expected": ["pacs.002.001.16#FIToFIPmtStsRpt/TxInfAndSts/OrgnlUETR"], "cohort": "original"}
+{"question": "What does the acceptance date time mean in a status report?", "expected": ["pacs.002.001.16#FIToFIPmtStsRpt/TxInfAndSts/AccptncDtTm"], "cohort": "original"}
+{"question": "What information does the transaction information and status block of pacs.002 contain?", "expected": ["pacs.002.001.16#FIToFIPmtStsRpt/TxInfAndSts#children"], "cohort": "original"}
+{"question": "Can a payment status report be sent to the beneficiary in real time payments?", "expected": ["pacs.002.001.16#message:usage"], "cohort": "original"}
+{"question": "What is the purpose of the payment?", "expected": ["pacs.008.001.14#FIToFICstmrCdtTrf/CdtTrfTxInf/Purp"], "cohort": "original"}
+{"question": "What is the serial method in pacs.008?", "expected": ["pacs.008.001.14#message:usage"], "cohort": "original"}
+{"question": "What is the requested execution date in pain.001?", "expected": ["pain.001.001.13#CstmrCdtTrfInitn/PmtInf/ReqdExctnDt"], "cohort": "flows-v1"}
+{"question": "What is the creditor in pacs.009?", "expected": ["pacs.009.001.13#FICdtTrf/CdtTrfTxInf/Cdtr"], "cohort": "flows-v1"}
+{"question": "What is the status reason information in pain.002?", "expected": ["pain.002.001.15#CstmrPmtStsRpt/OrgnlPmtInfAndSts/TxInfAndSts/StsRsnInf"], "cohort": "flows-v1"}
+{"question": "Which pacs.004 element holds the original end to end identification?", "expected": ["pacs.004.001.15#PmtRtr/TxInf/OrgnlEndToEndId"], "cohort": "flows-v1"}
+{"question": "How does the cover method move the funds?", "expected": ["flow:cover-method", "pacs.008.001.14#message:usage:2"], "cohort": "flows-v1"}
+{"question": "Which message reports the status of an instruction back to the previous agent?", "expected": ["pacs.002.001.16#message:scope", "flow:serial-credit-transfer", "flow:serial-credit-transfer:2", "flow:fi-credit-transfer"], "cohort": "flows-v1"}
+{"question": "What happens when a settled credit transfer has to be undone?", "expected": ["flow:return", "pacs.004.001.15#message:scope"], "cohort": "flows-v1"}
