@@ -84,7 +84,9 @@ class Generator:
     @classmethod
     def from_env(cls, cache: ResponseCache | None = None) -> Generator:
         """The provider named by LLM_PROVIDER ("anthropic" by default, or "bedrock"), under the spend cap."""
-        return cls(cache=cache, backend=make_backend(), budget=Budget.from_env())
+        from payments_rag.llm.spend_cap import budget_from_env
+
+        return cls(cache=cache, backend=make_backend(), budget=budget_from_env())
 
     @property
     def model(self) -> str:
@@ -100,11 +102,15 @@ class Generator:
         if self.replay_only:
             raise ReplayMissError("replay-only mode: no recorded answer for this question and context")
 
+        reserved = self.budget.check(self.model, request, max_tokens=MAX_OUTPUT_TOKENS) if self.budget else 0.0
+        try:
+            response = self.backend.send(request)
+        except BaseException:
+            if self.budget:
+                self.budget.release(reserved or 0.0)  # a failed call must not eat the budget
+            raise
         if self.budget:
-            self.budget.check(self.model, request, max_tokens=MAX_OUTPUT_TOKENS)
-        response = self.backend.send(request)
-        if self.budget:
-            self.budget.record(self.model, response.usage["input_tokens"], response.usage["output_tokens"])
+            self.budget.record(self.model, response.usage["input_tokens"], response.usage["output_tokens"], reserved=reserved or 0.0)
         result = Generation(
             text=response.text,
             model=response.model,

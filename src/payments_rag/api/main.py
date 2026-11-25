@@ -89,7 +89,12 @@ def _ask(request: AskRequest, service: Service, request_id: str, root: Any) -> d
         root.update(rag__outcome="error", rag__error=type(exc).__name__)
         _record(service, entry_for(None, f"{type(exc).__name__}: {exc}"))
         # Provider errors can name accounts or resources: the caller gets a generic message, the audit log the detail.
-        detail = "the language model is temporarily unavailable" if isinstance(exc, LLMUnavailableError) else str(exc)
+        if isinstance(exc, LLMUnavailableError):
+            detail = "the language model is temporarily unavailable"
+        elif isinstance(exc, BudgetExceededError):
+            detail = "monthly question budget reached; please try again next month"  # no figures or paths
+        else:
+            detail = str(exc)
         raise HTTPException(status_code=503, detail=detail) from exc
     except Exception as exc:
         root.update(rag__outcome="error", rag__error=type(exc).__name__)
