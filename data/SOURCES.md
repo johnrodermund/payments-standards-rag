@@ -18,6 +18,10 @@ e-Repository check (2026-11-20): `https://www.iso20022.org/sites/default/files/m
 
 Conditions that follow from the terms: the project is non-commercial and says so; the README states it is not the official ISO 20022 site; answers quote short extracts and cite the source.
 
+Scope widened (2026-11-25): the same pinned e-Repository file (no new download, same terms) now supplies six messages, each at its latest registered version: pain.001.001.13, pacs.008.001.14, pacs.009.001.13, pacs.002.001.16, pain.002.001.15 and pacs.004.001.15. The extract is `data/processed/iso20022_messages.json` (it replaced `iso20022_pacs.json`).
+
+Project-authored: `data/flows/interbank_flows.json` describes four interbank flows (serial credit transfer, cover method, bank-to-bank transfer, return). It is written for this project from the ISO definitions it cites, not taken from an ISO publication (the e-Repository holds no flow data), and every step cites the ISO chunk ids that back it. It is labelled as a project summary wherever it is shown or cited.
+
 ## Rejected
 
 | Document | Why |
