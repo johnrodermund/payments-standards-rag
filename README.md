@@ -18,6 +18,7 @@ This README states only what has been built and run. What is missing is listed p
 | Spend cap and replay mode for LLM calls | Built and tested |
 | Drift check (retrieval score, answer length, escalation rate over time) | Built; tested by simulation only, **not yet run on real traffic** |
 | Phoenix tracing (OpenTelemetry spans per request) | Built; verified against a local Phoenix container |
+| LangSmith tracing (same spans, over OpenTelemetry) | Built; one synthetic trace verified in LangSmith (run types, nesting, tokens and cost shown). On in the live deployment once its key parameter exists; sends full question, passage and answer text |
 | Async ingest endpoint (`POST /ingest`, job status) | Built; verified against the real database |
 | Container image | Built and run locally: starts healthy, ingests through `POST /ingest`, answers a recorded question in replay-only mode |
 | Serverless AWS stack (CDK: CloudFront, Lambda container, DynamoDB) | **Deployed 2026-11-27** in us-east-2, on OpenAI GPT-6 Luna. Smoke-tested live: page, flows, two cited answers (10.8 s cold, 1.9 s warm), escalation, unsigned POST refused (403), audit chain verified, spend recorded. See [infra/README.md](infra/README.md). Replaces the Fargate stack below |
@@ -265,7 +266,7 @@ uv run python -m payments_rag.evals.rag_eval --judge jev --out evals/results/lat
 uv run python -m payments_rag.security.injection_eval evals/injection_set.jsonl --guard on --out evals/injection/results.json
 ```
 
-To see traces, start Phoenix (`docker compose up -d phoenix`), run the API with `PHOENIX_COLLECTOR_ENDPOINT=http://localhost:6006` set, ask a question and open http://localhost:6006.
+To send traces to LangSmith instead, set `LANGSMITH_TRACING=true` and `LANGSMITH_API_KEY` (optional: `LANGSMITH_PROJECT`, default `payments-assistant`). LangSmith wins if both are configured. To see traces, start Phoenix (`docker compose up -d phoenix`), run the API with `PHOENIX_COLLECTOR_ENDPOINT=http://localhost:6006` set, ask a question and open http://localhost:6006.
 
 The compose `app` service was only verified to serve `/health` at the scaffold stage; running the API through `uv` as above is the path that has been exercised end to end.
 

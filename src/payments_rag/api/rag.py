@@ -94,6 +94,11 @@ def answer_question(
             llm__model_name=gen.model,
             llm__token_count__prompt=usage.get("input_tokens"),
             llm__token_count__completion=usage.get("output_tokens"),
+            # The same facts in the gen_ai names LangSmith uses for the model and cost columns.
+            gen_ai__system=getattr(getattr(generator, "backend", None), "name", None),
+            gen_ai__request__model=gen.model,
+            gen_ai__usage__input_tokens=usage.get("input_tokens"),
+            gen_ai__usage__output_tokens=usage.get("output_tokens"),
             rag__cached=gen.cached,
             rag__stop_reason=gen.stop_reason,
         )

@@ -165,3 +165,18 @@ def test_only_the_verify_function_can_write_the_audit_anchor(default):
 def test_model_calls_time_out_before_the_function_does(default):
     env = api_function(default)["Properties"]["Environment"]["Variables"]
     assert int(env["LLM_TIMEOUT_SECONDS"]) * (int(env["LLM_MAX_RETRIES"]) + 1) < 29
+
+
+def test_langsmith_tracing_is_off_unless_its_key_parameter_is_given(default):
+    env = api_function(default)["Properties"]["Environment"]["Variables"]
+    assert "LANGSMITH_TRACING" not in env and "LANGSMITH_KEY_PARAMETER" not in env
+
+
+def test_langsmith_tracing_reads_its_key_from_ssm():
+    t = synth(langsmith_key_parameter="/payments-rag/langsmith-api-key")
+    env = api_function(t)["Properties"]["Environment"]["Variables"]
+    assert env["LANGSMITH_TRACING"] == "true" and env["LANGSMITH_PROJECT"] == "payments-assistant"
+    assert env["LANGSMITH_KEY_PARAMETER"] == "/payments-rag/langsmith-api-key"
+    assert "LANGSMITH_API_KEY" not in env  # never in the template
+    ssm = json.dumps([s["Resource"] for s in statements(t) if "ssm:GetParameter" in json.dumps(s["Action"])])
+    assert "parameter/payments-rag/langsmith-api-key" in ssm and "parameter/payments-rag/anthropic-api-key" in ssm
