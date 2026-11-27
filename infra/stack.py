@@ -157,9 +157,11 @@ class PaymentsRagStack(Stack):
         forward = cloudfront.OriginRequestPolicy(
             self,
             "Forward",
-            comment="Viewer address for the rate limiter, the body hash OAC needs, content type; never Host",
+            comment="Viewer address for the rate limiter and content type; never Host",
+            # Not x-amz-content-sha256: CloudFront refuses it here, and OAC reads the viewer's body hash itself
+            # when it signs the request to the Function URL.
             header_behavior=cloudfront.OriginRequestHeaderBehavior.allow_list(
-                "CloudFront-Viewer-Address", "x-amz-content-sha256", "Content-Type", "Accept",
+                "CloudFront-Viewer-Address", "Content-Type", "Accept",
             ),
             query_string_behavior=cloudfront.OriginRequestQueryStringBehavior.all(),
             cookie_behavior=cloudfront.OriginRequestCookieBehavior.none(),

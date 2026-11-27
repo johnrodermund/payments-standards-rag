@@ -78,15 +78,16 @@ def test_function_url_requires_iam_so_only_cloudfront_can_call_it(default):
     assert ("lambda:InvokeFunction", "cloudfront.amazonaws.com") in granted
 
 
-def test_cloudfront_is_https_only_uncached_and_forwards_the_viewer_address_and_body_hash(default):
+def test_cloudfront_is_https_only_uncached_and_forwards_the_viewer_address(default):
     (dist,) = default.find_resources("AWS::CloudFront::Distribution").values()
     behavior = dist["Properties"]["DistributionConfig"]["DefaultCacheBehavior"]
     assert behavior["ViewerProtocolPolicy"] == "redirect-to-https"
     assert "POST" in behavior["AllowedMethods"]
     (policy,) = default.find_resources("AWS::CloudFront::OriginRequestPolicy").values()
     headers = {h.lower() for h in policy["Properties"]["OriginRequestPolicyConfig"]["HeadersConfig"]["Headers"]}
-    assert {"cloudfront-viewer-address", "x-amz-content-sha256", "content-type"} <= headers
+    assert {"cloudfront-viewer-address", "content-type"} <= headers
     assert "host" not in headers  # the Function URL rejects a foreign Host header
+    assert "x-amz-content-sha256" not in headers  # CloudFront rejects it in a policy; OAC signs with the viewer's
 
 
 def test_audit_entries_are_append_only_for_the_api(default):
