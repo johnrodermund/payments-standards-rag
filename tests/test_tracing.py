@@ -203,3 +203,84 @@ def test_spans_are_exported_over_http_to_the_traces_path(monkeypatch):
 def test_api_key_is_sent_as_a_bearer_token(monkeypatch):
     seen = collect_one_export(monkeypatch, api_key="test-key-123")
     assert seen[0]["auth"] == "Bearer test-key-123"
+
+
+def test_langsmith_is_off_without_both_settings(monkeypatch):
+    monkeypatch.setenv("LANGSMITH_API_KEY", "lsv2-test")
+    assert tracing.langsmith_settings() is None  # key alone is not enough
+    monkeypatch.delenv("LANGSMITH_API_KEY")
+    monkeypatch.setenv("LANGSMITH_TRACING", "true")
+    assert tracing.langsmith_settings() is None  # switch alone is not enough
+
+
+def test_langsmith_endpoint_and_project_headers(monkeypatch):
+    monkeypatch.setenv("LANGSMITH_TRACING", "true")
+    monkeypatch.setenv("LANGSMITH_API_KEY", "lsv2-test")
+    endpoint, headers = tracing.langsmith_settings()
+    assert endpoint == "https://api.smith.langchain.com/otel"  # the exporter appends /v1/traces
+    assert headers == {"x-api-key": "lsv2-test", "Langsmith-Project": "payments-assistant"}
+
+
+def test_langsmith_agent_headers_replace_the_project_header(monkeypatch):
+    monkeypatch.setenv("LANGSMITH_TRACING", "true")
+    monkeypatch.setenv("LANGSMITH_API_KEY", "lsv2-test")
+    monkeypatch.setenv("LANGSMITH_AGENT_ID", "payments-assistant")
+    monkeypatch.setenv("LANGSMITH_AGENT_ENVIRONMENT", "production")
+    _, headers = tracing.langsmith_settings()
+    assert "Langsmith-Project" not in headers  # LangSmith returns 400 for both together
+    assert headers["Langsmith-Agent-Id"] == "payments-assistant" and headers["Langsmith-Agent-Environment"] == "production"
+
+
+def test_langsmith_exporter_posts_to_the_otel_traces_path(monkeypatch):
+    from opentelemetry.exporter.otlp.proto.http import trace_exporter
+
+    seen = {}
+
+    class FakeExporter(InMemorySpanExporter):
+        def __init__(self, endpoint, headers, timeout):
+            super().__init__()
+            seen.update(endpoint=endpoint, headers=headers)
+
+    monkeypatch.setattr(trace_exporter, "OTLPSpanExporter", FakeExporter)
+    monkeypatch.setenv("LANGSMITH_TRACING", "true")
+    monkeypatch.setenv("LANGSMITH_API_KEY", "lsv2-test")
+    try:
+        assert tracing.setup_tracing() is True
+        assert seen["endpoint"] == "https://api.smith.langchain.com/otel/v1/traces"
+        assert seen["headers"]["x-api-key"] == "lsv2-test"
+    finally:
+        tracing.shutdown_tracing()
+
+
+def test_spans_carry_langsmith_run_types_root_flag_and_gen_ai_usage(spans):
+    ask(make_service())
+    s = by_name(spans)
+    run_types = {n: x.attributes["langsmith.span.kind"] for n, x in s.items()}
+    assert run_types == {"POST /ask": "chain", "retrieve": "retriever", "screen": "chain", "generate": "llm", "output_check": "chain"}
+    assert s["POST /ask"].attributes["langsmith.is_root"] is True
+    llm = s["generate"].attributes
+    assert llm["gen_ai.request.model"] == "claude-haiku-5-5"
+    assert llm["gen_ai.usage.input_tokens"] == 100 and llm["gen_ai.usage.output_tokens"] == 10
+
+
+def test_flush_is_safe_with_tracing_off_and_sends_buffered_spans_when_on():
+    tracing.flush()  # off: no-op
+
+    class Recorder(InMemorySpanExporter):
+        pass
+
+    from opentelemetry.sdk.trace import TracerProvider
+    from opentelemetry.sdk.trace.export import BatchSpanProcessor
+
+    exporter = Recorder()
+    provider = TracerProvider()
+    provider.add_span_processor(BatchSpanProcessor(exporter, schedule_delay_millis=60_000))
+    tracing._provider, tracing._tracer = provider, provider.get_tracer("t")
+    try:
+        with tracing.span("x"):
+            pass
+        assert exporter.get_finished_spans() == ()  # still buffered
+        tracing.flush()
+        assert [x.name for x in exporter.get_finished_spans()] == ["x"]
+    finally:
+        tracing.shutdown_tracing()

@@ -27,6 +27,7 @@ CloudWatch alarms (API crashes, Lambda errors, throttles, audit verify failed, s
   - What this does not stop: IAM cannot force a write to be conditional, so anyone holding the API function's role could rewrite entries added since the last verify. That window is at most a day.
   - The three audit tables, and `Spend`, have deletion protection and point-in-time recovery, and are kept if the stack is deleted.
 - **Spend cap:** `LLM_BUDGET_USD`, $5 per calendar month by default, enforced atomically in the `Spend` table. At 80% the `SpendNearCap` alarm emails you; at 100% visitors see "monthly question budget reached".
+- **Tracing:** with the LangSmith key in place, each question is one LangSmith trace: the request, retrieval (passages and scores), screening, the model call (model, tokens, cost) and the output check. Spans are sent before each invocation ends, because Lambda freezes the function after it responds. Full text goes to LangSmith (a third party), as decided on 2026-11-27; set `TRACE_CONTENT=0` to send only ids, scores, counts and timings.
 - **Rate limit:** 10 questions a minute and 100 a day per visitor, keyed on CloudFront's viewer address (hashed). IPv6 visitors are counted per /64, because one client usually holds a whole /64.
 - **Model call timeout:** 12 s per attempt and one retry, so a slow provider fails inside Lambda's 29 s limit and the question is still logged and its budget reservation returned.
 
@@ -42,6 +43,8 @@ CloudWatch alarms (API crashes, Lambda errors, throttles, audit verify failed, s
 | `memory` | `3008` | MB; more memory also means more CPU for the embedding model |
 | `reserved_concurrency` | unset | optional hard ceiling on parallel invocations. New accounts often have a total of only 10, and AWS refuses a reservation that leaves fewer than 10 unreserved, so leave it unset unless your quota is higher |
 | `alarm_email` | unset | pass at deploy time; never write it into `cdk.json` |
+| `langsmith_key_parameter` | unset in code; `/payments-rag/langsmith-api-key` in `cdk.json` | SSM SecureString holding a LangSmith API key. Set: every question is traced to LangSmith **with its full text** (question, passages, answer). If the parameter is missing, the app runs with tracing off |
+| `langsmith_project` | `payments-assistant` | LangSmith project the traces land in |
 
 ## Before the first deploy (John, in the consoles)
 
@@ -55,7 +58,8 @@ CloudWatch alarms (API crashes, Lambda errors, throttles, audit verify failed, s
    - Check the prefix: OpenAI keys start with `sk-proj-`, Anthropic keys with `sk-ant-api03-`. The wrong one fails with `invalid x-api-key`.
    - Paste it in the console, not in a shell command, so it never lands in shell history.
    - For Anthropic (`-c llm_provider=anthropic`), create `/payments-rag/anthropic-api-key` instead.
-4. **Sign in:** `aws login` with the `payments-rag` profile, and keep Docker Desktop running: the deploy builds the image.
+4. **LangSmith (optional):** create `/payments-rag/langsmith-api-key` the same way, with a LangSmith API key (starts with `lsv2_`). Leave it out to run without tracing.
+5. **Sign in:** `aws login` with the `payments-rag` profile, and keep Docker Desktop running: the deploy builds the image.
 
 ## Commands
 

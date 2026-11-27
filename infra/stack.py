@@ -63,6 +63,8 @@ def settings(scope: Construct) -> dict[str, str]:
         "memory": pick("memory", "3008"),
         "reserved_concurrency": pick("reserved_concurrency", ""),
         "alarm_email": pick("alarm_email", ""),
+        "langsmith_key_parameter": pick("langsmith_key_parameter", ""),  # empty: LangSmith tracing off
+        "langsmith_project": pick("langsmith_project", "payments-assistant"),
     }
 
 
@@ -111,6 +113,12 @@ class PaymentsRagStack(Stack):
             "LLM_TIMEOUT_SECONDS": "12",
             "LLM_MAX_RETRIES": "1",
         }
+        if cfg["langsmith_key_parameter"]:  # full question, passage and answer text goes to LangSmith
+            environment |= {
+                "LANGSMITH_TRACING": "true",
+                "LANGSMITH_KEY_PARAMETER": cfg["langsmith_key_parameter"],
+                "LANGSMITH_PROJECT": cfg["langsmith_project"],
+            }
         image_args = {"directory": "..", "file": "Dockerfile.lambda"}  # the repository root; honours .dockerignore
         reserved = int(cfg["reserved_concurrency"]) if cfg["reserved_concurrency"] else None
 
@@ -141,9 +149,10 @@ class PaymentsRagStack(Stack):
         api.add_to_role_policy(iam.PolicyStatement(actions=["dynamodb:PutItem"], resources=[audit_entries.table_arn]))
         api.add_to_role_policy(iam.PolicyStatement(actions=["dynamodb:GetItem", "dynamodb:UpdateItem"], resources=[audit_head.table_arn]))
         api.add_to_role_policy(iam.PolicyStatement(actions=["dynamodb:UpdateItem"], resources=[spend.table_arn, rate_limits.table_arn]))
+        secret_parameters = [cfg["api_key_parameter"]] + ([cfg["langsmith_key_parameter"]] if cfg["langsmith_key_parameter"] else [])
         api.add_to_role_policy(iam.PolicyStatement(
             actions=["ssm:GetParameter"],
-            resources=[f"arn:aws:ssm:{self.region}:{self.account}:parameter{cfg['api_key_parameter']}"],
+            resources=[f"arn:aws:ssm:{self.region}:{self.account}:parameter{name}" for name in secret_parameters],
         ))
         api.add_to_role_policy(iam.PolicyStatement(  # SecureString with the AWS-managed aws/ssm key
             actions=["kms:Decrypt"], resources=["*"],

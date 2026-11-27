@@ -80,7 +80,7 @@ def rate_limit(http_request: Request) -> None:
 @app.post("/ask", dependencies=[Depends(rate_limit)])
 def ask(request: AskRequest, service: Annotated[Service, Depends(get_service)]) -> dict[str, Any]:
     request_id = str(uuid.uuid4())
-    with span("POST /ask", "CHAIN", rag__request_id=request_id) as root:
+    with span("POST /ask", "CHAIN", rag__request_id=request_id, langsmith__is_root=True) as root:
         root.content("input.value", request.question)
         return _ask(request, service, request_id, root)
 

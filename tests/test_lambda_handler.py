@@ -94,3 +94,34 @@ def test_verify_handler_moves_the_anchor(aws, monkeypatch):
     DynamoAuditLog("entries", "head", client=client).record({"request_id": "r1", "outcome": "answered", "question": "q"})
     assert verify_handler({}, None)["ok"] is True
     assert client.get_item(TableName="anchor", Key={"pk": {"S": "anchor"}})["Item"]["seq"]["N"] == "1"
+
+
+def test_langsmith_key_is_read_from_ssm(aws, monkeypatch):
+    import os
+
+    from payments_rag.api.lambda_handler import load_langsmith_key
+
+    boto3.client("ssm", region_name=REGION).put_parameter(
+        Name="/payments-rag/langsmith-api-key", Value="lsv2-test-value\n", Type="SecureString")
+    monkeypatch.delenv("LANGSMITH_API_KEY", raising=False)
+    monkeypatch.setenv("LANGSMITH_KEY_PARAMETER", "/payments-rag/langsmith-api-key")
+    load_langsmith_key()
+    assert os.environ["LANGSMITH_API_KEY"] == "lsv2-test-value"  # stray whitespace from a paste is dropped
+
+
+def test_a_missing_langsmith_key_never_stops_the_app(aws, monkeypatch, capsys):
+    from payments_rag.api.lambda_handler import load_langsmith_key
+
+    monkeypatch.delenv("LANGSMITH_API_KEY", raising=False)
+    monkeypatch.setenv("LANGSMITH_KEY_PARAMETER", "/payments-rag/does-not-exist")
+    load_langsmith_key()
+    assert "tracing off" in capsys.readouterr().out
+
+
+def test_handler_flushes_traces_after_every_invocation(monkeypatch):
+    from payments_rag.api import lambda_handler
+
+    calls = []
+    monkeypatch.setattr(lambda_handler, "flush", lambda: calls.append("flush"))
+    out = lambda_handler.handler(url_event("GET", "/health"), None)
+    assert out["statusCode"] == 200 and calls == ["flush"]
