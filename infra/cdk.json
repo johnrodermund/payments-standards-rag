@@ -1,6 +1,7 @@
 {
   "app": "uv run python app.py",
   "context": {
+    "llm_provider": "openai",
     "@aws-cdk/aws-iam:minimizePolicies": true,
     "@aws-cdk/core:checkSecretUsage": true,
     "@aws-cdk/aws-ecs:enableImdsBlockingDeprecatedFeature": true

@@ -34,7 +34,7 @@ CloudWatch alarms (API crashes, Lambda errors, throttles, audit verify failed, s
 
 | Key | Default | Notes |
 |---|---|---|
-| `llm_provider` | `anthropic` | or `openai` (see the comparison in `docs/model-comparison-2026-11-25.md`) |
+| `llm_provider` | `anthropic` in code; **`openai` in `cdk.json`** (the live deployment) | `openai` runs GPT-6 Luna (see `docs/model-comparison-2026-11-25.md`) |
 | `model` | `claude-haiku-5-5` / `gpt-6-luna` | per provider |
 | `api_key_parameter` | `/payments-rag/anthropic-api-key` / `/payments-rag/openai-api-key` | SSM SecureString name |
 | `llm_budget_usd` | `5` | monthly cap; the alarm fires at 80% |
@@ -48,12 +48,13 @@ CloudWatch alarms (API crashes, Lambda errors, throttles, audit verify failed, s
 1. **AWS Billing:**
    - Check the plan. On the Free plan, the account closes after 6 months or when the credits run out, and its data is erased 90 days after that. Upgrade before then to keep it.
    - Create a **Budget** of about $20/month with email alerts.
-2. **Anthropic Console:**
-   - Create a workspace for this service, an API key in it, and a monthly spend limit (for example $10, above the app's $5 cap, so the app's own message shows first).
+2. **Model provider console** (OpenAI for the live deployment):
+   - Create a project (OpenAI) or workspace (Anthropic) for this service, an API key in it, and a monthly spend limit (for example $10, above the app's $5 cap, so the app's own message shows first).
 3. **AWS Systems Manager → Parameter Store** (us-east-2):
-   - Create `/payments-rag/anthropic-api-key`, type **SecureString**, key **aws/ssm**, value: that API key.
+   - Create `/payments-rag/openai-api-key` (the live provider), type **SecureString**, key source **My current account**, key **alias/aws/ssm**, data type **text**, value: the API key only.
+   - Check the prefix: OpenAI keys start with `sk-proj-`, Anthropic keys with `sk-ant-api03-`. The wrong one fails with `invalid x-api-key`.
    - Paste it in the console, not in a shell command, so it never lands in shell history.
-   - For OpenAI, create `/payments-rag/openai-api-key` instead.
+   - For Anthropic (`-c llm_provider=anthropic`), create `/payments-rag/anthropic-api-key` instead.
 4. **Sign in:** `aws login` with the `payments-rag` profile, and keep Docker Desktop running: the deploy builds the image.
 
 ## Commands
